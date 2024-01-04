@@ -1485,7 +1485,7 @@ class RoomEditor {
 
     setRoomPlan(roomPlanImg) {
         if(!this.world) {
-            this.world = new World(editorContainer);
+            this.world = new World(this.editorContainer);
             this.world.applyTransform();
 
             const roomPlan = new RoomPlan(roomPlanImg);
@@ -1540,7 +1540,7 @@ class RoomEditor {
         const serializedData = JSON.parse(jsonString);
 
         // Deserialize the world
-        const world = new World(editorContainer);
+        const world = new World(this.editorContainer);
         world.x = serializedData.world.x;
         world.y = serializedData.world.y;
         world.scale = serializedData.world.scale;
