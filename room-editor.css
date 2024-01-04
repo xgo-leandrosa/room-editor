@@ -1,0 +1,207 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    /* Prevent scrolling */    
+}
+
+:root {
+  font-family: Inter, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */
+}
+@supports (font-variation-settings: normal) {
+  :root { font-family: InterVariable, sans-serif; }
+}
+
+#editorContainer {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.table {
+    position: absolute;
+    background-color: rgba(235, 238, 99, 0);
+}
+
+.tableSelected {
+    background-color: rgba(235, 238, 99, 0.40);
+    border: 1px dashed #BDBDBD80
+    /*animation: selectedChangeColor .5s infinite alternate;*/
+}
+
+.tableDanger {
+    background-color: rgba(255, 0, 0, 0.16);
+    border: 1px dashed rgba(255, 0, 0, 0.48);
+}
+
+.table-draw {
+    position: absolute;
+    background-color: #D6D6D6;
+;
+}
+
+.table-draw--selected {
+    background-color: #B6D7A8;
+}
+
+.tableNumeration {
+    font-size: 42px;
+    text-align: center;
+    cursor: default;
+    position: absolute;
+}
+
+.seat {
+    position: absolute;
+    border-radius: 4px 4px 0px 0px;
+    background: red;
+    font-weight: 700;
+}
+
+.seat--filled {
+    background: #B6D7A8;
+    color: #5A5A5A;
+}
+
+.seat--couple--filled {
+    background: #D1BB80;
+    color: #FFFFFF;
+}
+
+.seat--selected {
+    background: #44911B;
+    color: #FFFFFF;
+}
+
+.seat--couple--selected {
+    background: #BC9922;
+    color: #FFFFFF;
+}
+
+.seat:hover {
+    background: linear-gradient(0deg, #93C47E, #93C47E), linear-gradient(0deg, #FFFFFF, #FFFFFF);
+    color: #FFFFFF;
+}
+.seat:hover .seatNumeration {
+    background: linear-gradient(0deg, #93C47E, #93C47E), linear-gradient(0deg, #FFFFFF, #FFFFFF);
+    color: #FFFFFF;
+}
+
+.seat--couple:hover {
+    background: linear-gradient(0deg, #E4C868, #E4C868), linear-gradient(0deg, #EAD190, #EAD190);
+    border: 1px solid #EAD190;
+    color: #FFFFFF;
+}
+.seat--couple:hover .seatNumeration {
+    background: linear-gradient(0deg, #E4C868, #E4C868), linear-gradient(0deg, #EAD190, #EAD190);
+    border: 1px solid #EAD190;
+    color: #FFFFFF;
+}
+
+.seat--rem {
+    border-top: 1px;
+    border-right: 1px;
+    border-bottom: 0px;
+    border-left: 1px;
+    border-style: solid;
+    border-color: #B6D7A8;
+    background: #FFFFFF;
+    color: #5A5A5A;
+
+}
+
+.seatNumeration {
+    text-align: center;
+    margin-top: 6px;
+    cursor: default;
+}
+
+.roomPlan {
+    position: absolute;
+}
+
+#toolbox {
+    width: 100vw;
+    height: 40px;
+    /* background: #575757; */
+    background-color: rgb(87, 87, 87, 0.85);
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: 999;
+    display: block;
+}
+
+#guestTableChooser {
+    width: 50%;
+    border: 1px solid white;
+}
+
+.guestTableChooserItem {
+    height: 100%;
+    border: 1px solid white;
+}
+
+@keyframes selectedChangeColor {
+    from {
+        background-color: rgba(0, 0, 0, 0.08);
+    }
+    to {
+        background-color: rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* BEGIN CONTEXT MENU*/
+
+ul {
+    list-style: none;
+}
+
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgb(64 64 64 / 5%);
+    padding: 10px 0;
+    margin: 0;
+}
+
+.menu>li>a {
+    box-sizing: border-box;
+    font: inherit;
+    border: 0;
+    padding: 10px 30px 10px 15px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    text-decoration: unset;
+    color: #000;
+    font-weight: 500;
+    transition: 0.5s linear;
+    -webkit-transition: 0.5s linear;
+    -moz-transition: 0.5s linear;
+    -ms-transition: 0.5s linear;
+    -o-transition: 0.5s linear;
+}
+
+.menu>li>a:hover {
+    background: #f1f3f7;
+    color: #4b00ff;
+}
+
+.menu>li>a>i {
+    padding-right: 10px;
+}
+
+.menu>li.trash>a:hover {
+    color: red;
+}
+
+/* END CONTEXT MENU */

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Editor</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://unpkg.com/popper.js@1"></script>
+    <script src="https://unpkg.com/tippy.js@4"></script>
+
+    <!-- HTML in your document's head -->
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+    <link rel="stylesheet" href="room-editor.css">
+    <script src="room-editor.js"></script>
+
+    <style>
+        #editorContainer  {
+            margin-left: 600px;
+            margin-top: 200px;
+            width: 900px;
+            height: 600px;
+            border: red solid 1px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="editorContainer">
+        <!-- Your editor content will go here -->
+    </div>
+
+    <!--
+    <div id="toolbox" class="ui">
+        <div id="coupleTableChooser" class="ui">
+            <div class="ui coupleTableChooserItem" data-tableType="CoupleRoundTable">
+                Redonda
+            </div>
+            <div class="ui coupleTableChooserItem" data-tableType="CoupleOvalSTable">
+                Oval S
+            </div>
+            <div class="ui coupleTableChooserItem" data-tableType="CoupleOvalMTable">
+                Oval M
+            </div>
+            <div class="ui coupleTableChooserItem" data-tableType="CoupleOvalLTable">
+                Oval L
+            </div>
+            <div class="ui coupleTableChooserItem" data-tableType="CoupleForestSTable">
+                Forest S
+            </div>
+            <div class="ui coupleTableChooserItem" data-tableType="CoupleForestMTable">
+                Forest M
+            </div>
+        </div>
+        <div id="guestTableChooser" class="ui">
+            <div class="ui guestTableChooserItem" data-tableType="SquareTable">
+                Quadrada
+            </div>
+            <div class="ui guestTableChooserItem" data-tableType="RoundTable">
+                Redonda
+            </div>
+            <div class="ui guestTableChooserItem" data-tableType="RectangularTable">
+                Rectangular
+            </div>
+
+
+        </div>
+        <div>
+            <button onclick="deserializeEditor()">Load</button>
+            <button onclick="serializeEditor()">Save</button>
+        </div>
+        <div id="mouseInfo">
+            Mouse:
+            <div id="mousePosition">X: 0px Y: 0px</div>
+            World position:
+            <div id="worldPosition">X: 0px Y: 0px</div>
+            Mouse to worl:
+            <div id="mouseWorlPosition">X: 0px Y: 0px</div>
+        </div>
+    </div>-->
+
+    <script>
+
+        const roomEditor = new RoomEditor("editorContainer");
+        
+        
+
+    </script>
+
+</body>
+
+</html>
