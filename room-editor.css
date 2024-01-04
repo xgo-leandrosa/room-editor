@@ -12,12 +12,6 @@ body {
   :root { font-family: InterVariable, sans-serif; }
 }
 
-#editorContainer {
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-}
-
 .table {
     position: absolute;
     background-color: rgba(235, 238, 99, 0);

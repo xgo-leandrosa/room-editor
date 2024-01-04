@@ -1465,6 +1465,7 @@ class RoomEditor {
         idOfElement,
         ) {
         this.editorContainerElement = document.getElementById(idOfElement);
+        this.editorContainerElement.style.overflow = "hidden";
 
         /*const savedWorld = localStorage.getItem('savedWorld');
         if (savedWorld) {
