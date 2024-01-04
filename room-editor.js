@@ -1483,6 +1483,21 @@ class RoomEditor {
         this.mouseManager = new MouseManager(this.world, this.editorContainerElement);
     }
 
+    setRoomPlan(roomPlanImg) {
+        if(!this.world) {
+            this.world = new World(editorContainer);
+            this.world.applyTransform();
+
+            const roomPlan = new RoomPlan(roomPlanImg);
+            this.world.setRoomPlan(roomPlan);
+            roomPlan.applyTransform();
+
+            this.mouseManager.world = this.world;
+        } else {
+            this.world.roomPlan.updateImageSrc(roomPlanImg)
+        }
+    }
+
     serializeEditor() {
         const serializedData = {
             world: {
@@ -1558,4 +1573,8 @@ class RoomEditor {
 
         return world;
     }
+}
+
+if(!window.RoomEditor) {
+    window.RoomEditor = RoomEditor;
 }
