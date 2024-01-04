@@ -1203,6 +1203,7 @@ class Seat extends RoomObject {
 
 class MouseManager {
     selectedObject = null;
+    editorContainerElement=null;
 
     constructor(world, editorContainerElement) {
         this.initializeContextMenu();
@@ -1219,6 +1220,7 @@ class MouseManager {
         editorContainerElement.addEventListener('mouseup', this.handleMouseUp.bind(this));
         editorContainerElement.addEventListener('contextmenu', this.handleContextMenu.bind(this));
         editorContainerElement.addEventListener('wheel', this.handleMouseWheel.bind(this));
+        this.editorContainerElement = editorContainerElement;
         /*document.addEventListener('mousedown', this.handleMouseDown.bind(this));
         document.addEventListener('mousemove', this.handleMouseMove.bind(this));
         document.addEventListener('mouseup', this.handleMouseUp.bind(this));
@@ -1260,7 +1262,7 @@ class MouseManager {
     }
 
     getFocalPosition(event, deltaScale = 1) {
-        const editorRect = editorContainer.getBoundingClientRect();
+        const editorRect = this.editorContainerElement.getBoundingClientRect();
         const roomPlan = document.getElementsByClassName("roomPlan")[0].getBoundingClientRect();
 
         // Calculate the middle point of the editor container
@@ -1286,7 +1288,7 @@ class MouseManager {
     }
 
     getWorldPosition(event) {
-        const editorRect = editorContainer.getBoundingClientRect();
+        const editorRect = this.editorContainerElement.getBoundingClientRect();
         const roomPlanRect = document.getElementsByClassName("roomPlan")[0].getBoundingClientRect()
         let x = (event.clientX - editorRect.left - (roomPlanRect.left)) / this.world.scale;
         let y = (event.clientY - editorRect.top - (roomPlanRect.top)) / this.world.scale;
