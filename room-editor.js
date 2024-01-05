@@ -1346,6 +1346,7 @@ class MouseManager {
         this.editorContainerElement.appendChild(ui1);
         this.editorContainerElement.appendChild(ui2);
 
+        $(document).ready(() => {
         
             $('.js-example-basic-multiple').select2({
                 minimumResultsForSearch: -1,
@@ -1395,6 +1396,8 @@ class MouseManager {
                 this.selectedObject.setSelected();
                 
             })
+
+        });
     }
 
     initializeContextMenu() {
