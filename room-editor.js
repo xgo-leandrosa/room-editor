@@ -2155,6 +2155,7 @@ class RoomEditor {
                 x: table.x,
                 y: table.y,
                 scale: table.scale,
+                rotate: table.rotate,
                 tableType: table.tableType,
                 code: table.code,
                 couple: table.couple,
