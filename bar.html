@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        .ant-row {
+            margin-left: -6px;
+            margin-right: -6px;
+            position: relative;
+            height: auto;
+            margin-right: 0;
+            margin-left: 0;
+            zoom: 1;
+            display: block;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .ant-row .input {
+            margin-right: 16px;
+            display: grid;
+            color: rgba(0, 0, 0, 0.65) !important;
+        }
+
+        .tables .ant-btn:last-child {
+            margin-right: 0;
+        }
+
+        .ant-btn {
+            line-height: 1.5;
+            font-weight: 400;
+            white-space: nowrap;
+            text-align: center;
+            border: 1px solid #d9d9d9;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            user-select: none;
+            touch-action: manipulation;
+            height: 32px;
+            padding: 0 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            color: rgba(0, 0, 0, 0.65);
+            background-color: #fff;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .ant-btn-primary {
+            color: #fff;
+            background-color: #bc9222;
+            border-color: #bc9222;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+            -webkit-box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+        }
+
+        .ant-btn-primary i {
+            margin-right: 4px;
+        }
+
+        .table {
+            width: 25px;
+            height: 25px;
+            background-repeat: no-repeat;
+            object-fit: cover;
+            background-position: center;
+            margin-right: 4px;
+        }
+
+        .round-table {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABIDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+vbWvi/8AE34/+F2+HPg74c6DHcfEfw14f8ZWuqW/xIvjpnhb4dT+K1tNY0L4xTW/hCx1Lwj4o8S2eja34U/4RnwkPGV99tHimylubNPCt5f3YBseFr34mfs6Xdx4Nj+Engo6J8T/AIhJP8O7Twh49uNC+EXgCVvBemrq3hbUbrVfB41fwc+v6n4X1vxLoFhovhHUvDOp6/4gutNN/pOrXsQ1IA9f8N/tL+DfEHh3QNebQvGdo2t6LpWrta23h671e3tm1KxgvDbwatp6yWGqQwmby4tRsXezvUVbm2doZUJAPmn4K/HLwJ4Y+J/xE8U+Nr/wF4MtfjRaeGPFOp/2Ggtrf4T+K9Hm1bw7P8P/AI7a1572fhjx3qds9hfQ6p4ii8N2OseJU8XaHbwm60ywu9fAOt/aZ+MXwl+InhLT/hhoPjz4davba5408E3vizxnqbweK/hT4A0nwl4gtPHo/wCFhazp93F4bjl8Uy+FE8K6Z4Q1DxJo+q+IhrM4tmjtILmdQD17wZ8YvGWo+DvCeoJ8DPFFsl/4a0K8S20drS00m3W60u1nWDS7TUIrC/tdOiDiOyt76wsryG2WKO5tLaZXhQA7P4+6RZ6l8HfiIZg0b6doTeK7eWARK7av4KntvFehvP5kUqTwJquh2AuYJUZZ7RZbbKB9ygHj/wCxD4mu/iP8GW+MWs2emad4l+LfiW98T+IdO0G1bT/DmnXWi6Vo3gLT7Hw/p0s13c2enR6L4Q02aRL2/wBSvJtRuL+5kvWimgt7YA+w6AD/2Q==');
+        }
+
+        .oval-table {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABcDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+vy68O+NvG/xl1L4v/CvwbpXig+G/iUkWnePPHHii68BW994U8P8AgC8+Hfin4Y+B7nT9B8c6xrHgqTxu2q+L77WLvRdC8N6r4jXzdJs9dbT7PxIgBP4d+GH7Qnh/4my/FKL4a/CCTxDqPiHx3qHiK+j+Mvie31TxF4c8S2+nweF/CWqamPgo8t1pXgUabbto0NzHPZwyG4n0+y0ue9vXuAA+Eega38HvijY6n8VtBsPBWrfEDSPG+mat4z0PxCvibwb8RfFl94pu/iDop8WeJr+38M6xp3ivwp4Xh8RaN4dXX/Cr6dd6ELnT9E8R262Vt4eAB3fwo+KngT4L/D/wv8Jfi94k0f4aeJ/htpdh4FWXxnfQaDpXjTT/AA/bR6fo3jHwvr2orY6X4kg8T6XBa6tqK2E0mo6XrVxqWl6xa219aS+YAeiD9qH9m8ttHx3+EpYsyhR4/wDDJYsgBdcf2lncgILDqoIJxQB4v8cNZ8OftV+DW+C3wc8SWPidfEOoWOoeJviJ4feTU/B/gTSdAeTWreWXxLYrJpd/r+t6zp+neHrXw9pV5darHZajqeqX0FrY2DNOAcf8Rdbu7P8Abn+GPwxiWBvDvxF0zS/irrs0iOdUt/Efws0fxXp3h620y5WRLeDSLuKSObWLa5s7y7uJ7WA2d9p8LXMNwAP+HGr3Vx+3J8SPhW4iHhn4ceH/ABD8XfD8ioRqkvij4st4Ts/EttqV0XMNzo1qLi9uNGtYbW1u7ae/n+2X+oQRWUFoAQ/sZaxe698UP2gtBvzGbL4B60nwT8ENDH5dxceEh4o8WeIGu9ffLJf69JcxWls15aR6fZCzs4Vj01LmS7urkAD/2Q==');
+        }
+
+        .square-table {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABYDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+0v8AaMvtS8W6j8PfhF4Y8P6B43ufEOu3Pi3xZ4b1zxWug6JqXhL4d3mgXeqeG9fSDSNfe9t9cvte0gNpd9pz6beQWV1FqEdxbsbaUA+YL74G/HXRtM1jWtS+HPgC5/4QfShc/CG4/wCFtatNP8IbLRvi78SviSw8JpJ4BItpz4B1/wAD/DPfaNZyz6L4CtrOaV9HvjpUIB+kngzxZpfjfwxoPifSpI/s+uaLpGs/ZBc29zcaeNX0+31COzvDbSSIl1Ak4jlXIG9G28UAfB+j+CtE/Zc+KfwevPG2rfDTT/Ccfgv4meEbTx9pPgC88K+LfEesXFx4BudOPxL8Qx6xrsHifxZrcVnqF898sOnPq+rQ65qsdpAbt7O1APcvGP7UX7Pt94P8ZWln8VfC1zc/8I3rlqYIZ7l5EuLiDVNJghkUWv7uSXVLO801Fk2lr60urQfv7eZEAMX9mn4Iar4Kt/BnjnWbXwD4bvR8I9J8KHw18P8A4f3Xge4vW1NPC+r3GpfES5utc1B/EnibRpdEFhpkjaXpTaS+q+KpCZjrbW9iAdn+1Ze3GgfBjXfHWnOI9d+Gup+HfHvh1pEWW0bWdD1m0SGDUbdh/pOnXdteXdpeQxyW9wYZ2ktLu0uo4bmIA+CtVvb7Qtd/Zh8N2l5JLafth6fpk3xcurmK1e9jlX4q+JPjpJJ4TaK3htdFM/iz4xeNdMlW5tNURfDdxp9pAkOqafFrDAH7BUAA/9k=');
+        }
+
+        .rectangular-table {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABcDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+trwl4f8Ajj8TfEfgv9pvR/hp8MIbzxZe+DPiN4Um1T4yeJYvEOk/CzW/g9BojfC6e6g+Dt1BbaZqeuaxc+PNUtLYz6V/wkEke+zvL2ys9bhAOq8PfDH9oXQPidL8Uk+G3whl8Raj4g8dX3iG/T4zeJ4NV8ReG/Eltp1t4W8I6pqf/ClJJbnSfAa6ZbHRYLiOezgfz5tPstLmvb15wDzPUJvi1+yZaa/8fPFvwz8AanYtpetab8SZPDPxc1+fxD421zxl8TLPVPCXiHU01L4VWVtqd34Qt9XvPC1k9/eNcWmhXjQ6dPbafa2+jKAez/s7/tF/APw/+z/8C9A1z4z/AAx0fXNF+D3wv0fWNI1Lxt4estS0vVrHwTolpe6bf2Vxfx3FpfWt1BNb3FrPGk0U0UkboHRgAD2MftQ/s3lto+O/wlLFmUKPH/hksWQAuuP7SzuQEFh1UEE4oA+Sf24fjn8GfH37NXjrwt4H+KngDxf4k1K78IS6foPhvxXoutavexWXjLQ7y8ktdP0+8uLqeO1tba4uLh44mWKGCWRyqoxABvfEXW7uz/bn+GPwxiWBvDvxF0zS/irrs0iOdUt/Efws0fxXp3h620y5WRLeDSLuKSObWLa5s7y7uJ7WA2d9p8LXMNwAP+HGr3Vx+3J8SPhW4iHhn4ceH/EPxd8PyKhGqS+KPiy3hOz8S22pXRcw3OjWouL240a1htbW7tp7+f7Zf6hBFZQWgBD+xlrF7r3xQ/aC0G/MZsvgHrSfBPwQ0Mfl3Fx4SHijxZ4ga7198sl/r0lzFaWzXlpHp9kLOzhWPTUuZLu6uQD/2Q==');
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: rgba(0, 0, 0, 0.65) !important;
+            line-height: 1.5;
+        }
+
+        .select2-container--default .select2-selection--single {
+            background-color: #fff;
+            border: 1px solid #d9d9d9 !important;
+            border-radius: 4px;
+        }
+
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: #fcfbed !important;
+        }
+
+        .select2-container--default .select2-results__option--selected {
+            color: #bc9222;
+            font-weight: 600;
+            background-color: #fcfbed !important;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: rgba(0, 0, 0, 0.65);
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 22px;
+            white-space: nowrap;
+        }
+
+        .pax {
+            margin-left: 8px;
+            font-size: 11px;
+        }
+
+        .pax i {
+            font-size: 12px;
+        }
+
+        .types {
+            display: inline-flex;
+            align-items: center;
+            align-content: center;
+            height: 32px;
+        }
+
+        .tables .ant-radio {
+            margin-right: 0;
+        }
+
+        .ant-radio {
+            display: inline-flex;
+            align-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        input[type=radio] {
+            /* remove standard background appearance */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            /* create custom radiobutton appearance */
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            padding: 1px;
+            /* background-color only for content */
+            background-clip: content-box;
+            border: 1px solid #bc9222;
+            background-color: #fff;
+            border-radius: 50%;
+            margin: 0 3px 0 0;
+        }
+
+        input[type="radio"]:checked {
+            background-color: #bc9222;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #bc9222;
+            text-transform: uppercase;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+
+<body>
+</body>
+<div class="ant-row" style="justify-content: space-between;">
+    <div style="display: inline-flex;">
+        <div class="input" style="width: 180px;">
+            <label>Mesa dos noivos:</label>
+            <select class="js-example-basic-multiple">
+                <option title="round-table" value="ovals" pax="14">Redonda</option>
+                <option title="square-table" value="square" pax="14">Quadrada</option>
+                <option title="rectangular-table" value="forestS">Forest S</option>
+                <option title="rectangular-table" value="forestM">Forest M</option>
+            </select>
+        </div>
+
+        <div class="input">
+            <label>Tipo:</label>
+            <div class="types">
+                <div class="ant-radio">
+                    <input type="radio" id="guest" name="contact" value="guest">
+                    <span for="contactChoice1">Convidados</span>
+                </div>
+
+                <div class="ant-radio">
+                    <input type="radio" id="staff" name="contact" value="staff">
+                    <span for="contactChoice1">Staff</span>
+                </div>
+
+                <div class="ant-radio">
+                    <input type="radio" id="children" name="contact" value="children">
+                    <span for="contactChoice1">Crianças</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="ant-btn ant-btn-primary">
+        <i class="fas fa-undo"></i>
+        Retroceder
+    </button>
+</div>
+<div class="ant-row" style="margin-top: 10px;">
+    <div class="input">
+        <label>Mesas:</label>
+        <div class="tables" style="margin-top: 2px">
+            <button class="ant-btn">
+                <div class="table round-table"></div>
+                Redonda
+                <div class="pax">
+                    <i class="fa-regular fa-user"></i>14 pax
+                </div>
+            </button>
+            <button class="ant-btn">
+                <div class="table oval-table"></div>
+                Oval
+                <div class="pax">
+                    <i class="fa-regular fa-user"></i>14 pax
+                </div>
+            </button>
+            <button class="ant-btn">
+                <div class="table square-table"></div>
+                Quadrada
+                <div class="pax">
+                    <i class="fa-regular fa-user"></i>14 pax
+                </div>
+            </button>
+            <button class="ant-btn">
+                <div class="table rectangular-table"></div>
+                Retangular
+                <div class="pax">
+                    <i class="fa-regular fa-user"></i>14 pax
+                </div>
+            </button>
+            <button class="ant-btn">
+                <div class="table rectangular-table"></div>
+                Retangular Aumento
+                <div class="pax">
+                    <i class="fa-regular fa-user"></i>14 pax
+                </div>
+            </button>
+            <button class="ant-btn">
+                <div class="table rectangular-table"></div>
+                Forest
+                <div class="pax">
+                    <i class="fa-regular fa-user"></i>14 pax
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.js-example-basic-multiple').select2({
+            minimumResultsForSearch: -1,
+            templateResult: function (table) {
+                var $span = $(`
+                <span class="option">
+                    <div style="display: inline-flex">
+                        <div class="table ${table?.title}"></div>
+                        ${table.text}
+                    </div>
+                    <div class="pax">
+                        <i class="fa-regular fa-user"></i>
+                        14pax
+                    </div>
+                </span>`);
+                return $span;
+            }
+        });
+    });
+</script>
+
+</html>

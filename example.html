@@ -27,6 +27,16 @@
         }
     </style>
 
+
+<style>
+    
+</style>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 </head>
 
 <body>
@@ -82,6 +92,30 @@
             <div id="mouseWorlPosition">X: 0px Y: 0px</div>
         </div>
     </div>-->
+
+
+    <script>
+        $(document).ready(function () {
+            $('.js-example-basic-multiple').select2({
+                minimumResultsForSearch: -1,
+                templateResult: function (table) {
+                    var $span = $(`
+                    <span class="option">
+                        <div style="display: inline-flex">
+                            <div class="table_ui ${table?.title}"></div>
+                            ${table.text}
+                        </div>
+                        <div class="pax">
+                            <i class="fa-regular fa-user"></i>
+                            14pax
+                        </div>
+                    </span>`);
+                    return $span;
+                }
+            });
+        });
+    </script>
+    
 
     <script>
 

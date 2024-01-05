@@ -1206,8 +1206,11 @@ class MouseManager {
     editorContainerElement=null;
 
     constructor(world, editorContainerElement) {
+        this.editorContainerElement = editorContainerElement;
         this.initializeContextMenu();
-        this.world = world;
+        this.initializeUi();
+        this.setBindings();
+        
         this.lastX = 0;
         this.lastY = 0;
         this.dragging = false;
@@ -1215,17 +1218,128 @@ class MouseManager {
         this.contextMenuVisible = false;
         this.contextMenuElement = document.getElementById("contextMenu");
 
-        editorContainerElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        editorContainerElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
-        editorContainerElement.addEventListener('mouseup', this.handleMouseUp.bind(this));
-        editorContainerElement.addEventListener('contextmenu', this.handleContextMenu.bind(this));
-        editorContainerElement.addEventListener('wheel', this.handleMouseWheel.bind(this));
-        this.editorContainerElement = editorContainerElement;
-        /*document.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-        document.addEventListener('mouseup', this.handleMouseUp.bind(this));
-        document.addEventListener('contextmenu', this.handleContextMenu.bind(this));
-        document.addEventListener('wheel', this.handleMouseWheel.bind(this));*/
+
+        
+    }
+    
+    setBindings() {
+        this.editorContainerElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.editorContainerElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.editorContainerElement.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        this.editorContainerElement.addEventListener('contextmenu', this.handleContextMenu.bind(this));
+        this.editorContainerElement.addEventListener('wheel', this.handleMouseWheel.bind(this));
+    }
+
+    setWorld(world) {
+        this.world = world;
+
+        this.pointerDiv = document.createElement("div");
+        this.pointerDiv.style.width = "10px";
+        this.pointerDiv.style.height = "10px";
+        this.pointerDiv.style.background = "red";
+        this.world.element.appendChild(this.pointerDiv);
+    }
+
+    initializeUi() {
+        const ui1 = document.createElement('div');
+        ui1.classList.add("ant-row");
+        ui1.style["justify-content"] = "space-between";
+
+        ui1.innerHTML = `
+            <div style="display: inline-flex;">
+                <div class="input" style="width: 180px;">
+                    <label>Mesa dos noivos:</label>
+                    <select class="js-example-basic-multiple ui">
+                        <option title="round-table" value="ovals" pax="14">Redonda</option>
+                        <option title="square-table" value="square" pax="14">Quadrada</option>
+                        <option title="rectangular-table" value="forestS">Forest S</option>
+                        <option title="rectangular-table" value="forestM">Forest M</option>
+                    </select>
+                </div>
+        
+                <div class="input ui">
+                    <label>Tipo:</label>
+                    <div class="types">
+                        <div class="ant-radio">
+                            <input type="radio" id="guest" name="contact" value="guest">
+                            <span for="contactChoice1">Convidados</span>
+                        </div>
+        
+                        <div class="ant-radio">
+                            <input type="radio" id="staff" name="contact" value="staff">
+                            <span for="contactChoice1">Staff</span>
+                        </div>
+        
+                        <div class="ant-radio">
+                            <input type="radio" id="children" name="contact" value="children">
+                            <span for="contactChoice1">Crianças</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <button class="ant-btn ant-btn-primary">
+                <i class="fas fa-undo"></i>
+                Retroceder
+            </button>
+        `;
+        
+        
+        const ui2 = document.createElement('div');
+        ui2.classList.add("ant-row");
+
+        ui2.innerHTML = `
+        <div class="input">
+                <label>Mesas:</label>
+                <div class="tables_ui" style="margin-top: 2px">
+                    <button class="ant-btn ui guestTableChooserItem" data-tableType="RoundTable">
+                        <div class="table_ui round-table"></div>
+                        Redonda
+                        <div class="pax">
+                            <i class="fa-regular fa-user"></i>14
+                        </div>
+                    </button>
+                    <button class="ant-btn ui guestTableChooserItem">
+                        <div class="table_ui oval-table"></div>
+                        Oval
+                        <div class="pax">
+                            <i class="fa-regular fa-user"></i>14
+                        </div>
+                    </button>
+                    <button class="ant-btn ui guestTableChooserItem" data-tableType="SquareTable">
+                        <div class="table_ui square-table"></div>
+                        Quadrada
+                        <div class="pax">
+                            <i class="fa-regular fa-user"></i>14
+                        </div>
+                    </button>
+                    <button class="ant-btn ui guestTableChooserItem" data-tableType="RectangularTable">
+                        <div class="table_ui rectangular-table"></div>
+                        Retangular
+                        <div class="pax">
+                            <i class="fa-regular fa-user"></i>14
+                        </div>
+                    </button>
+                    <button class="ant-btn ui guestTableChooserItem">
+                        <div class="table_ui rectangular-table"></div>
+                        Retangular Aumento
+                        <div class="pax">
+                            <i class="fa-regular fa-user"></i>14
+                        </div>
+                    </button>
+                    <button class="ant-btn ui guestTableChooserItem">
+                        <div class="table_ui rectangular-table"></div>
+                        Forest
+                        <div class="pax">
+                            <i class="fa-regular fa-user"></i>14
+                        </div>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        this.editorContainerElement.appendChild(ui1);
+        this.editorContainerElement.appendChild(ui2);
     }
 
     initializeContextMenu() {
@@ -1261,38 +1375,21 @@ class MouseManager {
         `*/
     }
 
-    getFocalPosition(event, deltaScale = 1) {
-        const editorRect = this.editorContainerElement.getBoundingClientRect();
-        const roomPlan = document.getElementsByClassName("roomPlan")[0].getBoundingClientRect();
-
-        // Calculate the middle point of the editor container
-        const middleX = (editorRect.width / 2 - editorRect.left - (roomPlan.left)) / this.world.scale;
-        const middleY = (editorRect.height / 2 - editorRect.top - (roomPlan.top)) / this.world.scale;
-
-        // Calculate the focal point based on the current mouse position
-        const focalX = (event.clientX - editorRect.left - roomPlan.left) / this.world.scale;
-        const focalY = (event.clientY - editorRect.top - roomPlan.top) / this.world.scale;
-
-        // Calculate the offset from the center to the focal point
-        const offsetX = focalX - middleX;
-        const offsetY = focalY - middleY;
-
-        // Calculate the origin based on the offset and deltaScale
-        const originX = offsetX / (this.world.scale * deltaScale) - offsetX / this.world.scale;
-        const originY = offsetY / (this.world.scale * deltaScale) - offsetY / this.world.scale;
-
-        return {
-            x: originX,
-            y: originY,
-        };
+    getFocalPosition(event, deltaScale = 0) {
+        return { x: 0, y: 0 };
     }
 
     getWorldPosition(event) {
-        const editorRect = this.editorContainerElement.getBoundingClientRect();
+        //const editorRect = this.editorContainerElement.getBoundingClientRect();
+        //const worldRect = this.world.element.getBoundingClientRect();
         const roomPlanRect = document.getElementsByClassName("roomPlan")[0].getBoundingClientRect()
-        let x = (event.clientX - editorRect.left - (roomPlanRect.left)) / this.world.scale;
-        let y = (event.clientY - editorRect.top - (roomPlanRect.top)) / this.world.scale;
+        let x = (event.clientX  - (roomPlanRect.left)) / this.world.scale;
+        let y = (event.clientY  - (roomPlanRect.top)) / this.world.scale;
+        
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
+
+        this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+
         return { x, y };
     }
 
@@ -1301,11 +1398,6 @@ class MouseManager {
     }
 
     handleMouseDown(event) {
-
-        
-        if(event.toElement.nodeName == "A") {
-            return;
-        }
 
         if (event.button === 0) {
             this.dragging = true;
@@ -1329,8 +1421,7 @@ class MouseManager {
                 table1.init();
                 this.world.addTable(table1);
                 table1.applyTransform();
-                const backgrounds = ["green", "blue", "yellow"];
-                //table1.element.style.background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+                
                 if(this.selectedObject) {
                     this.selectedObject.unsetSelected();
                 }
@@ -1346,8 +1437,6 @@ class MouseManager {
                     table1.init();
                     this.world.setCoupleTable(table1);
                     table1.applyTransform();
-                    //const backgrounds = ["green", "blue", "yellow"];
-                    //table1.element.style.background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
                     if(this.selectedObject) {
                     this.selectedObject.unsetSelected();
                     }
@@ -1357,6 +1446,8 @@ class MouseManager {
 
                 }
             }
+
+            return;
         } else {
             const isWorldObject = this.world.tables.find(t => t.isElementOrChildElement(event.toElement));
             if (isWorldObject && isWorldObject.dragable) {
@@ -1418,8 +1509,7 @@ class MouseManager {
         const zoom = Math.exp(scaleDelta * this.zoomIntensity);
 
         const posFocal = this.getFocalPosition(event, zoom);
-        
-        this.world.pan(posFocal.x * scaleDelta, posFocal.y * scaleDelta);
+        this.world.pan(posFocal.x, posFocal.y);
         this.world.zoom(zoom);
         this.world.applyTransform();
     }
@@ -1495,7 +1585,7 @@ class RoomEditor {
             this.world.setRoomPlan(roomPlan);
             roomPlan.applyTransform();
 
-            this.mouseManager.world = this.world;
+            this.mouseManager.setWorld(this.world);
         } else {
             this.world.roomPlan.updateImageSrc(roomPlanImg)
         }
