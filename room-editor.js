@@ -509,6 +509,139 @@ class RectangularTable extends Table {
     }
 }
 
+class RectangularLTable extends Table {
+    width = 510;
+    height = 190;
+
+    spaceBetweenTables = 0;
+
+    seatsPositions = [
+        {
+            number: 0,
+            x: 70,
+            y: 0,
+        },
+        {
+            number: 1,
+            x: 140,
+            y: 0,
+        },
+        {
+            number: 2,
+            x: 210,
+            y: 0,
+        },
+        {
+            number: 3,
+            x: 280,
+            y: 0,
+        },
+        {
+            number: 4,
+            x: 350,
+            y: 0,
+        },
+        {
+            number: 5,
+            x: 420,
+            y: 0,
+        },
+        {
+            number: 6,
+            x: 485,
+            y: 55,
+            rotate: 90,
+        },
+        {
+            number: 7,
+            x: 485,
+            y: 115,
+            rotate: 90,
+        },
+        {
+            number: 8,
+            x: 420,
+            y: 165,
+            rotate: 180,
+        },
+        {
+            number: 9,
+            x: 350,
+            y: 165,
+            rotate: 180,
+        },
+        {
+            number: 10,
+            x: 280,
+            y: 165,
+            rotate: 180,
+        },
+        {
+            number: 11,
+            x: 210,
+            y: 165,
+            rotate: 180,
+        },
+        {
+            number: 12,
+            x: 140,
+            y: 165,
+            rotate: 180,
+        },
+        {
+            number: 13,
+            x: 70,
+            y: 165,
+            rotate: 180,
+        },
+        {
+            number: 14,
+            x: 0,
+            y: 115,
+            rotate: 270,
+        },
+        {
+            number: 15,
+            x: 0,
+            y: 55,
+            rotate: 270,
+        },
+    ];
+    seats = [];
+    tableType = "RectangularLTable";
+
+    tableElement;
+    tableElementWidth = 450;
+    tableElementHeight = 130;
+
+    constructor() {
+        super();
+        this.dragable = true;
+        this.element = document.createElement('div');
+        this.element.classList.add('table');
+
+        this.width = this.width + this.spaceBetweenTables;
+        this.height = this.height + this.spaceBetweenTables;
+
+        this.halfWidth = this.width / 2;
+        this.halfHeight = this.height / 2;
+
+        this.element.style.width = `${this.width}px`;
+        this.element.style.height = `${this.height}px`;
+
+    }
+
+    addTableElement() {
+        this.tableElement = document.createElement('div');
+        this.tableElement.classList.add('table-draw');
+        this.element.appendChild(this.tableElement);
+
+        this.tableElement.style.width = `${this.tableElementWidth}px`;
+        this.tableElement.style.height = `${this.tableElementHeight}px`;
+        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px, ${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px) scale(1)`;
+    }
+}
+
 class RoundTable extends Table {
     tableDefaultSize = 240;
 
@@ -606,6 +739,105 @@ class RoundTable extends Table {
         this.tableElement.style.height = `${this.tableElementSize}px`;
         this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px, ${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px) scale(1)`;
         this.tableElement.style["border-radius"] = "50%";
+    }
+}
+
+class ForestMTable extends Table {
+    tableDefaultSizeWidth = 255;
+    tableDefaultSizeHeight = 185;
+    seatsPositions = [
+        {
+            number: 0,
+            x: 90,
+            y: 155,
+        },
+        {
+            number: 1,
+            x: 45,
+            y: 155,
+        },
+        {
+            number: 2,
+            x: 0,
+            y: 105,
+        },
+        {
+            number: 3,
+            x: 0,
+            y: 55,
+        },
+        {
+            number: 4,
+            x: 55,
+            y: 0,
+        },
+        {
+            number: 5,
+            x: 100,
+            y: 0,
+        },
+        {
+            number: 6,
+            x: 145,
+            y: 0,
+        },
+        {
+            number: 7,
+            x: 185,
+            y: 0,
+        },
+        {
+            number: 8,
+            x: 220,
+            y: 55,
+        },
+        {
+            number: 9,
+            x: 220,
+            y: 105,
+        },
+        {
+            number: 10,
+            x: 180,
+            y: 155,
+        },
+        {
+            number: 11,
+            x: 135,
+            y: 155,
+        },
+    ];
+    seats = [];
+    tableType = "ForestMTable";
+    couple = false;
+
+    tableElement;
+    tableElementSizeWidth = 195;
+    tableElementSizeHeight = 125;
+
+    constructor() {
+        super();
+        this.dragable = true;
+        this.element = document.createElement('div');
+        this.element.classList.add('table');
+        this.width = this.tableDefaultSizeWidth;
+        this.height = this.tableDefaultSizeHeight;
+        this.halfWidth = this.width / 2;
+        this.halfHeight = this.height / 2;
+
+        this.element.style.width = `${this.width}px`;
+        this.element.style.height = `${this.height}px`;
+
+    }
+
+    addTableElement() {
+        this.tableElement = document.createElement('div');
+        this.tableElement.classList.add('table-draw');
+        this.element.appendChild(this.tableElement);
+
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
+        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET}px, ${TABLE_ELEMENT_OFFSET}px) scale(1)`;
     }
 }
 
@@ -720,25 +952,25 @@ class CoupleOvalMTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 46,
-            y: 176,
-            rotate: 0,
+            x: 75,
+            y: 165,
+            rotate: 180,
         },
         {
             number: 1,
-            x: 6,
-            y: 114,
-            rotate: 0,
+            x: 2,
+            y: 115,
+            rotate: 250,
         },
         {
             number: 2,
-            x: 7,
-            y: 61,
-            rotate: 0,
+            x: 5,
+            y: 50,
+            rotate: 295,
         },
         {
             number: 3,
-            x: 43,
+            x: 75,
             y: 5,
             rotate: 0,
         },
@@ -764,21 +996,21 @@ class CoupleOvalMTable extends Table {
         },
         {
             number: 7,
-            x: 425,
-            y: 61,
-            rotate: 0,
+            x: 420,
+            y: 50,
+            rotate: 70,
         },
         {
             number: 8,
-            x: 430,
-            y: 102,
-            rotate: 0,
+            x: 422,
+            y: 112,
+            rotate: 105,
         },
         {
             number: 9,
             x: 400,
-            y: 163,
-            rotate: 0,
+            y: 165,
+            rotate: 170,
         },
     ];
     seats = [];
@@ -816,7 +1048,259 @@ class CoupleOvalMTable extends Table {
     }
 }
 
+class CoupleOvalMFullTable extends Table {
+    tableDefaultSizeWidth = 460;
+    tableDefaultSizeHeight = 200;
+    seatsPositions = [
+        {
+            number: 0,
+            x: 75,
+            y: 165,
+            rotate: 180,
+        },
+        {
+            number: 1,
+            x: 2,
+            y: 115,
+            rotate: 250,
+        },
+        {
+            number: 2,
+            x: 5,
+            y: 50,
+            rotate: 295,
+        },
+        {
+            number: 3,
+            x: 75,
+            y: 5,
+            rotate: 0,
+        },
+        {
+            number: 4,
+            x: 174,
+            y: 5,
+            rotate: 0,
+            couple: true,
+        },
+        {
+            number: 5,
+            x: 260,
+            y: 5,
+            rotate: 0,
+            couple: true,
+        },
+        {
+            number: 6,
+            x: 351,
+            y: 5,
+            rotate: 0,
+        },
+        {
+            number: 7,
+            x: 420,
+            y: 50,
+            rotate: 70,
+        },
+        {
+            number: 8,
+            x: 422,
+            y: 112,
+            rotate: 105,
+        },
+        {
+            number: 9,
+            x: 400,
+            y: 165,
+            rotate: 170,
+        },
+        {
+            number: 10,
+            x: 250,
+            y: 163,
+            rotate: 180,
+        },
+        {
+            number: 11,
+            x: 165,
+            y: 163,
+            rotate: 180,
+        },
+    ];
+    seats = [];
+    tableType = "CoupleOvalMFullTable";
+    couple = true;
+
+    tableElement;
+    tableElementSizeWidth = 400;
+    tableElementSizeHeight = 130;
+
+    constructor() {
+        super();
+        this.dragable = true;
+        this.element = document.createElement('div');
+        this.element.classList.add('table');
+        this.width = this.tableDefaultSizeWidth;
+        this.height = this.tableDefaultSizeHeight;
+        this.halfWidth = this.width / 2;
+        this.halfHeight = this.height / 2;
+
+        this.element.style.width = `${this.width}px`;
+        this.element.style.height = `${this.height}px`;
+
+    }
+
+    addTableElement() {
+        this.tableElement = document.createElement('div');
+        this.tableElement.classList.add('table-draw');
+        this.element.appendChild(this.tableElement);
+
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
+        this.tableElement.style.transform = `translate(30px, 40px) scale(1)`;
+        this.tableElement.style["border-radius"] = "60px";
+    }
+}
+
 class CoupleOvalLTable extends Table {
+    tableDefaultSizeWidth = 660;
+    tableDefaultSizeHeight = 200;
+    seatsPositions = [
+        {
+            number: 1,
+            x: 125,
+            y: 175,
+            rotate: 0,
+        },
+        {
+            number: 2,
+            x: 65,
+            y: 175,
+            rotate: 0,
+        },
+        {
+            number: 3,
+            x: 5,
+            y: 135,
+            rotate: 0,
+        },
+        {
+            number: 4,
+            x: 5,
+            y: 85,
+            rotate: 0,
+        },
+        {
+            number: 5,
+            x: 10,
+            y: 35,
+            rotate: 0,
+        },
+        {
+            number: 6,
+            x: 115,
+            y: 5,
+            rotate: 0,
+        },
+        {
+            number: 7,
+            x: 240,
+            y: 10,
+            rotate: 0,
+        },
+        {
+            number: 8,
+            x: 352,
+            y: 10,
+            rotate: 0,
+            couple: true,
+        },
+        {
+            number: 9,
+            x: 400,
+            y: 5,
+            rotate: 0,
+            couple: true,
+        },
+        {
+            number: 10,
+            x: 490,
+            y: 5,
+            rotate: 0,
+        },
+        {
+            number: 11,
+            x: 575,
+            y: 10,
+            rotate: 0,
+        },
+        {
+            number: 12,
+            x: 630,
+            y: 50,
+            rotate: 0,
+        },
+        {
+            number: 13,
+            x: 635,
+            y: 100,
+            rotate: 0,
+        },
+        {
+            number: 14,
+            x: 625,
+            y: 140,
+            rotate: 0,
+        },
+        {
+            number: 15,
+            x: 550,
+            y: 165,
+            rotate: 0,
+        },
+        {
+            number: 16,
+            x: 480,
+            y: 165,
+            rotate: 0,
+        },
+    ];
+    seats = [];
+    tableType = "CoupleOvalLTable";
+    couple = true;
+
+    tableElement;
+    tableElementSizeWidth = 600;
+    tableElementSizeHeight = 130;
+
+    constructor() {
+        super();
+        this.dragable = true;
+        this.element = document.createElement('div');
+        this.element.classList.add('table');
+        this.width = this.tableDefaultSizeWidth;
+        this.height = this.tableDefaultSizeHeight;
+        this.halfWidth = this.width / 2;
+        this.halfHeight = this.height / 2;
+
+        this.element.style.width = `${this.width}px`;
+        this.element.style.height = `${this.height}px`;
+
+    }
+
+    addTableElement() {
+        this.tableElement = document.createElement('div');
+        this.tableElement.classList.add('table-draw');
+        this.element.appendChild(this.tableElement);
+
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
+        this.tableElement.style.transform = `translate(30px, 40px) scale(1)`;
+        this.tableElement.style["border-radius"] = "60px";
+    }
+}
+
+class CoupleOvalLFullTable extends Table {
     tableDefaultSizeWidth = 660;
     tableDefaultSizeHeight = 200;
     seatsPositions = [
@@ -932,7 +1416,7 @@ class CoupleOvalLTable extends Table {
         },
     ];
     seats = [];
-    tableType = "CoupleOvalLTable";
+    tableType = "CoupleOvalLFullTable";
     couple = true;
 
     tableElement;
@@ -1122,11 +1606,15 @@ const TableTypes = {
     Table,
     SquareTable,
     RectangularTable,
+    RectangularLTable,
     RoundTable,
+    ForestMTable,
     CoupleRoundTable,
     CoupleOvalSTable,
     CoupleOvalMTable,
+    CoupleOvalMFullTable,
     CoupleOvalLTable,
+    CoupleOvalLFullTable,
     CoupleForestSTable,
     CoupleForestMTable,
 }
@@ -1256,7 +1744,9 @@ class MouseManager {
                         <option title="round-table" value="CoupleRoundTable" pax="14">Redonda</option>
                         <option title="round-table" value="CoupleOvalSTable" pax="14">Oval S</option>
                         <option title="round-table" value="CoupleOvalMTable" pax="14">Oval M</option>
+                        <option title="round-table" value="CoupleOvalMFullTable" pax="14">Oval M Compl.</option>
                         <option title="round-table" value="CoupleOvalLTable" pax="14">Oval L</option>
+                        <option title="round-table" value="CoupleOvalLFullTable" pax="14">Oval L Compl.</option>
                         <option title="rectangular-table" value="CoupleForestSTable" pax="14">Forest S</option>
                         <option title="rectangular-table" value="CoupleForestMTable" pax="14">Forest M</option>
                     </select>
@@ -1304,13 +1794,6 @@ class MouseManager {
                             <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="RoundTable"></i>14
                         </div>
                     </button>
-                    <button class="ant-btn ui guestTableChooserItem">
-                        <div class="table_ui oval-table"></div>
-                        Oval
-                        <div class="pax">
-                            <i class="fa-regular fa-user"></i>14
-                        </div>
-                    </button>
                     <button class="ant-btn ui guestTableChooserItem" data-tableType="SquareTable">
                         <div class="table_ui square-table  guestTableChooserItem" data-tableType="SquareTable"></div>
                         Quadrada
@@ -1325,18 +1808,18 @@ class MouseManager {
                             <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="RectangularTable"></i>14
                         </div>
                     </button>
-                    <button class="ant-btn ui guestTableChooserItem">
-                        <div class="table_ui rectangular-table"></div>
+                    <button class="ant-btn ui guestTableChooserItem" data-tableType="RectangularLTable">
+                        <div class="table_ui rectangular-table ui guestTableChooserItem" data-tableType="RectangularLTable"></div>
                         Retangular Aumento
-                        <div class="pax">
-                            <i class="fa-regular fa-user"></i>14
+                        <div class="pax ui guestTableChooserItem" data-tableType="RectangularLTable">
+                            <i class="fa-regular fa-user ui guestTableChooserItem" data-tableType="RectangularLTable"></i>14
                         </div>
                     </button>
-                    <button class="ant-btn ui guestTableChooserItem">
-                        <div class="table_ui rectangular-table"></div>
+                    <button class="ant-btn ui guestTableChooserItem" data-tableType="ForestMTable">
+                        <div class="table_ui rectangular-table ui guestTableChooserItem" data-tableType="ForestMTable" ></div>
                         Forest
-                        <div class="pax">
-                            <i class="fa-regular fa-user"></i>14
+                        <div class="pax ui guestTableChooserItem" data-tableType="ForestMTable" >
+                            <i class="fa-regular fa-user ui guestTableChooserItem" data-tableType="ForestMTable" ></i>14
                         </div>
                     </button>
                 </div>
@@ -1657,16 +2140,11 @@ class RoomEditor {
 
     serializeEditor() {
         const serializedData = {
-            world: {
-                x: world.x,
-                y: world.y,
-                scale: world.scale,
-            },
             roomPlan: {
-                imageSrc: world.roomPlan.imageSrc,
-                x: world.roomPlan.x,
-                y: world.roomPlan.y,
-                scale: world.roomPlan.scale,
+                imageSrc: this.world.roomPlan.imageSrc,
+                x: this.world.x,
+                y: this.world.y,
+                scale: this.world.scale,
             },
             tables: [],
         };
@@ -1679,6 +2157,7 @@ class RoomEditor {
                 scale: table.scale,
                 tableType: table.tableType,
                 code: table.code,
+                couple: table.couple,
                 // Add other properties specific to your object
             };
 
@@ -1686,10 +2165,7 @@ class RoomEditor {
             serializedData.tables.push(serializedObject);
         });
 
-        // Convert the serialized data to JSON
-        const jsonString = JSON.stringify(serializedData);
-        localStorage.setItem('savedWorld', jsonString);
-        return jsonString;
+        return serializedData;
     }
 
     deserializeEditor(jsonString) {
@@ -1698,16 +2174,16 @@ class RoomEditor {
 
         // Deserialize the world
         const world = new World(this.editorContainerElement);
-        world.x = serializedData.world.x;
-        world.y = serializedData.world.y;
-        world.scale = serializedData.world.scale;
+        world.x = serializedData.roomPlan.x;
+        world.y = serializedData.roomPlan.y;
+        world.scale = serializedData.roomPlan.scale;
         world.applyTransform();
 
 
         const roomPlan = new RoomPlan(serializedData.roomPlan.imageSrc);
-        roomPlan.x = serializedData.roomPlan.x;
-        roomPlan.y = serializedData.roomPlan.y;
-        roomPlan.scale = serializedData.roomPlan.scale;
+        roomPlan.x = 0;
+        roomPlan.y = 0;
+        roomPlan.scale = 1;
 
         world.setRoomPlan(roomPlan);
         roomPlan.applyTransform();
@@ -1718,6 +2194,7 @@ class RoomEditor {
             object.x = serializedObject.x;
             object.y = serializedObject.y;
             object.scale = serializedObject.scale;
+            object.couple = serializedObject.couple;
             object.init();
             // Add other properties specific to your object
 

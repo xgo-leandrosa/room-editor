@@ -7,6 +7,21 @@
     <title>Room Editor</title>
 
     <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* Prevent scrolling */    
+        }
+        
+        :root {
+          font-family: Inter, sans-serif;
+          font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */
+        }
+        @supports (font-variation-settings: normal) {
+          :root { font-family: InterVariable, sans-serif; }
+        }
+
+
         #editorContainer  {
             margin-left: 600px;
             margin-top: 200px;
@@ -26,6 +41,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
 
 </head>
 
