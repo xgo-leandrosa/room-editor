@@ -132,8 +132,6 @@ body {
 }
 
 .guestTableChooserItem {
-    height: 100%;
-    border: 1px solid white;
 }
 
 @keyframes selectedChangeColor {
@@ -247,7 +245,7 @@ ul {
     border-radius: 4px;
     color: rgba(0, 0, 0, 0.65);
     background-color: #fff;
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     margin-right: 8px;
 }

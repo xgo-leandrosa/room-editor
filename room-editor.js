@@ -53,7 +53,6 @@ class World extends RoomObject {
         this.scale = 1;
 
         this.tables = [];
-        this.coupleTable = null;
 
         this.element = document.createElement("div");
         this.element.classList.add('world');
@@ -86,12 +85,6 @@ class World extends RoomObject {
     removeTable(table) {
         table.removeOfContainer();
         this.tables = this.tables.filter(t => t !== table);
-    }
-
-    setCoupleTable(table) {
-        table.world = this;
-        table.addToContainer();
-        this.coupleTable = table;
     }
 
     applyTransform() {
@@ -188,6 +181,7 @@ class Table extends RoomObject {
     tableElement;
     tableElementSize = 105;
 
+    couple = false;
     inDanger = false;
 
     spaceBetweenTables = 0;
@@ -635,7 +629,7 @@ class CoupleRoundTable extends Table {
     ];
     seats = [];
     tableType = "CoupleRoundTable";
-
+    couple = true;
     tableElement;
     tableElementSize = 180;
 
@@ -687,6 +681,7 @@ class CoupleOvalSTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalSTable";
+    couple = true;
 
     tableElement;
     tableElementSizeWidth = 250;
@@ -788,6 +783,7 @@ class CoupleOvalMTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalMTable";
+    couple = true;
 
     tableElement;
     tableElementSizeWidth = 400;
@@ -937,6 +933,7 @@ class CoupleOvalLTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalLTable";
+    couple = true;
 
     tableElement;
     tableElementSizeWidth = 600;
@@ -988,6 +985,7 @@ class CoupleForestSTable extends Table {
     ];
     seats = [];
     tableType = "CoupleForestSTable";
+    couple = true;
 
     tableElement;
     tableElementSizeWidth = 205;
@@ -1088,6 +1086,7 @@ class CoupleForestMTable extends Table {
     ];
     seats = [];
     tableType = "CoupleForestMTable";
+    couple = true;
 
     tableElement;
     tableElementSizeWidth = 195;
@@ -1210,7 +1209,7 @@ class MouseManager {
         this.initializeContextMenu();
         this.initializeUi();
         this.setBindings();
-        
+
         this.lastX = 0;
         this.lastY = 0;
         this.dragging = false;
@@ -1244,16 +1243,22 @@ class MouseManager {
         const ui1 = document.createElement('div');
         ui1.classList.add("ant-row");
         ui1.style["justify-content"] = "space-between";
-
+        
+        /*<option title="round-table" value="ovals" pax="14">Redonda</option>
+        <option title="square-table" value="square" pax="14">Quadrada</option>
+        <option title="rectangular-table" value="forestS">Forest S</option>
+        <option title="rectangular-table" value="forestM">Forest M</option>*/
         ui1.innerHTML = `
             <div style="display: inline-flex;">
                 <div class="input" style="width: 180px;">
                     <label>Mesa dos noivos:</label>
                     <select class="js-example-basic-multiple ui">
-                        <option title="round-table" value="ovals" pax="14">Redonda</option>
-                        <option title="square-table" value="square" pax="14">Quadrada</option>
-                        <option title="rectangular-table" value="forestS">Forest S</option>
-                        <option title="rectangular-table" value="forestM">Forest M</option>
+                        <option title="round-table" value="CoupleRoundTable" pax="14">Redonda</option>
+                        <option title="round-table" value="CoupleOvalSTable" pax="14">Oval S</option>
+                        <option title="round-table" value="CoupleOvalMTable" pax="14">Oval M</option>
+                        <option title="round-table" value="CoupleOvalLTable" pax="14">Oval L</option>
+                        <option title="rectangular-table" value="CoupleForestSTable" pax="14">Forest S</option>
+                        <option title="rectangular-table" value="CoupleForestMTable" pax="14">Forest M</option>
                     </select>
                 </div>
         
@@ -1293,10 +1298,10 @@ class MouseManager {
                 <label>Mesas:</label>
                 <div class="tables_ui" style="margin-top: 2px">
                     <button class="ant-btn ui guestTableChooserItem" data-tableType="RoundTable">
-                        <div class="table_ui round-table"></div>
+                        <div class="table_ui round-table  ui guestTableChooserItem" data-tableType="RoundTable"></div>
                         Redonda
-                        <div class="pax">
-                            <i class="fa-regular fa-user"></i>14
+                        <div class="pax  ui guestTableChooserItem" data-tableType="RoundTable">
+                            <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="RoundTable"></i>14
                         </div>
                     </button>
                     <button class="ant-btn ui guestTableChooserItem">
@@ -1307,17 +1312,17 @@ class MouseManager {
                         </div>
                     </button>
                     <button class="ant-btn ui guestTableChooserItem" data-tableType="SquareTable">
-                        <div class="table_ui square-table"></div>
+                        <div class="table_ui square-table  guestTableChooserItem" data-tableType="SquareTable"></div>
                         Quadrada
-                        <div class="pax">
-                            <i class="fa-regular fa-user"></i>14
+                        <div class="pax  guestTableChooserItem" data-tableType="SquareTable">
+                            <i class="fa-regular fa-user  guestTableChooserItem" data-tableType="SquareTable"></i>14
                         </div>
                     </button>
                     <button class="ant-btn ui guestTableChooserItem" data-tableType="RectangularTable">
-                        <div class="table_ui rectangular-table"></div>
+                        <div class="table_ui rectangular-table ui guestTableChooserItem" data-tableType="RectangularTable"></div>
                         Retangular
-                        <div class="pax">
-                            <i class="fa-regular fa-user"></i>14
+                        <div class="pax ui guestTableChooserItem" data-tableType="RectangularTable">
+                            <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="RectangularTable"></i>14
                         </div>
                     </button>
                     <button class="ant-btn ui guestTableChooserItem">
@@ -1340,6 +1345,56 @@ class MouseManager {
         
         this.editorContainerElement.appendChild(ui1);
         this.editorContainerElement.appendChild(ui2);
+
+        
+            $('.js-example-basic-multiple').select2({
+                minimumResultsForSearch: -1,
+                templateResult: function (table) {
+                    var $span = $(`
+                    <span class="option">
+                        <div style="display: inline-flex">
+                            <div class="table_ui ${table?.title}"></div>
+                            ${table.text}
+                        </div>
+                        <div class="pax">
+                            <i class="fa-regular fa-user"></i>
+                            14pax
+                        </div>
+                    </span>`);
+                    return $span;
+                }
+            });
+
+            $('.js-example-basic-multiple').on("select2:select", (event) => {
+                const tableCouple = this.world.tables.find(t => t.couple);
+
+                const newTableCouple = new TableTypes[event.params.data.id](this.world);
+
+                const pos = this.getWorldPositionCenterScreen();
+                if(!tableCouple) {
+                    newTableCouple.x = pos.x;
+                    newTableCouple.y = pos.y;
+                    
+                } else {
+                    newTableCouple.x = tableCouple.x;
+                    newTableCouple.y = tableCouple.y;
+                    newTableCouple.rotate = tableCouple.rotate;
+
+                    this.world.removeTable(tableCouple);
+                }
+                
+                newTableCouple.init();
+                this.world.addTable(newTableCouple);
+                newTableCouple.applyTransform();
+
+                if(this.selectedObject) {
+                    this.selectedObject.unsetSelected();
+                }
+
+                this.selectedObject = newTableCouple;
+                this.selectedObject.setSelected();
+                
+            })
     }
 
     initializeContextMenu() {
@@ -1353,11 +1408,19 @@ class MouseManager {
         menu.appendChild(ul);
 
         ul.innerHTML = `
-        <li class="download"><a href="#" onclick="mouseManager.contextMenuAction(event, 'ROTATE')" ><i class="fas fa-sync-alt" aria-hidden="true"></i> Rodar</a></li>
-                    <li class="trash"><a href="#" onclick="mouseManager.contextMenuAction(event, 'DELETE')"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a></li>
+                <li class="download"><a href="#" id="ui-context-rotate" ><i class="fas fa-sync-alt" aria-hidden="true"></i> Rodar</a></li>
+                <li class="trash"><a href="#" id="ui-context-delete"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a></li>
         `;
 
         document.body.appendChild(menu);
+
+        document.getElementById("ui-context-rotate").onclick = (event) => {
+            this.contextMenuAction(event, 'ROTATE')
+        };
+        document.getElementById("ui-context-delete").onclick = (event) => {
+            this.contextMenuAction(event, 'DELETE')
+        };
+
         /*document.body.innerHTML += `
             <!-- Context menu-->
             <div id="contextMenu" class="context-menu" style="display: none">
@@ -1379,6 +1442,21 @@ class MouseManager {
         return { x: 0, y: 0 };
     }
 
+    getWorldPositionCenterScreen() {
+        const editorRect = this.editorContainerElement.getBoundingClientRect();
+        //const worldRect = this.world.element.getBoundingClientRect();
+        const roomPlanRect = document.getElementsByClassName("roomPlan")[0].getBoundingClientRect()
+        let x = ((editorRect.x + (editorRect.width/2)) - (roomPlanRect.left)) / this.world.scale;
+        let y = ((editorRect.y + (editorRect.height/2)) - (roomPlanRect.top)) / this.world.scale;
+        
+        //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
+
+        console.log("World Position:")
+        this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+
+        return { x, y };
+    }
+
     getWorldPosition(event) {
         //const editorRect = this.editorContainerElement.getBoundingClientRect();
         //const worldRect = this.world.element.getBoundingClientRect();
@@ -1388,6 +1466,7 @@ class MouseManager {
         
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
+        console.log("World Position:")
         this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
@@ -1427,24 +1506,6 @@ class MouseManager {
                 }
                 this.selectedObject = table1;
                 this.selectedObject.setSelected();
-            }
-
-            if (event.toElement.dataset["coupleTabletype"]) {
-                if (!this.world.coupleTable) {
-                    const table1 = new TableTypes[event.toElement.dataset["coupleTabletype"]](this.world);
-                    table1.x = pos.x;
-                    table1.y = pos.y;
-                    table1.init();
-                    this.world.setCoupleTable(table1);
-                    table1.applyTransform();
-                    if(this.selectedObject) {
-                    this.selectedObject.unsetSelected();
-                    }
-                    this.selectedObject = table1;
-                    this.selectedObject.setSelected();
-                } else {
-
-                }
             }
 
             return;

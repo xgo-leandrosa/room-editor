@@ -6,17 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room Editor</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://unpkg.com/popper.js@1"></script>
-    <script src="https://unpkg.com/tippy.js@4"></script>
-
-    <!-- HTML in your document's head -->
-    <link rel="preconnect" href="https://rsms.me/">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-
-    <link rel="stylesheet" href="room-editor.css">
-    <script src="room-editor.js"></script>
-
     <style>
         #editorContainer  {
             margin-left: 600px;
@@ -26,16 +15,17 @@
             border: red solid 1px;
         }
     </style>
-
-
-<style>
-    
-</style>
-
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://unpkg.com/popper.js@1"></script>
+    <script src="https://unpkg.com/tippy.js@4"></script>
+    <!-- HTML in your document's head -->
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="room-editor.css">
+    <script src="room-editor.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 </head>
 
@@ -93,32 +83,7 @@
         </div>
     </div>-->
 
-
     <script>
-        $(document).ready(function () {
-            $('.js-example-basic-multiple').select2({
-                minimumResultsForSearch: -1,
-                templateResult: function (table) {
-                    var $span = $(`
-                    <span class="option">
-                        <div style="display: inline-flex">
-                            <div class="table_ui ${table?.title}"></div>
-                            ${table.text}
-                        </div>
-                        <div class="pax">
-                            <i class="fa-regular fa-user"></i>
-                            14pax
-                        </div>
-                    </span>`);
-                    return $span;
-                }
-            });
-        });
-    </script>
-    
-
-    <script>
-
         const roomEditor = new RoomEditor("editorContainer");
         roomEditor.setRoomPlan("http://sllc-api.xpertgo.pt:5000/api/files/65969b70b2d95c1f18727bce");
 
