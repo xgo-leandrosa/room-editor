@@ -224,7 +224,7 @@ class Table extends RoomObject {
 
     addSeatsTooltips() {
         for (let seat of this.seats) {
-            tippy(seat.element, { content: seat.gestName })
+            tippy(seat.element, { content: seat.guestName })
         }
     }
 
@@ -1654,7 +1654,7 @@ TableTypesIcon = {
 class Seat extends RoomObject {
     number = 0;
     code = 0;
-    gestName = "Guest";
+    guestName = "Guest";
     guestAge = "ADULT";
     foodRestrictions = [];
 
@@ -1937,7 +1937,26 @@ class MouseManager {
                     </div>
                 </span>`);
                 return $span;
-            }
+            },
+            templateSelection: function (table) {
+                if (!table.id) {
+                    return table.text;
+                }
+
+                var $state = $(
+                    `<span class="option">
+                    <div style="display: inline-flex">
+                        <div class="table_ui ${table?.title}"></div>
+                        ${table.text}
+                    </div>
+                    <div class="pax">
+                        <i class="fa-regular fa-user"></i>
+                        14pax
+                    </div>
+                </span>`
+                );
+                return $state;
+            },
         });
 
         $('#coupleTableSelect').on("select2:select", (event) => {
@@ -2016,7 +2035,12 @@ class MouseManager {
                             this.contextMenuAction(event, 'ROTATE')
                         };
                         break;
-
+                    case "MANAGE_GUESTS":
+                        elements[0].innerHTML += `<li class="address-book"><a href="#" id="ui-context-manage_guests" ><i class="fas  fa-address-book" aria-hidden="true"></i> Gerir convidados</a></li>`;
+                        document.getElementById("ui-context-manage_guests").onclick = (event) => {
+                            this.contextMenuAction(event, 'MANAGE_GUESTS')
+                        };
+                        break;
                     case "DELETE":
                         elements[0].innerHTML += `<li class="trash"><a href="#" id="ui-context-delete"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a></li>`;
                         document.getElementById("ui-context-delete").onclick = (event) => {
@@ -2073,6 +2097,7 @@ class MouseManager {
         if(this.selectedObject && this.selectedObject.tableType) {
             
             options.push("ROTATE");
+            options.push("MANAGE_GUESTS");
             if(!this.selectedObject.couple) {
                 options.push("DELETE");
             }
@@ -2203,6 +2228,8 @@ class MouseManager {
             case "ROTATE":
                 this.selectedObject.addRotation(90);
                 this.selectedObject.applyTransform();
+                break;                
+            case "MANAGE_GUESTS":
                 break;
             case "DELETE":
                 this.world.removeTable(this.selectedObject);
@@ -2283,7 +2310,7 @@ class RoomEditor {
 
                 seats: table.seats.map(s => ({
                     code: s.code,
-                    gestName: s.gestName,
+                    guestName: s.guestName,
                     guestAge: s.guestAge,
                     foodRestrictions: s.foodRestrictions,
                 }))
@@ -2297,9 +2324,7 @@ class RoomEditor {
         return serializedData;
     }
 
-    deserializeEditor(jsonString) {
-        // Parse the JSON string
-        const serializedData = JSON.parse(jsonString);
+    deserializeEditor(serializedData) {
 
         // Deserialize the world
         const world = new World(this.editorContainerElement);
@@ -2323,6 +2348,7 @@ class RoomEditor {
             object.x = serializedObject.x;
             object.y = serializedObject.y;
             object.scale = serializedObject.scale;
+            object.code = serializedObject.code;
             object.couple = serializedObject.couple;
             object.init();
             // Add other properties specific to your object
@@ -2345,6 +2371,220 @@ class RoomEditor {
         this.mouseManager.setActiveCouplesTables(tablesTypes);
     }
 }
+
+class ManageGuestsModal {
+    modalElement;
+    modalBodyElement;
+
+    constructor() {
+        this.modalElement = document.createElement("div");
+        this.modalElement.classList.add("editor-modal-wrap");
+        this.modalElement.id = "myModal";
+
+        const editorModalElement = document.createElement("div");
+        editorModalElement.classList.add("editor-modal")
+
+        this.modalElement.appendChild(editorModalElement);
+
+        const closeElementButton =document.createElement("i");
+        closeElementButton.id = "iconClose";
+        closeElementButton.classList.add("fa-solid");
+        closeElementButton.classList.add("fa-x");
+        closeElementButton.classList.add("editor-modal-close");
+        closeElementButton.onclick = () => {
+            this.close();
+        }
+        editorModalElement.appendChild(closeElementButton);
+
+        const modalHeaderElement = document.createElement("div");
+        modalHeaderElement.classList.add("editor-modal-header");
+        modalHeaderElement.innerHTML = '<div class="editor-modal-title">Gerir mesa</div>';
+        editorModalElement.appendChild(modalHeaderElement);
+
+        this.modalBodyElement = document.createElement("div");
+        this.modalBodyElement.classList.add("editor-modal-body");
+        editorModalElement.appendChild(this.modalBodyElement);
+        this.createModalBody({
+            tableName: "5",
+            notes: "A nice day is a nice day.",
+            // Add more parameters as needed
+        });
+
+        // Add modal footer
+        const modalFooterElement = document.createElement("div");
+        modalFooterElement.classList.add("editor-modal-footer");
+
+        const btnCancelElement = document.createElement("button");
+        btnCancelElement.id = "btnClose";
+        btnCancelElement.type = "button";
+        btnCancelElement.classList.add("editor-btn");
+        btnCancelElement.classList.add("editor-btn-default");
+        btnCancelElement.textContent = "Cancelar";
+        btnCancelElement.onclick = () => {
+            this.close();
+        };
+        modalFooterElement.appendChild(btnCancelElement);
+
+        const btnSaveElement = document.createElement("button");
+        btnSaveElement.type = "submit";
+        btnSaveElement.classList.add("editor-btn");
+        btnSaveElement.classList.add("editor-btn-primary");
+        btnSaveElement.textContent = "Gravar";
+        btnSaveElement.onclick = () => {
+            this.save();
+        };
+        modalFooterElement.appendChild(btnSaveElement);
+
+        editorModalElement.appendChild(modalFooterElement);
+
+        document.body.appendChild(this.modalElement);
+        
+        this.open();
+    }
+
+    createModalBody(params) {
+        
+
+        // Create the first row with buttons
+        const row1 = document.createElement("div");
+        row1.classList.add("editor-row");
+
+        const button1 = document.createElement("button");
+        button1.classList.add("editor-btn");
+        button1.classList.add("editor-btn-default-focus");
+        button1.innerHTML = '<div class="editor-table round-table"></div>Redonda';
+        row1.appendChild(button1);
+
+        const button2 = document.createElement("button");
+        button2.classList.add("editor-btn");
+        button2.classList.add("editor-btn-default-focus");
+        button2.innerHTML = '<i class="fa-regular fa-user" style="margin-right: 5px;"></i>14';
+        row1.appendChild(button2);
+
+        this.modalBodyElement.appendChild(row1);
+
+        // Create the second row with form and editor stats
+        const row2 = document.createElement("div");
+        row2.classList.add("editor-row");
+        row2.style.marginTop = "10px";
+
+        const col1 = document.createElement("div");
+        col1.classList.add("editor-col");
+
+        const formElement = document.createElement("form");
+        formElement.name = "editor-table-form";
+        formElement.action = "/action.php";
+        formElement.method = "post";
+        formElement.onsubmit = (event) => this.submitForm(event);
+        formElement.classList.add("editor-form");
+
+        // Create the form line with table code and input
+        const formLine = document.createElement("div");
+        formLine.classList.add("editor-form-line");
+
+        const tableCodeDiv = document.createElement("div");
+        tableCodeDiv.classList.add("editor-table-code");
+        tableCodeDiv.textContent = params.tableName || "";
+        formLine.appendChild(tableCodeDiv);
+
+        const tableNameInput = document.createElement("input");
+        tableNameInput.classList.add("editor-input");
+        tableNameInput.type = "text";
+        tableNameInput.id = "tableName";
+        tableNameInput.name = "tableName";
+        tableNameInput.value = params.tableName || "";
+        formLine.appendChild(tableNameInput);
+
+        formElement.appendChild(formLine);
+
+        // Create the seats div
+        const seatsDiv = document.createElement("div");
+        seatsDiv.id = "seats";
+        formElement.appendChild(seatsDiv);
+
+        // Create the form line with editor stats
+        const editorStatsDiv = document.createElement("div");
+        editorStatsDiv.classList.add("editor-form-line");
+        editorStatsDiv.classList.add("editor-stats");
+
+        // ... (add logic to dynamically create editor stats lines based on parameters)
+
+        // Example: Create a line for "A partir de 8 anos"
+        const statsLine1 = document.createElement("div");
+        statsLine1.classList.add("editor-stats-line");
+        statsLine1.innerHTML = `<span>A partir de 8 anos</span><span id="totalAdult" class="editor-stats-qty">0</span>`;
+        editorStatsDiv.appendChild(statsLine1);
+
+        // ... (add more lines as needed)
+
+        formElement.appendChild(editorStatsDiv);
+
+        // Create the global stats div
+        const statsGlobalDiv = document.createElement("div");
+        statsGlobalDiv.classList.add("editor-form-line");
+        statsGlobalDiv.classList.add("editor-stats-global");
+
+        statsGlobalDiv.innerHTML = `<span class="editor-stats-total"><span id="total">0</span></span><span class="editor-stats-stroller" id="totalStroller">0 carrinho</span>`;
+
+        formElement.appendChild(statsGlobalDiv);
+
+        col1.appendChild(formElement);
+
+        const col2 = document.createElement("div");
+        col2.classList.add("editor-col");
+
+        row2.appendChild(col1);
+        row2.appendChild(col2);
+
+        this.modalBodyElement.appendChild(row2);
+
+        // Create the third row with notes textarea
+        const row3 = document.createElement("div");
+        row3.classList.add("editor-row");
+        row3.classList.add("editor-row-notes");
+
+        const notesDiv = document.createElement("div");
+        notesDiv.textContent = "Notas:";
+        row3.appendChild(notesDiv);
+
+        const notesTextarea = document.createElement("textarea");
+        notesTextarea.id = "notes";
+        notesTextarea.classList.add("editor-input");
+        notesTextarea.name = "notes";
+        notesTextarea.rows = "4";
+        notesTextarea.cols = "50";
+        notesTextarea.maxLength = "200";
+        notesTextarea.textContent = params.notes || "";
+        row3.appendChild(notesTextarea);
+
+        this.modalBodyElement.appendChild(row3);
+
+        // Add the generated modal body to the modal element
+        this.modalElement.querySelector(".editor-modal").appendChild(this.modalBodyElement);
+    }
+
+    open() {
+        this.modalElement.style.display = "block";
+    }
+
+    close() {
+        this.modalElement.style.display = "none";
+    }
+
+    save() {
+        // Add logic to handle saving data
+        console.log("Saving data...");
+        // You can add more functionality as needed.
+    }
+
+    submitForm(event) {
+        // Add logic to handle form submission
+        console.log("Form submitted:", event);
+        // You can add more functionality as needed.
+    }
+}
+
+
 
 if(!window.RoomEditor) {
     window.RoomEditor = RoomEditor;

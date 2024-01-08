@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        /* The Modal (background) */
+        .editor-modal-wrap {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            outline: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+        }
+
+        .editor-modal {
+            box-sizing: border-box;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            font-variant: tabular-nums;
+            line-height: 1.5;
+            list-style: none;
+            font-feature-settings: 'tnum', "tnum";
+            position: relative;
+            top: 100px;
+            width: 60%;
+            margin: 0 auto;
+            padding: 0;
+            pointer-events: none;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            pointer-events: auto;
+            background-clip: padding-box;
+            border: 0;
+            border-radius: 4px;
+        }
+
+        .editor-modal-header {
+            padding: 16px 24px;
+            color: rgba(0, 0, 0, 0.65);
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .editor-modal-title {
+            margin: 0;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 22px;
+            word-wrap: break-word;
+        }
+
+        .editor-modal-body {
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .editor-modal-footer {
+            padding: 10px 16px;
+            text-align: right;
+            background: transparent;
+            border-top: 1px solid #e8e8e8;
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* The Close Button */
+        .editor-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            padding: 0;
+            color: rgba(0, 0, 0, 0.45);
+            font-weight: 700;
+            font-size: 15px;
+            line-height: 1;
+            text-decoration: none;
+            background: transparent;
+            border: 0;
+            outline: 0;
+            cursor: pointer;
+            -webkit-transition: color 0.3s;
+            transition: color 0.3s;
+        }
+
+        .editor-modal-close:focus,
+        .editor-modal-close:hover {
+            color: rgba(0, 0, 0, 0.75);
+            text-decoration: none;
+        }
+
+        .editor-btn:hover,
+        .editor-btn:focus {
+            color: #c9aa44;
+            background-color: #fff;
+            border-color: #c9aa44;
+        }
+
+        .editor-btn-default-focus {
+            color: #c9aa44 !important;
+            background-color: #fff !important;
+            border-color: #c9aa44 !important;
+        }
+
+        .editor-btn-primary:hover,
+        .editor-btn-primary:focus {
+            color: #fff;
+            background-color: #c9aa44;
+            border-color: #c9aa44;
+        }
+
+        .editor-row {
+            margin-left: -6px;
+            margin-right: -6px;
+            position: relative;
+            height: auto;
+            zoom: 1;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .editor-col {
+            min-height: 1px;
+            display: block;
+            box-sizing: border-box;
+            width: 50%;
+        }
+
+        .editor-form {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            font-variant: tabular-nums;
+            line-height: 1.5;
+            list-style: none;
+            font-feature-settings: 'tnum', "tnum";
+            background-color: #F5F5F5;
+            border: 1px solid #EBEBEB;
+        }
+
+        .editor-form .editor-form-line {
+            display: inline-flex;
+            padding: 8px;
+            width: calc(100% - 16px);
+        }
+
+        .editor-table-code {
+            background-color: #EBEBEB;
+            border-radius: 2px;
+            padding: 4px 0;
+            width: 22px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .editor-seat {
+            background-color: #FFFFFF;
+        }
+
+        .editor-seat-name {
+            width: calc(100% - 200px);
+        }
+
+        .editor-modal-body input,
+        .editor-modal-body .select2 {
+            margin-left: 8px;
+        }
+
+        .editor-seat-code {
+            background-color: #F5F5F5;
+            border-radius: 2px;
+            border: 1px solid #F0F0F0;
+            padding: 4px;
+            width: 22px;
+            text-align: center;
+        }
+
+        .editor-input {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            font-variant: tabular-nums;
+            line-height: 1.5;
+            list-style: none;
+            font-feature-settings: 'tnum', "tnum";
+            position: relative;
+            display: inline-block;
+            text-align: start;
+            height: 32px;
+            width: 100%;
+            padding: 4px 11px;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            transition: all 0.3s;
+            outline: 0;
+        }
+
+        .editor-input:invalid {
+            border: 1px solid #f5222d;
+        }
+
+        textarea.editor-input {
+            max-width: 100%;
+            height: auto;
+            min-height: 32px;
+            line-height: 1.5;
+            vertical-align: bottom;
+            -webkit-transition: all 0.3s, height 0s;
+            transition: all 0.3s, height 0s;
+        }
+
+        .editor-input:hover {
+            border-color: #c9aa44;
+            border-right-width: 1px !important;
+        }
+
+        .select2-selection {
+            height: 32px !important;
+            padding: 4px 11px;
+            background-color: #fff !important;
+        }
+
+        .select2-container--default .select2-selection--single:hover {
+            border-color: #c9aa44 !important;
+        }
+
+        .select2-container .select2-selection--multiple .select2-selection__rendered {
+            display: initial !important;
+        }
+
+        .select2-container--default .select2-selection--single,
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            background-color: #fff;
+            border: 1px solid #d9d9d9 !important;
+            border-radius: 4px;
+        }
+
+        .select2-dropdown {
+            color: rgba(0, 0, 0, 0.65) !important;
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            margin: 0 !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            display: none;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: unset !important;
+            border: unset !important;
+            box-sizing: unset !important;
+            padding: 0 !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+            padding: 0 !important;
+        }
+
+        .editor-form-select {
+            width: 100px;
+        }
+
+        .editor-form-select-multiple,
+        .select2-selection--multiple {
+            width: 90px;
+            min-width: 90px;
+        }
+
+        .editor-stats {
+            display: grid;
+            width: 85%;
+        }
+
+        .editor-stats-line {
+            display: inline-flex;
+            justify-content: space-between;
+            align-content: center;
+            align-items: center;
+            height: 20px;
+            padding: 5px
+        }
+
+        .editor-stats-qty {
+            background-color: #EBEBEB;
+            border-radius: 2px;
+            border: 1px solid #F0F0F0;
+            padding: 4px 0;
+            width: 22px;
+            text-align: center;
+        }
+
+        .editor-stats-global {
+            display: grid;
+            width: 20%;
+            text-align: center;
+        }
+
+        .editor-stats-total {
+            padding: 4px 0;
+            height: 80px;
+            text-align: center;
+            display: flex;
+        }
+
+        .editor-stats-total span {
+            background-color: #EBEBEB;
+            border-radius: 2px;
+            border: 1px solid #F0F0F0;
+            font-size: 16px;
+            font-weight: 700;
+            margin: auto;
+            padding: 4px;
+        }
+
+        .editor-stats-stroller {
+            height: 20px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .editor-row-notes {
+            margin-top: 10px;
+            display: grid;
+        }
+
+        .editor-stats-stroller.hide {
+            display: none;
+        }
+    </style>
+
+    <!-- já existe este css, não copiar -->
+    <style>
+        .editor-btn {
+            line-height: 1.5;
+            font-weight: 400;
+            white-space: nowrap;
+            text-align: center;
+            border: 1px solid #d9d9d9;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            user-select: none;
+            touch-action: manipulation;
+            height: 32px;
+            padding: 0 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            color: rgba(0, 0, 0, 0.65);
+            background-color: #fff;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .editor-btn-primary {
+            color: #fff;
+            background-color: #bc9222;
+            border-color: #bc9222;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+            -webkit-box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+        }
+
+        .editor-btn-primary i {
+            margin-right: 4px;
+        }
+
+        .editor-table {
+            width: 25px;
+            height: 25px;
+            background-repeat: no-repeat;
+            object-fit: cover;
+            background-position: center;
+            margin-right: 4px;
+        }
+
+        .round-table {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABIDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+vbWvi/8AE34/+F2+HPg74c6DHcfEfw14f8ZWuqW/xIvjpnhb4dT+K1tNY0L4xTW/hCx1Lwj4o8S2eja34U/4RnwkPGV99tHimylubNPCt5f3YBseFr34mfs6Xdx4Nj+Engo6J8T/AIhJP8O7Twh49uNC+EXgCVvBemrq3hbUbrVfB41fwc+v6n4X1vxLoFhovhHUvDOp6/4gutNN/pOrXsQ1IA9f8N/tL+DfEHh3QNebQvGdo2t6LpWrta23h671e3tm1KxgvDbwatp6yWGqQwmby4tRsXezvUVbm2doZUJAPmn4K/HLwJ4Y+J/xE8U+Nr/wF4MtfjRaeGPFOp/2Ggtrf4T+K9Hm1bw7P8P/AI7a1572fhjx3qds9hfQ6p4ii8N2OseJU8XaHbwm60ywu9fAOt/aZ+MXwl+InhLT/hhoPjz4davba5408E3vizxnqbweK/hT4A0nwl4gtPHo/wCFhazp93F4bjl8Uy+FE8K6Z4Q1DxJo+q+IhrM4tmjtILmdQD17wZ8YvGWo+DvCeoJ8DPFFsl/4a0K8S20drS00m3W60u1nWDS7TUIrC/tdOiDiOyt76wsryG2WKO5tLaZXhQA7P4+6RZ6l8HfiIZg0b6doTeK7eWARK7av4KntvFehvP5kUqTwJquh2AuYJUZZ7RZbbKB9ygHj/wCxD4mu/iP8GW+MWs2emad4l+LfiW98T+IdO0G1bT/DmnXWi6Vo3gLT7Hw/p0s13c2enR6L4Q02aRL2/wBSvJtRuL+5kvWimgt7YA+w6AD/2Q==');
+        }
+
+        .oval-table {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABcDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+vy68O+NvG/xl1L4v/CvwbpXig+G/iUkWnePPHHii68BW994U8P8AgC8+Hfin4Y+B7nT9B8c6xrHgqTxu2q+L77WLvRdC8N6r4jXzdJs9dbT7PxIgBP4d+GH7Qnh/4my/FKL4a/CCTxDqPiHx3qHiK+j+Mvie31TxF4c8S2+nweF/CWqamPgo8t1pXgUabbto0NzHPZwyG4n0+y0ue9vXuAA+Eega38HvijY6n8VtBsPBWrfEDSPG+mat4z0PxCvibwb8RfFl94pu/iDop8WeJr+38M6xp3ivwp4Xh8RaN4dXX/Cr6dd6ELnT9E8R262Vt4eAB3fwo+KngT4L/D/wv8Jfi94k0f4aeJ/htpdh4FWXxnfQaDpXjTT/AA/bR6fo3jHwvr2orY6X4kg8T6XBa6tqK2E0mo6XrVxqWl6xa219aS+YAeiD9qH9m8ttHx3+EpYsyhR4/wDDJYsgBdcf2lncgILDqoIJxQB4v8cNZ8OftV+DW+C3wc8SWPidfEOoWOoeJviJ4feTU/B/gTSdAeTWreWXxLYrJpd/r+t6zp+neHrXw9pV5darHZajqeqX0FrY2DNOAcf8Rdbu7P8Abn+GPwxiWBvDvxF0zS/irrs0iOdUt/Efws0fxXp3h620y5WRLeDSLuKSObWLa5s7y7uJ7WA2d9p8LXMNwAP+HGr3Vx+3J8SPhW4iHhn4ceH/ABD8XfD8ioRqkvij4st4Ts/EttqV0XMNzo1qLi9uNGtYbW1u7ae/n+2X+oQRWUFoAQ/sZaxe698UP2gtBvzGbL4B60nwT8ENDH5dxceEh4o8WeIGu9ffLJf69JcxWls15aR6fZCzs4Vj01LmS7urkAD/2Q==');
+        }
+
+        .square-table {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABYDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+0v8AaMvtS8W6j8PfhF4Y8P6B43ufEOu3Pi3xZ4b1zxWug6JqXhL4d3mgXeqeG9fSDSNfe9t9cvte0gNpd9pz6beQWV1FqEdxbsbaUA+YL74G/HXRtM1jWtS+HPgC5/4QfShc/CG4/wCFtatNP8IbLRvi78SviSw8JpJ4BItpz4B1/wAD/DPfaNZyz6L4CtrOaV9HvjpUIB+kngzxZpfjfwxoPifSpI/s+uaLpGs/ZBc29zcaeNX0+31COzvDbSSIl1Ak4jlXIG9G28UAfB+j+CtE/Zc+KfwevPG2rfDTT/Ccfgv4meEbTx9pPgC88K+LfEesXFx4BudOPxL8Qx6xrsHifxZrcVnqF898sOnPq+rQ65qsdpAbt7O1APcvGP7UX7Pt94P8ZWln8VfC1zc/8I3rlqYIZ7l5EuLiDVNJghkUWv7uSXVLO801Fk2lr60urQfv7eZEAMX9mn4Iar4Kt/BnjnWbXwD4bvR8I9J8KHw18P8A4f3Xge4vW1NPC+r3GpfES5utc1B/EnibRpdEFhpkjaXpTaS+q+KpCZjrbW9iAdn+1Ze3GgfBjXfHWnOI9d+Gup+HfHvh1pEWW0bWdD1m0SGDUbdh/pOnXdteXdpeQxyW9wYZ2ktLu0uo4bmIA+CtVvb7Qtd/Zh8N2l5JLafth6fpk3xcurmK1e9jlX4q+JPjpJJ4TaK3htdFM/iz4xeNdMlW5tNURfDdxp9pAkOqafFrDAH7BUAA/9k=');
+        }
+
+        .rectangular-table {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABcDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+trwl4f8Ajj8TfEfgv9pvR/hp8MIbzxZe+DPiN4Um1T4yeJYvEOk/CzW/g9BojfC6e6g+Dt1BbaZqeuaxc+PNUtLYz6V/wkEke+zvL2ys9bhAOq8PfDH9oXQPidL8Uk+G3whl8Raj4g8dX3iG/T4zeJ4NV8ReG/Eltp1t4W8I6pqf/ClJJbnSfAa6ZbHRYLiOezgfz5tPstLmvb15wDzPUJvi1+yZaa/8fPFvwz8AanYtpetab8SZPDPxc1+fxD421zxl8TLPVPCXiHU01L4VWVtqd34Qt9XvPC1k9/eNcWmhXjQ6dPbafa2+jKAez/s7/tF/APw/+z/8C9A1z4z/AAx0fXNF+D3wv0fWNI1Lxt4estS0vVrHwTolpe6bf2Vxfx3FpfWt1BNb3FrPGk0U0UkboHRgAD2MftQ/s3lto+O/wlLFmUKPH/hksWQAuuP7SzuQEFh1UEE4oA+Sf24fjn8GfH37NXjrwt4H+KngDxf4k1K78IS6foPhvxXoutavexWXjLQ7y8ktdP0+8uLqeO1tba4uLh44mWKGCWRyqoxABvfEXW7uz/bn+GPwxiWBvDvxF0zS/irrs0iOdUt/Efws0fxXp3h620y5WRLeDSLuKSObWLa5s7y7uJ7WA2d9p8LXMNwAP+HGr3Vx+3J8SPhW4iHhn4ceH/EPxd8PyKhGqS+KPiy3hOz8S22pXRcw3OjWouL240a1htbW7tp7+f7Zf6hBFZQWgBD+xlrF7r3xQ/aC0G/MZsvgHrSfBPwQ0Mfl3Fx4SHijxZ4ga7198sl/r0lzFaWzXlpHp9kLOzhWPTUuZLu6uQD/2Q==');
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: rgba(0, 0, 0, 0.65) !important;
+            line-height: 1.5;
+        }
+
+
+
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: #fcfbed !important;
+            color: rgba(0, 0, 0, 0.65) !important;
+        }
+
+        .select2-container--default .select2-results__option--selected {
+            color: #bc9222 !important;
+            background-color: #fcfbed !important;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+
+<body>
+    <!-- Trigger/Open The Modal -->
+    <button id="myBtn">Open Modal</button>
+
+    <!-- The Modal -->
+    <div id="myModal" class="editor-modal-wrap">
+
+        <div class="editor-modal">
+            <i id="iconClose" class="fa-solid fa-x editor-modal-close"></i>
+            <div class="editor-modal-header">
+                <div class="editor-modal-title">Gerir mesa</div>
+            </div>
+            <div class="editor-modal-body">
+                <div class="editor-row">
+                    <button class="editor-btn editor-btn-default-focus">
+                        <div class="editor-table round-table"></div>
+                        Redonda
+                    </button>
+                    <button class="editor-btn editor-btn-default-focus">
+                        <i class="fa-regular fa-user" style="margin-right: 5px;"></i>14
+                    </button>
+                </div>
+
+                <div class="editor-row" style="margin-top: 10px;">
+                    <div class="editor-col">
+                        <form name="editor-table-form" action="/action.php" method="post" onsubmit="return submitForm"
+                            class="editor-form">
+                            <div class="editor-form-line">
+                                <div class="editor-table-code">5</div>
+                                <input class="editor-input" type="text" id="tableName" name="tableName">
+                            </div>
+                            <div id="seats"></div>
+                            <div class="editor-form-line">
+                                <div class="editor-stats">
+                                    <div class="editor-stats-line">
+                                        <span>A partir de 8 anos</span>
+                                        <span id="totalAdult" class="editor-stats-qty">0</span>
+                                    </div>
+                                    <div class="editor-stats-line">
+                                        <span>Dos 3 aos 7 anos</span>
+                                        <span id="totalChild" class="editor-stats-qty">0</span>
+                                    </div>
+                                    <div class="editor-stats-line">
+                                        <span>Dos 6 meses aos 2 anos</span>
+                                        <span id="totalBaby" class="editor-stats-qty">0</span>
+                                    </div>
+                                    <div class="editor-stats-line">
+                                        <span>Dos 0 aos 5 meses</span>
+                                        <span id="totalNewborn" class="editor-stats-qty">0</span>
+                                    </div>
+                                </div>
+                                <div class="editor-stats-global">
+                                    <span class="editor-stats-total">
+                                        <span id="total">0</span>
+                                    </span>
+                                    <span class="editor-stats-stroller" id="totalStroller">0 carrinho</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="editor-col">
+
+                    </div>
+                </div>
+
+                <div class="editor-row editor-row-notes">
+                    <div>Notas:</div>
+                    <textarea id="notes" class="editor-input" name="notes" rows="4" cols="50"
+                        maxlength="200">A nice day is a nice day.</textarea>
+                </div>
+            </div>
+            <div class="editor-modal-footer">
+                <button id="btnClose" type="button" class="editor-btn editor-btn-default">Cancelar</button>
+                <button type="submit" class="editor-btn editor-btn-primary" onclick="submitForm()">Gravar</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        let modal = document.getElementById("myModal");
+        let btn = document.getElementById("myBtn");
+        let seats = [
+            { code: 1, guestName: 'Maria', guestAge: 'ADULT', foodRestrictions: ['1'] },
+            { code: 2, guestName: 'Sandra', guestAge: 'NEWBORN', foodRestrictions: [] },
+        ];
+
+        // Get the <span> element that closes the modal
+        let iconClose = document.getElementById("iconClose");
+        let btnClose = document.getElementById("btnClose");
+
+        // When the user clicks on the button, open the modal
+        btn.onclick = function () {
+            modal.style.display = "block";
+            openTable(seats);
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        iconClose.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        btnClose.onclick = function () {
+            modal.style.display = "none";
+        }
+
+
+        function openTable(seats) {
+            let container = document.getElementById('seats');
+
+            for (let index = 0; index < seats?.length; index++) {
+                const seat = seats[index];
+
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="editor-form-line editor-seat">
+                        <div class="editor-seat-code">${seat.code}</div>
+                        <input class="editor-input editor-seat-name" type="text" id="guestName"
+                            name="guestName" value="${seat?.guestName || ''}">
+                        <select class="editor-form-select selectAge editor-select-age-${seat.code}" name="guestAge${seat.code}"></select>
+                        <select class="editor-form-select-multiple editor-form-select-restriction-${seat.code}" multiple name="foodRestrictions${seat.code}">
+                            <option></option>
+                        </select>
+                    </div>
+                    `);
+                initializeSelects(seat);
+            }
+
+            updateTotals();
+        }
+
+        // $(document).ready(function () {
+        //     initializeSelects();
+        // });
+
+        function updateGuestAge(value) {
+            if (!value?.params.data) return;
+            else {
+                const selected = value?.params.data?.id;
+                const className = Array.from(value?.target?.classList).find(f => f?.includes('editor-select-age'));
+                const lastCharacter = className.trim().charAt(className.length - 1);
+                const seatCode = parseInt(lastCharacter);
+                const indexSeat = seats.findIndex(f => f?.code === seatCode);
+                if (indexSeat > -1) seats[indexSeat].guestAge = selected || null;
+
+                updateTotals();
+            }
+        }
+
+        function updateTotals() {
+            const totalAdult = seats.filter(f => f?.guestAge === 'ADULT')?.length || 0;
+            document.getElementById('totalAdult').innerHTML = totalAdult;
+
+            const totalChild = seats.filter(f => f?.guestAge === 'CHILD')?.length || 0;
+            document.getElementById('totalChild').innerHTML = totalChild;
+
+            const totalBaby = seats.filter(f => f?.guestAge === 'BABY')?.length || 0;
+            document.getElementById('totalBaby').innerHTML = totalBaby;
+
+            const totalNewborn = seats.filter(f => f?.guestAge === 'NEWBORN')?.length || 0;
+            document.getElementById('totalNewborn').innerHTML = totalNewborn;
+            if(totalNewborn > 0) {
+                document.getElementById('totalStroller').classList.remove('hide');
+                document.getElementById('totalStroller').innerHTML = `${totalNewborn} carrinho`;
+            } else {
+                document.getElementById('totalStroller').classList.add('hide');
+            }
+
+            const total = totalAdult + totalChild;
+            document.getElementById('total').innerHTML = total;
+        }
+
+        function initializeSelects(seat) {
+            $(`.editor-select-age-${seat.code}`).select2({
+                minimumResultsForSearch: -1,
+                data: [
+                    { id: 'ADULT', text: 'mais de 7 anos' },
+                    { id: 'CHILD', text: '3 a 7 anos' },
+                    { id: 'BABY', text: '6 meses a 2 anos' },
+                    { id: 'NEWBORN', text: '0 a 5 meses' },
+                ],
+                val: seat?.guestAge || null
+            });
+            if (seat?.guestAge) $(`.editor-select-age-${seat.code}`).val(seat.guestAge).trigger('change');
+            $(`.editor-select-age-${seat.code}`).on("select2:select", function (e) { updateGuestAge(e); });
+
+            $(`.editor-form-select-restriction-${seat.code}`).select2({
+                placeholder: '',
+                multiple: true,
+                closeOnSelect: false,
+                allowClear: true,
+                data: [
+                    { id: '1', text: 'veg', description: 'Vegetariano' },
+                    { id: '2', text: 'Veg', description: 'Vegan' },
+                    { id: '3', text: 'PC', description: 'Trocar peixe por carne' },
+                    { id: '4', text: 'CP', description: 'Trocar carne por peixe' },
+                ],
+                templateSelection: function (table) {
+                    if (!table.id) return table.text;
+
+                    var $state = $(
+                        `<span class="option">${table.text}, </span>`
+                    );
+                    return $state;
+                }
+            });
+            if (seat?.foodRestrictions?.length > 0) $(`.editor-form-select-restriction-${seat.code}`).val(seat.foodRestrictions).trigger('change');
+        }
+
+        function submitForm() {
+            let form = document.forms["editor-table-form"];
+
+            const tableName = form['tableName'].value;
+            if (tableName == '') document.getElementById("tableName").setCustomValidity("Invalid field.")
+
+        }
+    </script>
+</body>
+
+</html>
