@@ -1979,22 +1979,10 @@ class MouseManager {
         menu.style.display = "none";
 
         const ul = document.createElement("ul");
-        ul.classList.add("menu");
+        ul.classList.add("context-menu-options");
         menu.appendChild(ul);
 
-        ul.innerHTML = `
-                <li class="download"><a href="#" id="ui-context-rotate" ><i class="fas fa-sync-alt" aria-hidden="true"></i> Rodar</a></li>
-                <li class="trash"><a href="#" id="ui-context-delete"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a></li>
-        `;
-
         document.body.appendChild(menu);
-
-        document.getElementById("ui-context-rotate").onclick = (event) => {
-            this.contextMenuAction(event, 'ROTATE')
-        };
-        document.getElementById("ui-context-delete").onclick = (event) => {
-            this.contextMenuAction(event, 'DELETE')
-        };
 
         /*document.body.innerHTML += `
             <!-- Context menu-->
@@ -2011,6 +1999,33 @@ class MouseManager {
                 </ul>
             </div>
         `*/
+    }
+
+
+    contextMenuActiveOptions(options) {
+        const elements = document.getElementsByClassName("context-menu-options");
+        if(elements.length > 0 ) {
+            elements[0].innerHTML = '';
+
+            for(let option of options) {
+
+                switch(option) {
+                    case "ROTATE":
+                        elements[0].innerHTML += `<li class="download"><a href="#" id="ui-context-rotate" ><i class="fas fa-sync-alt" aria-hidden="true"></i> Rodar</a></li>`;
+                        document.getElementById("ui-context-rotate").onclick = (event) => {
+                            this.contextMenuAction(event, 'ROTATE')
+                        };
+                        break;
+
+                    case "DELETE":
+                        elements[0].innerHTML += `<li class="trash"><a href="#" id="ui-context-delete"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a></li>`;
+                        document.getElementById("ui-context-delete").onclick = (event) => {
+                            this.contextMenuAction(event, 'DELETE')
+                        };
+                        break;
+                }
+            }
+        }
     }
 
     getFocalPosition(event, deltaScale = 0) {
@@ -2031,7 +2046,7 @@ class MouseManager {
         
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
-        console.log("World Position:")
+        console.log("World Position:", {x, y})
         this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
@@ -2046,13 +2061,25 @@ class MouseManager {
         
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
-        console.log("World Position:")
+        console.log("World Position:", {x, y})
         this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
     }
 
     handleContextMenu(event) {
+        const options = [];
+
+        if(this.selectedObject && this.selectedObject.tableType) {
+            
+            options.push("ROTATE");
+            if(!this.selectedObject.couple) {
+                options.push("DELETE");
+            }
+
+        }
+        this.contextMenuActiveOptions(options);
+
         this.activeContextMenu(event);
     }
 
@@ -2068,7 +2095,6 @@ class MouseManager {
 
         if (event.button == 2 || this.contextMenuVisible == true) {
             this.hideContextMenu();
-            
         }
 
         if (event.toElement.classList.contains("ui")) {
@@ -2148,8 +2174,9 @@ class MouseManager {
     handleMouseWheel(event) {
         const scaleDelta = event.deltaY > 0 ? -1 : 1;
         const zoom = Math.exp(scaleDelta * this.zoomIntensity);
-
+        
         const posFocal = this.getFocalPosition(event, zoom);
+
         this.world.pan(posFocal.x, posFocal.y);
         this.world.zoom(zoom);
         this.world.applyTransform();
@@ -2253,6 +2280,13 @@ class RoomEditor {
                 tableType: table.tableType,
                 code: table.code,
                 couple: table.couple,
+
+                seats: table.seats.map(s => ({
+                    code: s.code,
+                    gestName: s.gestName,
+                    guestAge: s.guestAge,
+                    foodRestrictions: s.foodRestrictions,
+                }))
                 // Add other properties specific to your object
             };
 
