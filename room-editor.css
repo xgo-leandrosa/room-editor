@@ -193,7 +193,7 @@ ul {
 
 /* UI */
 
-.ant-row {
+.editor-row {
     margin-left: -6px;
     margin-right: -6px;
     position: relative;
@@ -210,17 +210,17 @@ ul {
     z-index: 99;
 }
 
-.ant-row .input {
+.editor-row .input {
     margin-right: 16px;
     display: grid;
     color: rgba(0, 0, 0, 0.65) !important;
 }
 
-.tables_ui .ant-btn:last-child {
+.tables_ui .editor-btn:last-child {
     margin-right: 0;
 }
 
-.ant-btn {
+.editor-btn {
     line-height: 1.5;
     font-weight: 400;
     white-space: nowrap;
@@ -244,7 +244,7 @@ ul {
     margin-right: 8px;
 }
 
-.ant-btn-primary {
+.editor-btn-primary {
     color: #fff;
     background-color: #bc9222;
     border-color: #bc9222;
@@ -253,7 +253,7 @@ ul {
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
 }
 
-.ant-btn-primary i {
+.editor-btn-primary i {
     margin-right: 4px;
 }
 
@@ -336,11 +336,11 @@ ul {
     height: 32px;
 }
 
-.tables_ui .ant-radio {
+.tables_ui .editor-radio {
     margin-right: 0;
 }
 
-.ant-radio {
+.editor-radio {
     display: inline-flex;
     align-content: center;
     align-items: center;
