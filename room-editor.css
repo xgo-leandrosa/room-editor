@@ -295,9 +295,12 @@ ul {
     background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAUABcDAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+trwl4f8Ajj8TfEfgv9pvR/hp8MIbzxZe+DPiN4Um1T4yeJYvEOk/CzW/g9BojfC6e6g+Dt1BbaZqeuaxc+PNUtLYz6V/wkEke+zvL2ys9bhAOq8PfDH9oXQPidL8Uk+G3whl8Raj4g8dX3iG/T4zeJ4NV8ReG/Eltp1t4W8I6pqf/ClJJbnSfAa6ZbHRYLiOezgfz5tPstLmvb15wDzPUJvi1+yZaa/8fPFvwz8AanYtpetab8SZPDPxc1+fxD421zxl8TLPVPCXiHU01L4VWVtqd34Qt9XvPC1k9/eNcWmhXjQ6dPbafa2+jKAez/s7/tF/APw/+z/8C9A1z4z/AAx0fXNF+D3wv0fWNI1Lxt4estS0vVrHwTolpe6bf2Vxfx3FpfWt1BNb3FrPGk0U0UkboHRgAD2MftQ/s3lto+O/wlLFmUKPH/hksWQAuuP7SzuQEFh1UEE4oA+Sf24fjn8GfH37NXjrwt4H+KngDxf4k1K78IS6foPhvxXoutavexWXjLQ7y8ktdP0+8uLqeO1tba4uLh44mWKGCWRyqoxABvfEXW7uz/bn+GPwxiWBvDvxF0zS/irrs0iOdUt/Efws0fxXp3h620y5WRLeDSLuKSObWLa5s7y7uJ7WA2d9p8LXMNwAP+HGr3Vx+3J8SPhW4iHhn4ceH/EPxd8PyKhGqS+KPiy3hOz8S22pXRcw3OjWouL240a1htbW7tp7+f7Zf6hBFZQWgBD+xlrF7r3xQ/aC0G/MZsvgHrSfBPwQ0Mfl3Fx4SHijxZ4ga7198sl/r0lzFaWzXlpHp9kLOzhWPTUuZLu6uQD/2Q==');
 }
 
+.select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 11px !important;
+}
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: rgba(0, 0, 0, 0.65) !important;
-    line-height: 1.5;
+    line-height: 22px !important;
 }
 
 .select2-container--default .select2-selection--single {
@@ -306,16 +309,19 @@ ul {
     border-radius: 4px;
 }
 
+.select2-results__option {
+    font-size: 13px;
+    padding: 2px 8px;
+}
+
 .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
     background-color: #fcfbed !important;
+    color: inherit !important;
 }
 
 .select2-container--default .select2-results__option--selected {
-    color: #bc9222;
-    font-family: Inter, sans-serif;
-    font-feature-settings: 'liga' 1, 'calt' 1;
-    /* fix for Chrome */
-    font-weight: 600;
+    color: #bc9222 !important;
+    font-weight: normal;
     background-color: #fcfbed !important;
 }
 
@@ -324,9 +330,6 @@ ul {
     align-items: center;
     justify-content: space-between;
     color: rgba(0, 0, 0, 0.65);
-    font-family: Inter, sans-serif;
-    font-feature-settings: 'liga' 1, 'calt' 1;
-    /* fix for Chrome */
     font-weight: normal;
     font-size: 14px;
     line-height: 22px;
@@ -630,7 +633,7 @@ textarea.editor-input {
 
 .select2-selection {
     height: 32px !important;
-    padding: 4px 11px;
+    padding: 4px 11px !important;
     background-color: #fff !important;
 }
 
@@ -651,12 +654,29 @@ textarea.editor-input {
 
 .select2-dropdown {
     color: rgba(0, 0, 0, 0.65) !important;
+    border: 1px solid #d9d9d9 !important;
+    border-top: unset !important;
 }
 
+.select2-container--default .select2-selection--multiple .select2-selection__clear {
+    margin-right: 0 !important;
+    margin-top: 2px !important;
+    color: rgba(0, 0, 0, 0.65);
+}
 .select2-container--default .select2-selection--multiple {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border: 1px solid #d9d9d9 !important;
+}
+
+.select2-container--default .select2-selection--multiple:hover {
+    border-color: #c9aa44 !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 32px !important;
+    top: 0px !important;
+    right: 0px !important;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
@@ -753,3 +773,16 @@ textarea.editor-input {
 }
 
 /* END MODAL UI */
+
+
+
+
+
+
+
+
+
+
+
+
+

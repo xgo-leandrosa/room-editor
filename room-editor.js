@@ -232,9 +232,15 @@ class Table extends RoomObject {
         }
     }
 
+    updateSeats() {
+        for (let seat of this.seats) {
+            seat.updateStatus();
+        }
+    }
+
     addSeatsTooltips() {
         for (let seat of this.seats) {
-            tippy(seat.element, { content: seat.guestName })
+            seat.addTooltip();
         }
     }
 
@@ -1664,7 +1670,7 @@ TableTypesIcon = {
 class Seat extends RoomObject {
     number = 0;
     code = 0;
-    guestName = "Guest";
+    guestName = "";
     guestAge = "ADULT";
     foodRestrictions = [];
 
@@ -1690,7 +1696,11 @@ class Seat extends RoomObject {
         } else {
             this.element.classList.remove('seat--couple');
 
-            this.setREM();
+            if(this.guestName) {
+                this.setFilled();
+            } else {
+                this.setREM();
+            }
         }
 
     }
@@ -1713,6 +1723,11 @@ class Seat extends RoomObject {
     addToContainer() {
         this.table.element.appendChild(this.element);
     }
+
+    addTooltip() {
+        this.tippyInstance = tippy(this.element, { content: this.guestName })
+    }
+
 
     addSeatNumeration() {
         this.elementNumeration = document.createElement("div");
@@ -2407,6 +2422,14 @@ class RoomEditor {
             object.init();
             // Add other properties specific to your object
 
+            for(const objSeat of serializedObject.seats) {
+                object.seats[objSeat.number | objSeat.code].guestName = objSeat.guestName;
+                object.seats[objSeat.number | objSeat.code].guestAge = objSeat.guestAge;
+                object.seats[objSeat.number | objSeat.code].foodRestrictions = objSeat.foodRestrictions;
+            }
+            object.updateSeats();
+
+
             // Add the deserialized object to the world
             this.world.addTable(object);
             object.applyTransform();
@@ -2646,15 +2669,24 @@ class ManageGuestsModal {
                 this.drawTable();
             }, 200);
         } else {
-            const table = new TableTypes[this.subjectTable.tableType]();
-            table.x = table.halfWidth + ((bounding.width - table.width) / 2);
-            table.y = table.halfHeight + 60;
-            table.init();
-            table.world = {
+            this.miniTable = new TableTypes[this.subjectTable.tableType]();
+            this.miniTable.x = this.miniTable.halfWidth + ((bounding.width - this.miniTable.width) / 2);
+            this.miniTable.y = this.miniTable.halfHeight + 60;
+            this.miniTable.init();
+            this.miniTable.world = {
                 element: this.tableDrawElement,
             };
-            table.addToContainer();
-            table.applyTransform();
+            this.miniTable.addToContainer();
+            this.miniTable.applyTransform();
+
+            for(const miniSeat of this.miniTable.seats) {
+                miniSeat.guestName = this.subjectTable.seats[miniSeat.number].guestName;
+                miniSeat.guestAge = this.subjectTable.seats[miniSeat.number].guestAge;
+                miniSeat.foodRestrictions = this.subjectTable.seats[miniSeat.number].foodRestrictions;
+            }
+
+            this.miniTable.updateSeats();
+            
         }
 
     }
@@ -2681,6 +2713,13 @@ class ManageGuestsModal {
             guestNameInput.id = `guestName-${seat.number}`;
             guestNameInput.name = `guestName-${seat.number}`;
             guestNameInput.value = seat.guestName || '';
+            guestNameInput.onblur = () => {
+                if(this.miniTable) {
+                    this.miniTable.seats[seat.number].guestName = guestNameInput.value;
+                    this.miniTable.updateSeats();
+                }
+
+            }
             this.formElements.seats[seat.number].guestName = guestNameInput;
             formLineDiv.appendChild(guestNameInput);
 
