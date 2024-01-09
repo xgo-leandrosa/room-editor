@@ -1,3 +1,473 @@
+const DEFAULT_TRANSLATIONS = [
+    {
+      value: {
+        pt: "A partir dos 8 anos",
+        en: "From 8 years old",
+        es: "A partir de 8 años",
+        fr: "A partir de 8 ans"
+      },
+      tag: "ABOVE_8_YEARS",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Média pax/mesa",
+        en: "Average pax/table",
+        es: "Promedio pax/tabla",
+        fr: "Moyenne pax/table"
+      },
+      tag: "AVG_PAX_TABLES",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "6 meses a 2 anos",
+        en: "6 months to 2 years",
+        es: "6 meses a 2 años",
+        fr: "6 meses a 2 años"
+      },
+      tag: "BABY_AGE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Carrinho",
+        en: "Stroller",
+        es: "Cochecito",
+        fr: "Poussette"
+      },
+      tag: "BABY_CAR",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Cancelar",
+        en: "Cancel",
+        es: "Cancelar",
+        fr: "Annuler"
+      },
+      tag: "CANCEL",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "3 aos 7 anos",
+        en: "3 to 7 years old",
+        es: "3 a 7 años",
+        fr: "3 à 7 ans"
+      },
+      tag: "CHILD_AGE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Posicionamento casal",
+        en: "Couple positioning",
+        es: "Posicionamiento de pareja",
+        fr: "Positionnement du couple"
+      },
+      tag: "COUPLE_POSITION",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Mesa do casal",
+        en: "Couple's table",
+        es: "Mesa de pareja",
+        fr: "La table des couples"
+      },
+      tag: "COUPLE_TABLES",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "c/convidados à frente",
+        en: "w/guests in front",
+        es: "con invitados al frente",
+        fr: "avec des invités devant"
+      },
+      tag: "COUPLE_TABLE_COMPLETE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "s/convidados à frente",
+        en: "w/o guests at the front",
+        es: "sin invitados al frente",
+        fr: "sans invités à l'avant"
+      },
+      tag: "COUPLE_TABLE_INCOMPLETE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Mesa de noivos > 8 pax",
+        en: "Couple table > 8 pax",
+        es: "Mesa de novios > 8 pax",
+        fr: "Table de marié > 8 pax"
+      },
+      tag: "COUPLE_TABLE_OPTIONS",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Eliminar",
+        en: "Delete",
+        es: "Eliminar",
+        fr: "Éliminer"
+      },
+      "canBeDeleted": true,
+      platform: "BO",
+      tag: "DELETE"
+    },
+    {
+      value: {
+        pt: "Cadeiras vazias",
+        en: "Empty chairs",
+        es: "Sillas vacias",
+        fr: "Chaises vides"
+      },
+      tag: "EMPTY_CHAIRS",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Erro",
+        en: "Error",
+        es: "Error",
+        fr: "Erreur"
+      },
+      "canBeDeleted": false,
+      tag: "ERROR",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Evento de",
+        en: "Event by",
+        es: "Evento por",
+        fr: "Événement par"
+      },
+      tag: "EVENT_BY",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Cadeiras preenchidas",
+        en: "Filled chairs",
+        es: "Sillas llenas",
+        fr: "Chaises remplies"
+      },
+      tag: "FILLED_CHAIRS",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Dos 6 meses a 2 anos",
+        en: "From 6 months to 2 years",
+        es: "De 6 meses a 2 años",
+        fr: "De 6 meses a 2 años"
+      },
+      tag: "FROM_BABY_AGE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Dos 3 aos 7 anos",
+        en: "From 3 to 7 years old",
+        es: "De 3 a 7 años",
+        fr: "De 3 à 7 ans"
+      },
+      tag: "FROM_CHILD_AGE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Dos 0 a 5 meses",
+        en: "From 0 to 5 months",
+        es: "De 0 a 5 meses",
+        fr: "De 0 à 5 mois"
+      },
+      tag: "FROM_NEWBORN_AGE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Convidados previstos",
+        en: "Expected guests",
+        es: "Invitados esperados",
+        fr: "Invités attendus"
+      },
+      tag: "GUEST_EXPECTED",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Plano dos convidados",
+        en: "Guest plan",
+        es: "Plan de invitados",
+        fr: "Forfait invité"
+      },
+      tag: "GUEST_PLAN",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Não é possível unir as mesas",
+        en: "Unable to join tables",
+        es: "No se puede unir mesas",
+        fr: "Impossible de rejoindre les tables"
+      },
+      "canBeDeleted": false,
+      tag: "INVALID_TABLE_JOIN",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Unir mesas",
+        en: "Join tables",
+        es: "Unirse tablas",
+        fr: "Joindre des tables"
+      },
+      "canBeDeleted": false,
+      tag: "JOIN_TABLES",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Deseja unir as mesas?",
+        en: "Do you want to join the tables?",
+        es: "¿Quieres unirte a las mesas?",
+        fr: "Voulez-vous rejoindre les tables?"
+      },
+      "canBeDeleted": false,
+      tag: "JOIN_TABLES_QUESTION",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Ao unir as mesas, o plano de sala e posicionamentos das outras mesas poderão alterar de maneira a respeitar as regras de sala e posicionamentos.",
+        en: "When joining tables, the room plan and positioning of other tables may change in order to respect the room rules and positions.",
+        es: "Al unir mesas, el plano de la sala y la ubicación de otras mesas pueden cambiar para respetar las reglas y posiciones de la sala.",
+        fr: "Lors de la jonction des tables, le plan de la salle et le positionnement des autres tables peuvent changer afin de respecter les règles et positions de la salle."
+      },
+      "canBeDeleted": false,
+      tag: "JOIN_TABLES_QUESTION_DESCRIPTION",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Gerir convidados",
+        en: "Manage guests",
+        es: "Administrar invitados",
+        fr: "Gérer les invités"
+      },
+      tag: "MNG_GUESTS",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "0 a 5 meses",
+        en: "0 to 5 months",
+        es: "0 a 5 meses",
+        fr: "0 à 5 mois"
+      },
+      tag: "NEWBORN_AGE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Notas",
+        en: "Notes",
+        es: "Notas",
+        fr: "Remarques"
+      },
+      tag: "NOTES",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Nº",
+        en: "No.",
+        es: "Nº",
+        fr: "N°"
+      },
+      tag: "NUMBER_SHORT",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Oval",
+        en: "Oval",
+        es: "Oval",
+        fr: "Ovale"
+      },
+      tag: "OVAL_TABLE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Retangular",
+        en: "Rectangular",
+        es: "Rectangular",
+        fr: "Rectangulaire"
+      },
+      tag: "RECTANGULAR_TABLE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Retroceder",
+        en: "Rewind",
+        es: "Regresa",
+        fr: "Retourner"
+      },
+      platform: "BO",
+      tag: "REWIND"
+    },
+    {
+      value: {
+        pt: "Planos de sala",
+        en: "Seating Plan",
+        es: "Plan de asientos",
+        fr: "Plan de salle"
+      },
+      tag: "ROOM_PLAN",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Crianças",
+        en: "Children",
+        es: "Niños",
+        fr: "Enfants"
+      },
+      tag: "ROOM_PLAN_CHILD",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Convidados",
+        en: "Guests",
+        es: "Invitados",
+        fr: "Invités"
+      },
+      tag: "ROOM_PLAN_GUESTS",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Posicionamento global",
+        en: "Global positioning",
+        es: "Posicionamiento global",
+        fr: "Positionnement global"
+      },
+      tag: "ROOM_PLAN_POSITION",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Staff",
+        en: "Staff",
+        es: "Staff",
+        fr: "Staff"
+      },
+      tag: "ROOM_PLAN_STAFF",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Total mesas",
+        en: "Total tables",
+        es: "Tablas totales",
+        fr: "Tables totaux"
+      },
+      tag: "ROOM_PLAN_TOTAL_TABLES",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Rodar",
+        en: "Rotate",
+        es: "Girar",
+        fr: "Tourner"
+      },
+      platform: "BO",
+      tag: "ROTATE"
+    },
+    {
+      value: {
+        pt: "Redonda",
+        en: "Round",
+        es: "Redondo",
+        fr: "Rond"
+      },
+      tag: "ROUND_TABLE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Quadrada",
+        en: "Square",
+        es: "Cuadrado",
+        fr: "Carré"
+      },
+      tag: "SQUARE_TABLE",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Mesas",
+        en: "Tables",
+        es: "Tablas",
+        fr: "Tables"
+      },
+      platform: "BO",
+      tag: "TABLES"
+    },
+    {
+      value: {
+        pt: "Folhetos de mesa",
+        en: "Table flyers",
+        es: "Folletos de mesa",
+        fr: "Dépliants de table"
+      },
+      tag: "TABLE_FLYERS",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Posição inválida",
+        en: "Invalid position",
+        es: "Posición no válida",
+        fr: "Poste invalide"
+      },
+      tag: "TABLE_INVALID_POSITION",
+      platform: "BO"
+    },
+    {
+      value: {
+        pt: "Mesas para",
+        en: "Tables for",
+        es: "Tablas para",
+        fr: "Tables pour"
+      },
+      platform: "BO",
+      tag: "TYPE_TABLES"
+    },
+    {
+      value: {
+        pt: "Local",
+        en: "Venue",
+        es: "Lugar",
+        fr: "Lieu"
+      },
+      tag: "WEDDING_PLACE_SHORT",
+      platform: "BO"
+    }
+];
+
+
 class RoomObject {
     constructor() {
         this.rotate = 0;
@@ -2760,7 +3230,7 @@ class ManageGuestsModal {
 
             const seatCodeDiv = document.createElement("div");
             seatCodeDiv.classList.add("editor-seat-code");
-            seatCodeDiv.innerHTML = seat.number;
+            seatCodeDiv.innerHTML = seat.number + 1;
             formLineDiv.appendChild(seatCodeDiv);
 
             const guestNameInput = document.createElement("input");
