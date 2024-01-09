@@ -261,6 +261,15 @@ ul {
     margin-right: 4px;
 }
 
+.editor-table {
+    width: 25px;
+    height: 25px;
+    background-repeat: no-repeat;
+    object-fit: cover;
+    background-position: center;
+    margin-right: 4px;
+}
+
 .table_ui {
     width: 25px;
     height: 25px;
