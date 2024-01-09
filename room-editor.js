@@ -2867,6 +2867,7 @@ class ManageGuestsModal {
                 seat.foodRestrictions = this.formElements.seats[i].foodRestrictions.select2('data').map(v => v.id);
             }
             
+            this.subjectTable.updateSeats();
             this.close();
         }
 
