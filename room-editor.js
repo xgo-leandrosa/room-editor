@@ -235,6 +235,7 @@ class Table extends RoomObject {
     updateSeats() {
         for (let seat of this.seats) {
             seat.updateStatus();
+            seat.updateToolTip();
         }
     }
 
@@ -1725,9 +1726,62 @@ class Seat extends RoomObject {
     }
 
     addTooltip() {
-        this.tippyInstance = tippy(this.element, { content: this.guestName })
+        this.tooltipElement = document.createElement("div");
+
+        this.tooltipElementRow1 = document.createElement("div");
+        this.tooltipElementRow1.classList.add("editor-row");
+
+        this.tooltipElementRow1Icon = document.createElement("div");
+        this.tooltipElementRow1Content = document.createElement("div");
+        this.tooltipElementRow1.appendChild(this.tooltipElementRow1Icon)
+
+        this.miniSeat = document.createElement("div");
+        this.miniSeat.classList.add("miniSeat");
+        this.miniSeat.innerHTML = this.number;
+        this.tooltipElementRow1Icon.appendChild(this.miniSeat);
+
+        this.tooltipElementRow1.appendChild(this.tooltipElementRow1Content)
+        this.tooltipElementRow1Content.innerHTML = this.guestName || "Sem convidado";
+
+        this.tooltipElementRow2 = document.createElement("div");
+        this.tooltipElementRow2.classList.add("editor-row");
+        this.tooltipElementRow2Icon = document.createElement("div");
+        this.tooltipElementRow2Icon.classList.add("table_ui");
+        this.tooltipElementRow2Icon.classList.add("cake-icon");
+
+        this.tooltipElementRow2Content = document.createElement("div");
+        this.tooltipElementRow2.appendChild(this.tooltipElementRow2Icon)
+        this.tooltipElementRow2.appendChild(this.tooltipElementRow2Content)
+        this.tooltipElementRow2Content.innerHTML = this.guestAge;
+
+        this.tooltipElement.appendChild(this.tooltipElementRow1);
+        this.tooltipElement.appendChild(this.tooltipElementRow2);
+
+        this.tippyInstance = tippy(this.element, { 
+            theme: 'light',
+            content: this.tooltipElement 
+        });
     }
 
+    updateToolTip() {
+        this.tooltipElementRow1Content.innerText = this.guestName || "Sem convidado";
+
+        if(this.isCouple) {
+            this.miniSeat.classList.add('seat--couple');
+            this.miniSeat.classList.remove('seat--couple--rem');
+            this.miniSeat.classList.add('seat--couple--filled');
+        } else {
+            this.miniSeat.classList.remove('seat--couple');
+
+            if(this.guestName) {
+                this.miniSeat.classList.remove('seat--rem');
+            this.miniSeat.classList.add('seat--filled');
+            } else {
+                this.miniSeat.classList.remove('seat--filled');
+                this.miniSeat.classList.add('seat--rem');
+            }
+        }
+    }
 
     addSeatNumeration() {
         this.elementNumeration = document.createElement("div");
@@ -1875,6 +1929,7 @@ class MouseManager {
     initializeUi() {
         const ui1 = document.createElement('div');
         ui1.classList.add("editor-row");
+        ui1.classList.add("ui-row");
         ui1.style["justify-content"] = "space-between";
         
         /*<option title="round-table" value="ovals" pax="14">Redonda</option>
@@ -1930,6 +1985,7 @@ class MouseManager {
         
         const ui2 = document.createElement('div');
         ui2.classList.add("editor-row");
+        ui2.classList.add("ui-row");
 
         ui2.innerHTML = `
         <div class="input">
@@ -2382,6 +2438,7 @@ class RoomEditor {
 
                 seats: table.seats.map(s => ({
                     code: s.code,
+                    number: s.number,
                     guestName: s.guestName,
                     guestAge: s.guestAge,
                     foodRestrictions: s.foodRestrictions,

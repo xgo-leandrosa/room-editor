@@ -34,6 +34,18 @@
     position: absolute;
 }
 
+.miniSeat {
+    border-radius: 4px 4px 0px 0px;
+    background: red;
+    font-weight: 700;
+    font-family: Inter, sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+    margin: 0px 6px 0px 6px;
+    /* fix for Chrome */
+    width: 20px;
+}
+
+
 .seat {
     position: absolute;
     border-radius: 4px 4px 0px 0px;
@@ -196,6 +208,10 @@ ul {
 
 /* UI */
 
+.ui-row {
+    background: white;
+}
+
 .editor-row {
     margin-left: -6px;
     margin-right: -6px;
@@ -209,7 +225,6 @@ ul {
     display: flex;
     flex-direction: row;
 
-    background: white;
     z-index: 99;
 }
 
@@ -277,6 +292,10 @@ ul {
     object-fit: cover;
     background-position: center;
     margin-right: 4px;
+}
+
+.cake-icon {
+    background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEASABIAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAARABADAREAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+5z4h/Fjwt8Pta0vSvEHjHw/4bl1Hwl428RQ2msWMlzPdJ4ZTRmW7gul17So4Utm1CUf2O9pPd+JHYw6ZqOly6Zci8AD4e/Fjwr8QNc1XSPD/AIz8O+JJtO8KeDPET2ej2MlrcQQ+JI9WZ9QkuX13VEmguns4Y/7HFnbX3hmWPydVvtSfVbM2wB8ZeNJL0/Gj4zeJINP8UrLPr2g6Ho1p4z/Y4+Lvxe8F6xpejeBNH0m81TRvEPhb4errsS6X4sj1R9PXTfF0nhPWIlvb21024XWo9eIBN4F87TPjZ8HZbOw8W+I9Hsr3xVZ6h4tl/Y5+K3wd17T5PEfhJtNisvE2vRfD3w54Nl8KTeIIoLi0lfTtNOlK9idevrpdHfXbwA/SOgAoAP/Z');
 }
 
 .round-table {
@@ -775,9 +794,15 @@ textarea.editor-input {
 /* END MODAL UI */
 
 
+.tippy-tooltip.light-theme {
+    background-color: white;
+    color: black;
+}
 
-
-
+.tippy-backdrop {
+    background-color: white;
+    color: black;
+}
 
 
 
