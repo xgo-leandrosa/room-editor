@@ -2432,6 +2432,8 @@ class ManageGuestsModal {
 
     subjectTable = null;
 
+    formElements = {};
+
     constructor() {
         this.modalElement = document.createElement("div");
         this.modalElement.classList.add("editor-modal-wrap");
@@ -2495,6 +2497,7 @@ class ManageGuestsModal {
     createModalBody(table) {
         this.subjectTable = table;
         this.modalBodyElement.innerHTML = '';        
+        this.formElements = {};
 
         // Create the first row with buttons
         const row1 = document.createElement("div");
@@ -2544,6 +2547,8 @@ class ManageGuestsModal {
         tableNameInput.id = "tableName";
         tableNameInput.name = "tableName";
         tableNameInput.value = table.name || "";
+
+        this.formElements.name = tableNameInput;
         formLine.appendChild(tableNameInput);
 
         formElement.appendChild(formLine);
@@ -2620,6 +2625,7 @@ class ManageGuestsModal {
         notesTextarea.cols = "50";
         notesTextarea.maxLength = "200";
         notesTextarea.textContent = table.notes || "";
+        this.formElements.notes = notesTextarea;
         row3.appendChild(notesTextarea);
 
         this.modalBodyElement.appendChild(row3);
@@ -2629,32 +2635,59 @@ class ManageGuestsModal {
     }
 
     initializeSeats(seatDiv, table) {
-        
+        this.formElements.seats = [];
 
+        for(const seat of table.seats) {
+            this.formElements.seats[seat.number] = {};
+
+            const formLineDiv = document.createElement("div");
+            formLineDiv.classList.add("editor-form-line");
+            formLineDiv.classList.add("editor-seat");
+
+            const seatCodeDiv = document.createElement("div");
+            seatCodeDiv.classList.add("editor-seat-code");
+            seatCodeDiv.innerHTML = seat.number;
+            formLineDiv.appendChild(seatCodeDiv);
+
+            const guestNameInput = document.createElement("input");
+            guestNameInput.classList.add("editor-input");
+            guestNameInput.classList.add("editor-seat-name");
+            guestNameInput.type = "text";
+            guestNameInput.id = `guestName-${seat.number}`;
+            guestNameInput.name = `guestName-${seat.number}`;
+            guestNameInput.value = seat.guestName || '';
+            this.formElements.seats[seat.number].guestName = guestNameInput;
+            formLineDiv.appendChild(guestNameInput);
+
+            const guestAgeInput = document.createElement("select");
+            guestAgeInput.classList.add("editor-form-select")
+            guestAgeInput.classList.add("selectAge")
+            guestAgeInput.classList.add(`editor-select-age-${seat.number}`)
+            guestAgeInput.name = `guestAge-${seat.number}`;
+            //this.formElements.seats[seat.number].guestAge = guestAgeInput;
+            formLineDiv.appendChild(guestAgeInput);
+
+            const guestRestrictionInput = document.createElement("select");
+            guestRestrictionInput.classList.add("editor-form-select-multiple")
+            guestRestrictionInput.classList.add(`editor-form-select-restriction-${seat.number}`)
+            guestRestrictionInput.attributes.multiple = true;
+            guestRestrictionInput.name = `foodRestrictions${seat.number}`;
+            //this.formElements.seats[seat.number].foodRestrictions = guestRestrictionInput;
+            formLineDiv.appendChild(guestRestrictionInput);
+
+
+            seatDiv.appendChild(formLineDiv);                
+        }
         for(let seat of table.seats) {
-            seatDiv.insertAdjacentHTML('beforeend', `
-                <div class="editor-form-line editor-seat">
-                    <div class="editor-seat-code">${seat.number}</div>
-                    <input class="editor-input editor-seat-name" type="text" id="guestName"
-                        name="guestName" value="${seat?.guestName || ''}">
-                    <select class="editor-form-select selectAge editor-select-age-${seat.number}" name="guestAge${seat.number}"></select>
-                    <select class="editor-form-select-multiple editor-form-select-restriction-${seat.number}" multiple name="foodRestrictions${seat.code}">
-                        <option></option>
-                    </select>
-                </div>
-                `);
-            }
-            
-            for(let seat of table.seats) {
-                this.initializeSeatInputs(seat);
-            }
+            this.initializeSeatInputs(seat);
+        }
 
-        this.updateTotals(table);
+        this.updateTotals();
     }
 
     initializeSeatInputs(seat) {
         
-        $(`.editor-select-age-${seat.number}`).select2({
+        this.formElements.seats[seat.number].guestAge = $(`.editor-select-age-${seat.number}`).select2({
             minimumResultsForSearch: -1,
             data: [
                 { id: 'ADULT', text: 'mais de 7 anos' },
@@ -2665,9 +2698,9 @@ class ManageGuestsModal {
             val: seat?.guestAge || null
         });
         if (seat?.guestAge) $(`.editor-select-age-${seat.number}`).val(seat.guestAge).trigger('change');
-        $(`.editor-select-age-${seat.number}`).on("select2:select", function (e) { this.updateGuestAge(e); });
+        $(`.editor-select-age-${seat.number}`).on("select2:select", () => { this.updateTotals(); });
 
-        $(`.editor-form-select-restriction-${seat.number}`).select2({
+        this.formElements.seats[seat.number].foodRestrictions = $(`.editor-form-select-restriction-${seat.number}`).select2({
             placeholder: '',
             multiple: true,
             closeOnSelect: false,
@@ -2704,12 +2737,18 @@ class ManageGuestsModal {
         console.log("Saving data...");
         if(this.validateForm())  {
             
+            this.subjectTable.name = this.formElements.name.value;
+            this.subjectTable.notes = this.formElements.notes.value;
+
+            for(const [i, seat] of this.subjectTable.seats.entries()) {
+                seat.guestName = this.formElements.seats[i].guestName.value;
+                seat.guestAge = this.formElements.seats[i].guestAge.select2('data')[0].id;
+                seat.foodRestrictions = this.formElements.seats[i].foodRestrictions.select2('data').map(v => v.id);
+            }
+            
+            this.close();
         }
 
-        let form = document.forms["editor-table-form"];
-
-        this.subjectTable.name = form['tableName'].value;
-        this.subjectTable.name = form['notes'].value;
     }
 
     submitForm(event) {
@@ -2718,57 +2757,44 @@ class ManageGuestsModal {
         this.save();
     }  
 
-    validateForm() {
-        let form = document.forms["editor-table-form"];
-
-        const tableName = form['tableName'].value;
+    validateForm() {    
+        const tableName = this.formElements.name;
         if (tableName == '') {
             document.getElementById("tableName").setCustomValidity("Invalid field.")
             document.getElementById("tableName").reportValidity();
+            return false;
         } else {
             document.getElementById("tableName").setCustomValidity("");
+            return true;
         }
 
         // You can add more functionality as needed.
     }
 
-    updateGuestAge(value) {
-        if (!value?.params.data) return;
-        else {
-            const selected = value?.params.data?.id;
-            const className = Array.from(value?.target?.classList).find(f => f?.includes('editor-select-age'));
-            const lastCharacter = className.trim().charAt(className.length - 1);
-            const seatCode = parseInt(lastCharacter);
-            const indexSeat = seats.findIndex(f => f?.code === seatCode);
-            if (indexSeat > -1) seats[indexSeat].guestAge = selected || null;
-
-            updateTotals();
-        }
-    }
-
-    updateTotals(table) {
+    updateTotals() {
         
         let totalAdult = 0;
         if(document.getElementById('totalAdult')) {
-            totalAdult = table.seats.filter(f => f?.guestAge === 'ADULT')?.length || 0;
+            totalAdult = this.formElements.seats.filter(s => s.guestAge.select2('data')[0].id == 'ADULT').length;
             document.getElementById('totalAdult').innerHTML = totalAdult;
         }
 
         let totalChild = 0;
         if(document.getElementById('totalChild')) {
-            totalChild = table.seats.filter(f => f?.guestAge === 'CHILD')?.length || 0;
+            totalChild = this.formElements.seats.filter(s => s.guestAge.select2('data')[0].id == 'CHILD').length;
+            
             document.getElementById('totalChild').innerHTML = totalChild;
         }
 
         let totalBaby = 0;
         if(document.getElementById('totalBaby')) {
-            totalBaby = table.seats.filter(f => f?.guestAge === 'BABY')?.length || 0;
+            totalBaby = this.formElements.seats.filter(s => s.guestAge.select2('data')[0].id == 'BABY').length;
             document.getElementById('totalBaby').innerHTML = totalBaby;
         }
 
         let  totalNewborn = 0;
         if(document.getElementById('totalNewborn')) {
-            totalNewborn = table.seats.filter(f => f?.guestAge === 'NEWBORN')?.length || 0;
+            totalNewborn = this.formElements.seats.filter(s => s.guestAge.select2('data')[0].id == 'NEWBORN').length;
             document.getElementById('totalNewborn').innerHTML = totalNewborn;
         }
 
