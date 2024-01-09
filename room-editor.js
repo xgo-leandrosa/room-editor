@@ -80,6 +80,7 @@ class World extends RoomObject {
         table.world = this;
         table.addToContainer();
         this.tables.push(table)
+        this.updateTablesCode();
     }
 
     removeTable(table) {
@@ -171,17 +172,19 @@ const TABLE_ELEMENT_OFFSET = 35;
 class Table extends RoomObject {
 
     code = "";
+    name = "";
+    notes = "";
 
     tableDefaultSize = 155;
     seatsPositions = [
     ];
     seats = [];
     tableType = "Table";
+    tablePurpose = "GUEST";
     
     tableElement;
     tableElementSize = 105;
 
-    couple = false;
     inDanger = false;
 
     spaceBetweenTables = 0;
@@ -809,7 +812,6 @@ class ForestMTable extends Table {
     ];
     seats = [];
     tableType = "ForestMTable";
-    couple = false;
 
     tableElement;
     tableElementSizeWidth = 195;
@@ -861,7 +863,8 @@ class CoupleRoundTable extends Table {
     ];
     seats = [];
     tableType = "CoupleRoundTable";
-    couple = true;
+    tablePurpose="COUPLE";
+    
     tableElement;
     tableElementSize = 180;
 
@@ -913,7 +916,7 @@ class CoupleOvalSTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalSTable";
-    couple = true;
+    tablePurpose="COUPLE";
 
     tableElement;
     tableElementSizeWidth = 250;
@@ -1015,7 +1018,7 @@ class CoupleOvalMTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalMTable";
-    couple = true;
+    tablePurpose="COUPLE";
 
     tableElement;
     tableElementSizeWidth = 400;
@@ -1129,7 +1132,7 @@ class CoupleOvalMFullTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalMFullTable";
-    couple = true;
+    tablePurpose="COUPLE";
 
     tableElement;
     tableElementSizeWidth = 400;
@@ -1267,7 +1270,7 @@ class CoupleOvalLTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalLTable";
-    couple = true;
+    tablePurpose="COUPLE";
 
     tableElement;
     tableElementSizeWidth = 600;
@@ -1417,7 +1420,7 @@ class CoupleOvalLFullTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalLFullTable";
-    couple = true;
+    tablePurpose="COUPLE";
 
     tableElement;
     tableElementSizeWidth = 600;
@@ -1469,7 +1472,7 @@ class CoupleForestSTable extends Table {
     ];
     seats = [];
     tableType = "CoupleForestSTable";
-    couple = true;
+    tablePurpose="COUPLE";
 
     tableElement;
     tableElementSizeWidth = 205;
@@ -1570,7 +1573,7 @@ class CoupleForestMTable extends Table {
     ];
     seats = [];
     tableType = "CoupleForestMTable";
-    couple = true;
+    tablePurpose="COUPLE";
 
     tableElement;
     tableElementSizeWidth = 195;
@@ -1723,9 +1726,11 @@ class Seat extends RoomObject {
 class MouseManager {
     selectedObject = null;
     editorContainerElement=null;
+    guestModal;
 
-    constructor(world, editorContainerElement) {
+    constructor(world, editorContainerElement, guestModal) {
         this.editorContainerElement = editorContainerElement;
+        this.guestModal = guestModal;
         this.initializeContextMenu();
         this.initializeUi();
         this.setBindings();
@@ -1960,7 +1965,7 @@ class MouseManager {
         });
 
         $('#coupleTableSelect').on("select2:select", (event) => {
-            const tableCouple = this.world.tables.find(t => t.couple);
+            const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
 
             const newTableCouple = new TableTypes[event.params.data.id](this.world);
 
@@ -2020,6 +2025,22 @@ class MouseManager {
         `*/
     }
 
+    contextMenuCreateElement(params) {
+        const element = document.createElement("li");
+        element.classList.add(params.class);
+        const aElement = document.createElement("a");
+        aElement.href= "#";
+        aElement.id=params.id;
+        element.appendChild(aElement);
+        const iElement = document.createElement("i");
+        iElement.classList.add("fas")
+        iElement.classList.add(params.icon)
+        iElement.ariaHidden=true;
+        aElement.onclick = params.onclick;
+        aElement.appendChild(iElement);
+        aElement.innerHTML += " " + params.text;
+        return element;
+    }
 
     contextMenuActiveOptions(options) {
         const elements = document.getElementsByClassName("context-menu-options");
@@ -2030,22 +2051,43 @@ class MouseManager {
 
                 switch(option) {
                     case "ROTATE":
-                        elements[0].innerHTML += `<li class="download"><a href="#" id="ui-context-rotate" ><i class="fas fa-sync-alt" aria-hidden="true"></i> Rodar</a></li>`;
-                        document.getElementById("ui-context-rotate").onclick = (event) => {
-                            this.contextMenuAction(event, 'ROTATE')
-                        };
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "rotate",
+                                id: "ui-context-rotate",
+                                icon: "fa-sync-alt",
+                                text: "Rodar",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'ROTATE')
+                                }
+                            })
+                        );
                         break;
                     case "MANAGE_GUESTS":
-                        elements[0].innerHTML += `<li class="address-book"><a href="#" id="ui-context-manage_guests" ><i class="fas  fa-address-book" aria-hidden="true"></i> Gerir convidados</a></li>`;
-                        document.getElementById("ui-context-manage_guests").onclick = (event) => {
-                            this.contextMenuAction(event, 'MANAGE_GUESTS')
-                        };
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "guests",
+                                id: "ui-context-manage_guests",
+                                icon: "fa-address-book",
+                                text: "Gerir convidados",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'MANAGE_GUESTS')
+                                }
+                            })
+                        );
                         break;
                     case "DELETE":
-                        elements[0].innerHTML += `<li class="trash"><a href="#" id="ui-context-delete"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a></li>`;
-                        document.getElementById("ui-context-delete").onclick = (event) => {
-                            this.contextMenuAction(event, 'DELETE')
-                        };
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "trash",
+                                id: "ui-context-delete",
+                                icon: "fa-trash",
+                                text: "Eliminar",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'DELETE')
+                                }
+                            })
+                        );
                         break;
                 }
             }
@@ -2098,7 +2140,8 @@ class MouseManager {
             
             options.push("ROTATE");
             options.push("MANAGE_GUESTS");
-            if(!this.selectedObject.couple) {
+            
+            if(this.selectedObject.tablePurpose != "COUPLE") { 
                 options.push("DELETE");
             }
 
@@ -2230,6 +2273,7 @@ class MouseManager {
                 this.selectedObject.applyTransform();
                 break;                
             case "MANAGE_GUESTS":
+                this.guestModal.open(this.selectedObject);
                 break;
             case "DELETE":
                 this.world.removeTable(this.selectedObject);
@@ -2247,12 +2291,14 @@ class RoomEditor {
     editorContainerElement = null;
     word = null;
     mouseManager = null;
-
+    
+    
     constructor(
         idOfElement,
         ) {
-        this.editorContainerElement = document.getElementById(idOfElement);
-        this.editorContainerElement.style.overflow = "hidden";
+            this.editorContainerElement = document.getElementById(idOfElement);
+            this.editorContainerElement.style.overflow = "hidden";
+            this.guestsModal = new ManageGuestsModal();
 
         /*const savedWorld = localStorage.getItem('savedWorld');
         if (savedWorld) {
@@ -2268,21 +2314,23 @@ class RoomEditor {
             roomPlan.applyTransform();
         }*/
 
-        this.mouseManager = new MouseManager(this.world, this.editorContainerElement);
+        this.mouseManager = new MouseManager(this.world, this.editorContainerElement, this.guestsModal);
     }
 
     setRoomPlan(roomPlanImg) {
+        debugger;
         if(!this.world) {
             this.world = new World(this.editorContainerElement);
             this.world.applyTransform();
-
+            
             const roomPlan = new RoomPlan(roomPlanImg);
             this.world.setRoomPlan(roomPlan);
             roomPlan.applyTransform();
-
+            
             this.mouseManager.setWorld(this.world);
         } else {
             this.world.roomPlan.updateImageSrc(roomPlanImg)
+            this.mouseManager.setWorld(this.world);
         }
     }
 
@@ -2306,7 +2354,10 @@ class RoomEditor {
                 rotate: table.rotate,
                 tableType: table.tableType,
                 code: table.code,
-                couple: table.couple,
+                name: table.name,
+                notes: table.notes,
+                tablePurpose: table.tablePurpose,
+
 
                 seats: table.seats.map(s => ({
                     code: s.code,
@@ -2327,40 +2378,36 @@ class RoomEditor {
     deserializeEditor(serializedData) {
 
         // Deserialize the world
-        const world = new World(this.editorContainerElement);
-        world.x = serializedData.roomPlan.x;
-        world.y = serializedData.roomPlan.y;
-        world.scale = serializedData.roomPlan.scale;
-        world.applyTransform();
 
+        this.setRoomPlan(serializedData.roomPlan.imageSrc);
+        
+        this.world.x = serializedData.roomPlan.x;
+        this.world.y = serializedData.roomPlan.y;
+        this.world.scale = serializedData.roomPlan.scale;
+        this.world.applyTransform();
 
-        const roomPlan = new RoomPlan(serializedData.roomPlan.imageSrc);
-        roomPlan.x = 0;
-        roomPlan.y = 0;
-        roomPlan.scale = 1;
-
-        world.setRoomPlan(roomPlan);
-        roomPlan.applyTransform();
 
         // Deserialize each object in the editor
         serializedData.tables.forEach((serializedObject) => {
-            const object = new TableTypes[serializedObject.tableType](world);
+            const object = new TableTypes[serializedObject.tableType](this.world);
             object.x = serializedObject.x;
             object.y = serializedObject.y;
             object.scale = serializedObject.scale;
             object.code = serializedObject.code;
-            object.couple = serializedObject.couple;
+            object.tablePurpose = serializedObject.tablePurpose;
+            object.name = serializedObject.name;
+            object.notes = serializedObject.notes;
             object.init();
             // Add other properties specific to your object
 
             // Add the deserialized object to the world
-            world.addTable(object);
+            this.world.addTable(object);
             object.applyTransform();
         });
 
-        world.updateTablesCode();
+        this.world.updateTablesCode();
 
-        return world;
+        return this.world;
     }
 
     activeGuestTables(tablesTypes) {
@@ -2375,6 +2422,8 @@ class RoomEditor {
 class ManageGuestsModal {
     modalElement;
     modalBodyElement;
+
+    subjectTable = null;
 
     constructor() {
         this.modalElement = document.createElement("div");
@@ -2404,16 +2453,11 @@ class ManageGuestsModal {
         this.modalBodyElement = document.createElement("div");
         this.modalBodyElement.classList.add("editor-modal-body");
         editorModalElement.appendChild(this.modalBodyElement);
-        this.createModalBody({
-            tableName: "5",
-            notes: "A nice day is a nice day.",
-            // Add more parameters as needed
-        });
-
+        
         // Add modal footer
         const modalFooterElement = document.createElement("div");
         modalFooterElement.classList.add("editor-modal-footer");
-
+        
         const btnCancelElement = document.createElement("button");
         btnCancelElement.id = "btnClose";
         btnCancelElement.type = "button";
@@ -2424,7 +2468,7 @@ class ManageGuestsModal {
             this.close();
         };
         modalFooterElement.appendChild(btnCancelElement);
-
+        
         const btnSaveElement = document.createElement("button");
         btnSaveElement.type = "submit";
         btnSaveElement.classList.add("editor-btn");
@@ -2434,16 +2478,16 @@ class ManageGuestsModal {
             this.save();
         };
         modalFooterElement.appendChild(btnSaveElement);
-
+        
         editorModalElement.appendChild(modalFooterElement);
-
+        
         document.body.appendChild(this.modalElement);
         
-        this.open();
     }
 
-    createModalBody(params) {
-        
+    createModalBody(table) {
+        this.subjectTable = table;
+        this.modalBodyElement.innerHTML = '';        
 
         // Create the first row with buttons
         const row1 = document.createElement("div");
@@ -2484,7 +2528,7 @@ class ManageGuestsModal {
 
         const tableCodeDiv = document.createElement("div");
         tableCodeDiv.classList.add("editor-table-code");
-        tableCodeDiv.textContent = params.tableName || "";
+        tableCodeDiv.textContent = table.code || "X"; // TODO REMOVE
         formLine.appendChild(tableCodeDiv);
 
         const tableNameInput = document.createElement("input");
@@ -2492,7 +2536,7 @@ class ManageGuestsModal {
         tableNameInput.type = "text";
         tableNameInput.id = "tableName";
         tableNameInput.name = "tableName";
-        tableNameInput.value = params.tableName || "";
+        tableNameInput.value = table.name || "";
         formLine.appendChild(tableNameInput);
 
         formElement.appendChild(formLine);
@@ -2503,31 +2547,45 @@ class ManageGuestsModal {
         formElement.appendChild(seatsDiv);
 
         // Create the form line with editor stats
+        const editorFormLine = document.createElement("div");
+        editorFormLine.classList.add("editor-form-line");
+
         const editorStatsDiv = document.createElement("div");
-        editorStatsDiv.classList.add("editor-form-line");
         editorStatsDiv.classList.add("editor-stats");
+        editorStatsDiv.innerHTML = `
+        <div class="editor-stats-line">
+            <span>A partir de 8 anos</span>
+            <span id="totalAdult" class="editor-stats-qty">0</span>
+        </div>
+        <div class="editor-stats-line">
+            <span>Dos 3 aos 7 anos</span>
+            <span id="totalChild" class="editor-stats-qty">0</span>
+        </div>
+        <div class="editor-stats-line">
+            <span>Dos 6 meses aos 2 anos</span>
+            <span id="totalBaby" class="editor-stats-qty">0</span>
+        </div>
+        <div class="editor-stats-line">
+            <span>Dos 0 aos 5 meses</span>
+            <span id="totalNewborn" class="editor-stats-qty">0</span>
+        </div>
+        `;
 
-        // ... (add logic to dynamically create editor stats lines based on parameters)
+        const editorStatsGlobalDiv = document.createElement("div");
+        editorStatsGlobalDiv.classList.add("editor-stats-global");
+        
+        editorStatsGlobalDiv.innerHTML = `
+            <span class="editor-stats-total">
+                <span id="total">0</span>
+            </span>
+            <span class="editor-stats-stroller" id="totalStroller">0 carrinho</span>
+        `;
 
-        // Example: Create a line for "A partir de 8 anos"
-        const statsLine1 = document.createElement("div");
-        statsLine1.classList.add("editor-stats-line");
-        statsLine1.innerHTML = `<span>A partir de 8 anos</span><span id="totalAdult" class="editor-stats-qty">0</span>`;
-        editorStatsDiv.appendChild(statsLine1);
+        editorFormLine.appendChild(editorStatsDiv);
+        editorFormLine.appendChild(editorStatsGlobalDiv);
 
-        // ... (add more lines as needed)
-
-        formElement.appendChild(editorStatsDiv);
-
-        // Create the global stats div
-        const statsGlobalDiv = document.createElement("div");
-        statsGlobalDiv.classList.add("editor-form-line");
-        statsGlobalDiv.classList.add("editor-stats-global");
-
-        statsGlobalDiv.innerHTML = `<span class="editor-stats-total"><span id="total">0</span></span><span class="editor-stats-stroller" id="totalStroller">0 carrinho</span>`;
-
-        formElement.appendChild(statsGlobalDiv);
-
+        formElement.appendChild(editorFormLine);
+        
         col1.appendChild(formElement);
 
         const col2 = document.createElement("div");
@@ -2554,16 +2612,79 @@ class ManageGuestsModal {
         notesTextarea.rows = "4";
         notesTextarea.cols = "50";
         notesTextarea.maxLength = "200";
-        notesTextarea.textContent = params.notes || "";
+        notesTextarea.textContent = table.notes || "";
         row3.appendChild(notesTextarea);
 
         this.modalBodyElement.appendChild(row3);
 
-        // Add the generated modal body to the modal element
-        this.modalElement.querySelector(".editor-modal").appendChild(this.modalBodyElement);
+
+        this.initializeSeats(seatsDiv, table);
     }
 
-    open() {
+    initializeSeats(seatDiv, table) {
+        
+
+        for(let seat of table.seats) {
+            seatDiv.insertAdjacentHTML('beforeend', `
+                <div class="editor-form-line editor-seat">
+                    <div class="editor-seat-code">${seat.number}</div>
+                    <input class="editor-input editor-seat-name" type="text" id="guestName"
+                        name="guestName" value="${seat?.guestName || ''}">
+                    <select class="editor-form-select selectAge editor-select-age-${seat.number}" name="guestAge${seat.number}"></select>
+                    <select class="editor-form-select-multiple editor-form-select-restriction-${seat.number}" multiple name="foodRestrictions${seat.code}">
+                        <option></option>
+                    </select>
+                </div>
+                `);
+            }
+            
+            for(let seat of table.seats) {
+                this.initializeSeatInputs(seat);
+            }
+
+        this.updateTotals(table);
+    }
+
+    initializeSeatInputs(seat) {
+        
+        $(`.editor-select-age-${seat.number}`).select2({
+            minimumResultsForSearch: -1,
+            data: [
+                { id: 'ADULT', text: 'mais de 7 anos' },
+                { id: 'CHILD', text: '3 a 7 anos' },
+                { id: 'BABY', text: '6 meses a 2 anos' },
+                { id: 'NEWBORN', text: '0 a 5 meses' },
+            ],
+            val: seat?.guestAge || null
+        });
+        if (seat?.guestAge) $(`.editor-select-age-${seat.number}`).val(seat.guestAge).trigger('change');
+        $(`.editor-select-age-${seat.number}`).on("select2:select", function (e) { this.updateGuestAge(e); });
+
+        $(`.editor-form-select-restriction-${seat.number}`).select2({
+            placeholder: '',
+            multiple: true,
+            closeOnSelect: false,
+            allowClear: true,
+            data: [
+                { id: '1', text: 'veg', description: 'Vegetariano' },
+                { id: '2', text: 'Veg', description: 'Vegan' },
+                { id: '3', text: 'PC', description: 'Trocar peixe por carne' },
+                { id: '4', text: 'CP', description: 'Trocar carne por peixe' },
+            ],
+            templateSelection: function (table) {
+                if (!table.id) return table.text;
+
+                var $state = $(
+                    `<span class="option">${table.text}, </span>`
+                );
+                return $state;
+            }
+        });
+        if (seat?.foodRestrictions?.length > 0) $(`.editor-form-select-restriction-${seat.code}`).val(seat.foodRestrictions).trigger('change');
+    }
+
+    open(table) {
+        this.createModalBody(table);
         this.modalElement.style.display = "block";
     }
 
@@ -2574,14 +2695,90 @@ class ManageGuestsModal {
     save() {
         // Add logic to handle saving data
         console.log("Saving data...");
-        // You can add more functionality as needed.
+        if(this.validateForm())  {
+            
+        }
+
+        let form = document.forms["editor-table-form"];
+
+        this.subjectTable.name = form['tableName'].value;
+        this.subjectTable.name = form['notes'].value;
     }
 
     submitForm(event) {
         // Add logic to handle form submission
         console.log("Form submitted:", event);
+        this.save();
+    }  
+
+    validateForm() {
+        let form = document.forms["editor-table-form"];
+
+        const tableName = form['tableName'].value;
+        if (tableName == '') {
+            document.getElementById("tableName").setCustomValidity("Invalid field.")
+            document.getElementById("tableName").reportValidity();
+        } else {
+            document.getElementById("tableName").setCustomValidity("");
+        }
+
         // You can add more functionality as needed.
     }
+
+    updateGuestAge(value) {
+        if (!value?.params.data) return;
+        else {
+            const selected = value?.params.data?.id;
+            const className = Array.from(value?.target?.classList).find(f => f?.includes('editor-select-age'));
+            const lastCharacter = className.trim().charAt(className.length - 1);
+            const seatCode = parseInt(lastCharacter);
+            const indexSeat = seats.findIndex(f => f?.code === seatCode);
+            if (indexSeat > -1) seats[indexSeat].guestAge = selected || null;
+
+            updateTotals();
+        }
+    }
+
+    updateTotals(table) {
+        
+        let totalAdult = 0;
+        if(document.getElementById('totalAdult')) {
+            totalAdult = table.seats.filter(f => f?.guestAge === 'ADULT')?.length || 0;
+            document.getElementById('totalAdult').innerHTML = totalAdult;
+        }
+
+        let totalChild = 0;
+        if(document.getElementById('totalChild')) {
+            totalChild = table.seats.filter(f => f?.guestAge === 'CHILD')?.length || 0;
+            document.getElementById('totalChild').innerHTML = totalChild;
+        }
+
+        let totalBaby = 0;
+        if(document.getElementById('totalBaby')) {
+            totalBaby = table.seats.filter(f => f?.guestAge === 'BABY')?.length || 0;
+            document.getElementById('totalBaby').innerHTML = totalBaby;
+        }
+
+        let  totalNewborn = 0;
+        if(document.getElementById('totalNewborn')) {
+            totalNewborn = table.seats.filter(f => f?.guestAge === 'NEWBORN')?.length || 0;
+            document.getElementById('totalNewborn').innerHTML = totalNewborn;
+        }
+
+        if(document.getElementById('totalStroller')) {
+            if(totalNewborn > 0) {
+    
+                document.getElementById('totalStroller').classList.remove('hide');
+                document.getElementById('totalStroller').innerHTML = `${totalNewborn} carrinho`;
+            } else {
+                document.getElementById('totalStroller').classList.add('hide');
+            }
+        }
+
+        const total = totalAdult + totalChild;
+        document.getElementById('total').innerHTML = total;
+    }
+
 }
 
 
