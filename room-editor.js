@@ -39,7 +39,7 @@ class RoomObject {
     }
 
     applyTransform() {
-        this.element.style.transform = `translate(${this.x - this.halfWidth}px, ${this.y - this.halfWidth}px) scale(${this.scale}) rotate(${this.rotate}deg)`;
+        this.element.style.transform = `translate(${this.x - this.halfWidth}px, ${this.y - this.halfHeight}px) scale(${this.scale}) rotate(${this.rotate}deg)`;
     }
 }
 
@@ -520,8 +520,8 @@ class RectangularTable extends Table {
 }
 
 class RectangularLTable extends Table {
-    width = 510;
-    height = 190;
+    width = 520;
+    height = 200;
 
     spaceBetweenTables = 0;
 
@@ -2602,6 +2602,8 @@ class ManageGuestsModal {
 
         const col2 = document.createElement("div");
         col2.classList.add("editor-col");
+        col2.id = "table-draw";
+        this.tableDrawElement = col2;
 
         row2.appendChild(col1);
         row2.appendChild(col2);
@@ -2632,6 +2634,29 @@ class ManageGuestsModal {
 
 
         this.initializeSeats(seatsDiv, table);
+        this.drawTable();
+    }
+
+    drawTable() {
+        const bounding = this.tableDrawElement.getBoundingClientRect();
+        
+        if(bounding.width == 0) {
+            const timeout = setTimeout(() => {
+                clearTimeout(timeout);
+                this.drawTable();
+            }, 200);
+        } else {
+            const table = new TableTypes[this.subjectTable.tableType]();
+            table.x = table.halfWidth + ((bounding.width - table.width) / 2);
+            table.y = table.halfHeight + 60;
+            table.init();
+            table.world = {
+                element: this.tableDrawElement,
+            };
+            table.addToContainer();
+            table.applyTransform();
+        }
+
     }
 
     initializeSeats(seatDiv, table) {
