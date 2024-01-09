@@ -1,14 +1,212 @@
 const DEFAULT_TRANSLATIONS = [
     {
-      value: {
-        pt: "A partir dos 8 anos",
-        en: "From 8 years old",
-        es: "A partir de 8 años",
-        fr: "A partir de 8 ans"
+        value: {
+          pt: "Cancelar",
+          en: "Cancel",
+          es: "Cancelar",
+          fr: "Annuler"
+        },
+        tag: "CANCEL",
+        platform: "BO"
       },
-      tag: "ABOVE_8_YEARS",
-      platform: "BO"
-    },
+      {
+        value: {
+          pt: "Eliminar",
+          en: "Delete",
+          es: "Eliminar",
+          fr: "Éliminer"
+        },
+        "canBeDeleted": true,
+        platform: "BO",
+        tag: "DELETE"
+      },
+      {
+        value: {
+          pt: "Rodar",
+          en: "Rotate",
+          es: "Girar",
+          fr: "Tourner"
+        },
+        platform: "BO",
+        tag: "ROTATE"
+      },
+      {
+        value: {
+          pt: "A partir dos 8 anos",
+          en: "From 8 years old",
+          es: "A partir de 8 años",
+          fr: "A partir de 8 ans"
+        },
+        tag: "ABOVE_8_YEARS",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Maior de 8 anos",
+          en: "Over 8 years old",
+          es: "Mayores de 8 años",
+          fr: "Plus de 8 ans"
+        },
+        tag: "ADULT_AGE",
+        platform: "BO",
+      },
+      {
+        value: {
+          pt: "3 aos 7 anos",
+          en: "3 to 7 years old",
+          es: "3 a 7 años",
+          fr: "3 à 7 ans"
+        },
+        tag: "CHILD_AGE",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "6 meses a 2 anos",
+          en: "6 months to 2 years",
+          es: "6 meses a 2 años",
+          fr: "6 meses a 2 años"
+        },
+        tag: "BABY_AGE",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Carrinho",
+          en: "Stroller",
+          es: "Cochecito",
+          fr: "Poussette"
+        },
+        tag: "BABY_CAR",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Dos 6 meses a 2 anos",
+          en: "From 6 months to 2 years",
+          es: "De 6 meses a 2 años",
+          fr: "De 6 meses a 2 años"
+        },
+        tag: "FROM_BABY_AGE",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Dos 3 aos 7 anos",
+          en: "From 3 to 7 years old",
+          es: "De 3 a 7 años",
+          fr: "De 3 à 7 ans"
+        },
+        tag: "FROM_CHILD_AGE",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Dos 0 a 5 meses",
+          en: "From 0 to 5 months",
+          es: "De 0 a 5 meses",
+          fr: "De 0 à 5 mois"
+        },
+        tag: "FROM_NEWBORN_AGE",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "0 a 5 meses",
+          en: "0 to 5 months",
+          es: "0 a 5 meses",
+          fr: "0 à 5 mois"
+        },
+        tag: "NEWBORN_AGE",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Notas",
+          en: "Notes",
+          es: "Notas",
+          fr: "Remarques"
+        },
+        tag: "NOTES",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Crianças",
+          en: "Children",
+          es: "Niños",
+          fr: "Enfants"
+        },
+        tag: "ROOM_PLAN_CHILD",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Convidados",
+          en: "Guests",
+          es: "Invitados",
+          fr: "Invités"
+        },
+        tag: "ROOM_PLAN_GUESTS",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Staff",
+          en: "Staff",
+          es: "Staff",
+          fr: "Staff"
+        },
+        tag: "ROOM_PLAN_STAFF",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Mesas para",
+          en: "Tables for",
+          es: "Tablas para",
+          fr: "Tables pour"
+        },
+        platform: "BO",
+        tag: "TYPE_TABLES"
+      },
+      {
+        value: {
+          pt: "Mesa do casal",
+          en: "Couple's table",
+          es: "Mesa de pareja",
+          fr: "La table des couples"
+        },
+        tag: "COUPLE_TABLES",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Gerir convidados",
+          en: "Manage guests",
+          es: "Administrar invitados",
+          fr: "Gérer les invités"
+        },
+        tag: "MNG_GUESTS",
+        platform: "BO"
+      },
+      {
+        value: {
+          pt: "Mesas",
+          en: "Tables",
+          es: "Tablas",
+          fr: "Tables"
+        },
+        platform: "BO",
+        tag: "TABLES"
+      },
+
+
+
+
+
+
+
     {
       value: {
         pt: "Média pax/mesa",
@@ -19,46 +217,8 @@ const DEFAULT_TRANSLATIONS = [
       tag: "AVG_PAX_TABLES",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "6 meses a 2 anos",
-        en: "6 months to 2 years",
-        es: "6 meses a 2 años",
-        fr: "6 meses a 2 años"
-      },
-      tag: "BABY_AGE",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Carrinho",
-        en: "Stroller",
-        es: "Cochecito",
-        fr: "Poussette"
-      },
-      tag: "BABY_CAR",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Cancelar",
-        en: "Cancel",
-        es: "Cancelar",
-        fr: "Annuler"
-      },
-      tag: "CANCEL",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "3 aos 7 anos",
-        en: "3 to 7 years old",
-        es: "3 a 7 años",
-        fr: "3 à 7 ans"
-      },
-      tag: "CHILD_AGE",
-      platform: "BO"
-    },
+    
+   
     {
       value: {
         pt: "Posicionamento casal",
@@ -69,16 +229,7 @@ const DEFAULT_TRANSLATIONS = [
       tag: "COUPLE_POSITION",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Mesa do casal",
-        en: "Couple's table",
-        es: "Mesa de pareja",
-        fr: "La table des couples"
-      },
-      tag: "COUPLE_TABLES",
-      platform: "BO"
-    },
+    
     {
       value: {
         pt: "c/convidados à frente",
@@ -109,17 +260,7 @@ const DEFAULT_TRANSLATIONS = [
       tag: "COUPLE_TABLE_OPTIONS",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Eliminar",
-        en: "Delete",
-        es: "Eliminar",
-        fr: "Éliminer"
-      },
-      "canBeDeleted": true,
-      platform: "BO",
-      tag: "DELETE"
-    },
+    
     {
       value: {
         pt: "Cadeiras vazias",
@@ -161,36 +302,7 @@ const DEFAULT_TRANSLATIONS = [
       tag: "FILLED_CHAIRS",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Dos 6 meses a 2 anos",
-        en: "From 6 months to 2 years",
-        es: "De 6 meses a 2 años",
-        fr: "De 6 meses a 2 años"
-      },
-      tag: "FROM_BABY_AGE",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Dos 3 aos 7 anos",
-        en: "From 3 to 7 years old",
-        es: "De 3 a 7 años",
-        fr: "De 3 à 7 ans"
-      },
-      tag: "FROM_CHILD_AGE",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Dos 0 a 5 meses",
-        en: "From 0 to 5 months",
-        es: "De 0 a 5 meses",
-        fr: "De 0 à 5 mois"
-      },
-      tag: "FROM_NEWBORN_AGE",
-      platform: "BO"
-    },
+   
     {
       value: {
         pt: "Convidados previstos",
@@ -255,36 +367,9 @@ const DEFAULT_TRANSLATIONS = [
       tag: "JOIN_TABLES_QUESTION_DESCRIPTION",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Gerir convidados",
-        en: "Manage guests",
-        es: "Administrar invitados",
-        fr: "Gérer les invités"
-      },
-      tag: "MNG_GUESTS",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "0 a 5 meses",
-        en: "0 to 5 months",
-        es: "0 a 5 meses",
-        fr: "0 à 5 mois"
-      },
-      tag: "NEWBORN_AGE",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Notas",
-        en: "Notes",
-        es: "Notas",
-        fr: "Remarques"
-      },
-      tag: "NOTES",
-      platform: "BO"
-    },
+    
+    
+    
     {
       value: {
         pt: "Nº",
@@ -295,6 +380,125 @@ const DEFAULT_TRANSLATIONS = [
       tag: "NUMBER_SHORT",
       platform: "BO"
     },
+
+
+    {
+        value: {
+          pt: "Redonda",
+          en: "Round",
+          es: "Redondo",
+          fr: "Rond"
+        },
+        tag: "CoupleRoundTable"
+      },
+      {
+        value: {
+          pt: "Oval S",
+          en: "Oval S",
+          es: "Ovalado S",
+          fr: "Ovale S"
+        },
+        tag: "CoupleOvalSTable"
+      },
+      {
+        value: {
+          pt: "Oval M",
+          en: "Oval M",
+          es: "Ovalado M",
+          fr: "Ovale M"
+        },
+        tag: "CoupleOvalMTable"
+      },
+      {
+        value: {
+          pt: "Oval M completa",
+          en: "Oval M complete",
+          es: "Ovalado M completo",
+          fr: "Ovale M complet"
+        },
+        tag: "CoupleOvalMFullTable"
+      },
+      {
+        value: {
+          pt: "Oval L",
+          en: "Oval L",
+          es: "Ovalado L",
+          fr: "Ovale L"
+        },
+        tag: "CoupleOvalLFullTable"
+      },
+      {
+        value: {
+          pt: "Oval L completa",
+          en: "Oval L complete",
+          es: "Ovalado L completo",
+          fr: "Ovale L complet"
+        },
+        tag: "CoupleOvalLTable"
+      },
+      {
+        value: {
+          pt: "Forest S",
+          en: "Forest S",
+          es: "Forest S",
+          fr: "Forest S"
+        },
+        tag: "CoupleForestSTable"
+      },
+      {
+        value: {
+          pt: "Forest M",
+          en: "Forest M",
+          es: "Forest M",
+          fr: "Forest M"
+        },
+        tag: "CoupleForestMTable"
+      },
+      {
+        value: {
+          pt: "Forest M",
+          en: "Forest M",
+          es: "Forest M",
+          fr: "Forest M"
+        },
+        tag: "ForestMTable"
+      },
+      {
+        value: {
+          pt: "Redonda",
+          en: "Round",
+          es: "Redondo",
+          fr: "Rond"
+        },
+        tag: "RoundTable"
+      },
+      {
+        value: {
+          pt: "Quadrada",
+          en: "Square",
+          es: "Cuadrado",
+          fr: "Carré"
+        },
+        tag: "SquareTable"
+      },
+      {
+        value: {
+          pt: "Retangular M",
+          en: "Rectangular M",
+          es: "Rectángulo M",
+          fr: "Rectangulaire M"
+        },
+        tag: "RectangularTable"
+      },
+      {
+        value: {
+          pt: "Retangular L",
+          en: "Rectangular L",
+          es: "Rectángulo L",
+          fr: "Rectangulaire L"
+        },
+        tag: "RectangularLTable"
+      },
     {
       value: {
         pt: "Oval",
@@ -315,6 +519,8 @@ const DEFAULT_TRANSLATIONS = [
       tag: "RECTANGULAR_TABLE",
       platform: "BO"
     },
+
+
     {
       value: {
         pt: "Retroceder",
@@ -335,26 +541,7 @@ const DEFAULT_TRANSLATIONS = [
       tag: "ROOM_PLAN",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Crianças",
-        en: "Children",
-        es: "Niños",
-        fr: "Enfants"
-      },
-      tag: "ROOM_PLAN_CHILD",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Convidados",
-        en: "Guests",
-        es: "Invitados",
-        fr: "Invités"
-      },
-      tag: "ROOM_PLAN_GUESTS",
-      platform: "BO"
-    },
+   
     {
       value: {
         pt: "Posicionamento global",
@@ -365,16 +552,7 @@ const DEFAULT_TRANSLATIONS = [
       tag: "ROOM_PLAN_POSITION",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Staff",
-        en: "Staff",
-        es: "Staff",
-        fr: "Staff"
-      },
-      tag: "ROOM_PLAN_STAFF",
-      platform: "BO"
-    },
+   
     {
       value: {
         pt: "Total mesas",
@@ -385,16 +563,7 @@ const DEFAULT_TRANSLATIONS = [
       tag: "ROOM_PLAN_TOTAL_TABLES",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Rodar",
-        en: "Rotate",
-        es: "Girar",
-        fr: "Tourner"
-      },
-      platform: "BO",
-      tag: "ROTATE"
-    },
+    
     {
       value: {
         pt: "Redonda",
@@ -415,16 +584,7 @@ const DEFAULT_TRANSLATIONS = [
       tag: "SQUARE_TABLE",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Mesas",
-        en: "Tables",
-        es: "Tablas",
-        fr: "Tables"
-      },
-      platform: "BO",
-      tag: "TABLES"
-    },
+    
     {
       value: {
         pt: "Folhetos de mesa",
@@ -445,16 +605,7 @@ const DEFAULT_TRANSLATIONS = [
       tag: "TABLE_INVALID_POSITION",
       platform: "BO"
     },
-    {
-      value: {
-        pt: "Mesas para",
-        en: "Tables for",
-        es: "Tablas para",
-        fr: "Tables pour"
-      },
-      platform: "BO",
-      tag: "TYPE_TABLES"
-    },
+    
     {
       value: {
         pt: "Local",
@@ -470,6 +621,8 @@ const DEFAULT_TRANSLATIONS = [
 
 class RoomObject {
     constructor() {
+        this.translationSystem = new TranslationSystem();
+
         this.rotate = 0;
         this.x = 0;
         this.y = 0;
@@ -2106,7 +2259,7 @@ const TableTypes = {
     CoupleForestMTable,
 }
 
-TableTypesTranslations = {
+/*TableTypesTranslations = {
     "RoundTable": "Redonda",
     "SquareTable": "Quadrada",
     "RectangularTable": "Retangular",
@@ -2120,7 +2273,7 @@ TableTypesTranslations = {
     "CoupleOvalLFullTable": "Oval L Compl.",
     "CoupleForestSTable": "Forest S",
     "CoupleForestMTable": "Forest M",
-}
+}*/
 
 TableTypesIcon = {
     "RoundTable": "round-table",
@@ -2222,7 +2375,8 @@ class Seat extends RoomObject {
         this.tooltipElementRow2Content = document.createElement("div");
         this.tooltipElementRow2.appendChild(this.tooltipElementRow2Icon)
         this.tooltipElementRow2.appendChild(this.tooltipElementRow2Content)
-        this.tooltipElementRow2Content.innerHTML = this.guestAge;
+
+        this.tooltipElementRow2Content.innerHTML = this.guestAgeTranslation();
 
         this.tooltipElement.appendChild(this.tooltipElementRow1);
         this.tooltipElement.appendChild(this.tooltipElementRow2);
@@ -2231,6 +2385,25 @@ class Seat extends RoomObject {
             theme: 'light',
             content: this.tooltipElement 
         });
+    }
+
+    guestAgeTranslation() {
+        let guestAgeTranslation = "";
+        switch(this.guestAge) {
+            case 'ADULT':
+                guestAgeTranslation = this.translationSystem.getTranslation("ADULT_AGE");
+                break;
+            case 'CHILD':
+                guestAgeTranslation = this.translationSystem.getTranslation("CHILD_AGE");
+                break;
+            case 'BABY':
+                guestAgeTranslation = this.translationSystem.getTranslation("BABY_AGE");
+                break;
+            case 'NEWBORN':
+                guestAgeTranslation = this.translationSystem.getTranslation("NEWBORN_AGE");
+                break;
+        }
+        return guestAgeTranslation;
     }
 
     updateToolTip() {
@@ -2251,6 +2424,8 @@ class Seat extends RoomObject {
                 this.miniSeat.classList.add('seat--rem');
             }
         }
+
+        this.tooltipElementRow2Content.innerHTML = this.guestAgeTranslation();
     }
 
     addSeatNumeration() {
@@ -2273,12 +2448,18 @@ class MouseManager {
     selectedObject = null;
     editorContainerElement=null;
     guestModal;
-
+    roomEditor;
+    translationSystem;
+    
     constructor(world, editorContainerElement, guestModal) {
         this.editorContainerElement = editorContainerElement;
         this.guestModal = guestModal;
+        this.translationSystem = new TranslationSystem();
+
         this.initializeContextMenu();
         this.initializeUi();
+        this.translationSystem.reviewPage();
+
         this.setBindings();
 
         this.lastX = 0;
@@ -2290,6 +2471,10 @@ class MouseManager {
 
 
         
+    }
+
+    setRoomEditor(roomEditor) {
+        this.roomEditor = roomEditor;
     }
     
     setBindings() {
@@ -2327,13 +2512,14 @@ class MouseManager {
                 elements[0].innerHTML += `
                     <button class="editor-btn ui guestTableChooserItem" data-tableType="${agt}">
                         <div class="table_ui ${TableTypesIcon[agt]}  ui guestTableChooserItem" data-tableType="${agt}"></div>
-                            ${TableTypesTranslations[agt]}
+                            <span translation-key="${agt}">${agt}</span>
                             <div class="pax  ui guestTableChooserItem" data-tableType="${agt}">
                             <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="${agt}"></i>14
                         </div>
                     </button>
                 `;
             }
+            this.translationSystem.reviewPage();
             
         }
 /*
@@ -2386,13 +2572,13 @@ class MouseManager {
             }
             
             for(let act of this.activeCouplesTables) {
-
                 elements[0].innerHTML += `
-                    <option title="${TableTypesIcon[act]}" value="${act}" pax="14">${TableTypesTranslations[act]}</option>
+                    <option title="${TableTypesIcon[act]}" value="${act}" pax="14" >${act}</option>
                 `;
             }
 
             this.initializeCoupleTableSelect();    
+            this.translationSystem.reviewPage();
         }
     }
 
@@ -2409,28 +2595,28 @@ class MouseManager {
         ui1.innerHTML = `
             <div style="display: inline-flex;">
                 <div class="input" style="width: 180px;">
-                    <label>Mesa dos noivos:</label>
+                    <label translation-key="COUPLE_TABLES">Mesa dos noivos:</label>
                     <select id="coupleTableSelect" class="coupleTableSelect ui">
                         
                     </select>
                 </div>
         
                 <div class="input ui">
-                    <label>Tipo:</label>
+                    <label translation-key="TYPE_TABLES">Tipo:</label>
                     <div class="types">
                         <div class="editor-radio">
                             <input type="radio" id="guest" name="contact" value="guest">
-                            <span for="contactChoice1">Convidados</span>
+                            <span for="contactChoice1" translation-key="ROOM_PLAN_GUESTS">Convidados</span>
                         </div>
         
                         <div class="editor-radio">
                             <input type="radio" id="staff" name="contact" value="staff">
-                            <span for="contactChoice1">Staff</span>
+                            <span for="contactChoice1" translation-key="ROOM_PLAN_STAFF">Staff</span>
                         </div>
         
                         <div class="editor-radio">
                             <input type="radio" id="children" name="contact" value="children">
-                            <span for="contactChoice1">Crianças</span>
+                            <span for="contactChoice1" translation-key="ROOM_PLAN_CHILD">Crianças</span>
                         </div>
                     </div>
                 </div>
@@ -2438,7 +2624,7 @@ class MouseManager {
         
             <button class="editor-btn editor-btn-primary">
                 <i class="fas fa-undo"></i>
-                Retroceder
+                <span translation-key="REWIND">Retroceder</span>
             </button>
         `;
         
@@ -2459,7 +2645,7 @@ class MouseManager {
 
         ui2.innerHTML = `
         <div class="input">
-                <label>Mesas:</label>
+                <label translation-key="TABLES">Mesas:</label>
                 <div class="tables_ui" style="margin-top: 2px">
                     
                 </div>
@@ -2477,12 +2663,17 @@ class MouseManager {
     initializeCoupleTableSelect() {
         $('#coupleTableSelect').select2({
             minimumResultsForSearch: -1,
-            templateResult: function (table) {
+            templateResult: (table) => {
+                let translation = table.text;
+                if(this.translationSystem)
+                    translation = this.translationSystem.getTranslation(table.text);
+
+
                 var $span = $(`
                 <span class="option">
                     <div style="display: inline-flex">
                         <div class="table_ui ${table?.title}"></div>
-                        ${table.text}
+                        <span translation-key="${table.text}">${translation}</span>
                     </div>
                     <div class="pax">
                         <i class="fa-regular fa-user"></i>
@@ -2491,16 +2682,19 @@ class MouseManager {
                 </span>`);
                 return $span;
             },
-            templateSelection: function (table) {
+            templateSelection: (table) => {
                 if (!table.id) {
                     return table.text;
                 }
+                let translation = table.text;
+                if(this.translationSystem)
+                    translation = this.translationSystem.getTranslation(table.text);
 
                 var $state = $(
                     `<span class="option">
                     <div style="display: inline-flex">
                         <div class="table_ui ${table?.title}"></div>
-                        ${table.text}
+                        <span translation-key="${table.text}">${translation}</span>
                     </div>
                     <div class="pax">
                         <i class="fa-regular fa-user"></i>
@@ -2541,7 +2735,7 @@ class MouseManager {
             this.selectedObject = newTableCouple;
             this.selectedObject.setSelected();
             
-        })
+        });
     }
 
     initializeContextMenu() {
@@ -2604,7 +2798,7 @@ class MouseManager {
                                 class: "rotate",
                                 id: "ui-context-rotate",
                                 icon: "fa-sync-alt",
-                                text: "Rodar",
+                                text: this.translationSystem.getTranslation("ROTATE"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'ROTATE')
                                 }
@@ -2617,7 +2811,7 @@ class MouseManager {
                                 class: "guests",
                                 id: "ui-context-manage_guests",
                                 icon: "fa-address-book",
-                                text: "Gerir convidados",
+                                text: this.translationSystem.getTranslation("MNG_GUESTS"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'MANAGE_GUESTS')
                                 }
@@ -2630,7 +2824,7 @@ class MouseManager {
                                 class: "trash",
                                 id: "ui-context-delete",
                                 icon: "fa-trash",
-                                text: "Eliminar",
+                                text: this.translationSystem.getTranslation("DELETE"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'DELETE')
                                 }
@@ -2835,17 +3029,57 @@ class MouseManager {
     }
 }
 
+class TranslationSystem {
+
+    activeLanguage="en";
+
+    constructor() {
+        if (TranslationSystem._instance) {
+          return TranslationSystem._instance
+        }
+        TranslationSystem._instance = this;
+    
+        this.setActiveLanguage(this.activeLanguage);
+      }
+
+    setActiveLanguage(activeLanguage) {
+        this.activeLanguage = activeLanguage;
+        this.reviewPage();
+    }
+
+    getTranslation(key) {
+        const translations = DEFAULT_TRANSLATIONS.find(t => t.tag == key);
+
+        if(translations) {
+            return translations.value[this.activeLanguage];
+        }
+
+        return key;
+    }
+
+    reviewPage() {
+        for(const node of document.querySelectorAll('[translation-key]')) {
+            const key = node.getAttribute("translation-key");
+            node.innerText = this.getTranslation(key);
+        }
+    }
+}
+
 class RoomEditor {
     editorContainerElement = null;
     word = null;
     mouseManager = null;
-    
+    translationSystem;
     
     constructor(
         idOfElement,
+        activeLanguage = "en"
         ) {
             this.editorContainerElement = document.getElementById(idOfElement);
             this.editorContainerElement.style.overflow = "hidden";
+            this.translationSystem = new TranslationSystem();
+            this.translationSystem.setActiveLanguage(activeLanguage);
+
             this.guestsModal = new ManageGuestsModal();
 
         /*const savedWorld = localStorage.getItem('savedWorld');
@@ -2863,6 +3097,7 @@ class RoomEditor {
         }*/
 
         this.mouseManager = new MouseManager(this.world, this.editorContainerElement, this.guestsModal);
+        this.mouseManager.setRoomEditor(this);
     }
 
     setRoomPlan(roomPlanImg) {
@@ -2984,7 +3219,10 @@ class ManageGuestsModal {
 
     formElements = {};
 
+    translationSystem;
+    
     constructor() {
+        this.translationSystem = new TranslationSystem();
         this.modalElement = document.createElement("div");
         this.modalElement.classList.add("editor-modal-wrap");
         this.modalElement.id = "myModal";
@@ -3006,7 +3244,7 @@ class ManageGuestsModal {
 
         const modalHeaderElement = document.createElement("div");
         modalHeaderElement.classList.add("editor-modal-header");
-        modalHeaderElement.innerHTML = '<div class="editor-modal-title">Gerir mesa</div>';
+        modalHeaderElement.innerHTML = '<div class="editor-modal-title" translation-key="MNG_GUESTS">Gerir convidados</div>';
         editorModalElement.appendChild(modalHeaderElement);
 
         this.modalBodyElement = document.createElement("div");
@@ -3022,6 +3260,7 @@ class ManageGuestsModal {
         btnCancelElement.type = "button";
         btnCancelElement.classList.add("editor-btn");
         btnCancelElement.classList.add("editor-btn-default");
+        btnCancelElement.setAttribute('translation-key', "CANCEL");
         btnCancelElement.textContent = "Cancelar";
         btnCancelElement.onclick = () => {
             this.close();
@@ -3056,7 +3295,7 @@ class ManageGuestsModal {
         const button1 = document.createElement("button");
         button1.classList.add("editor-btn");
         button1.classList.add("editor-btn-default-focus");
-        button1.innerHTML = '<div class="editor-table round-table"></div>Redonda';
+        button1.innerHTML = `<div class="editor-table round-table"></div><span translation-key="${this.subjectTable.tableType}">${this.subjectTable.tableType}</span>`;
         row1.appendChild(button1);
 
         const button2 = document.createElement("button");
@@ -3116,19 +3355,19 @@ class ManageGuestsModal {
         editorStatsDiv.classList.add("editor-stats");
         editorStatsDiv.innerHTML = `
         <div class="editor-stats-line">
-            <span>A partir de 8 anos</span>
+            <span translation-key="ABOVE_8_YEARS">A partir de 8 anos</span>
             <span id="totalAdult" class="editor-stats-qty">0</span>
         </div>
         <div class="editor-stats-line">
-            <span>Dos 3 aos 7 anos</span>
+            <span translation-key="FROM_CHILD_AGE">Dos 3 aos 7 anos</span>
             <span id="totalChild" class="editor-stats-qty">0</span>
         </div>
         <div class="editor-stats-line">
-            <span>Dos 6 meses aos 2 anos</span>
+            <span translation-key="FROM_BABY_AGE">Dos 6 meses aos 2 anos</span>
             <span id="totalBaby" class="editor-stats-qty">0</span>
         </div>
         <div class="editor-stats-line">
-            <span>Dos 0 aos 5 meses</span>
+            <span translation-key="FROM_NEWBORN_AGE">Dos 0 aos 5 meses</span>
             <span id="totalNewborn" class="editor-stats-qty">0</span>
         </div>
         `;
@@ -3140,7 +3379,7 @@ class ManageGuestsModal {
             <span class="editor-stats-total">
                 <span id="total">0</span>
             </span>
-            <span class="editor-stats-stroller" id="totalStroller">0 carrinho</span>
+            <span class="editor-stats-stroller" id="totalStroller">0 <span translation-key="BABY_CAR">carrinho</span></span>
         `;
 
         editorFormLine.appendChild(editorStatsDiv);
@@ -3166,6 +3405,7 @@ class ManageGuestsModal {
         row3.classList.add("editor-row-notes");
 
         const notesDiv = document.createElement("div");
+        notesDiv.setAttribute("translation-key", "NOTES");
         notesDiv.textContent = "Notas:";
         row3.appendChild(notesDiv);
 
@@ -3282,10 +3522,10 @@ class ManageGuestsModal {
         this.formElements.seats[seat.number].guestAge = $(`.editor-select-age-${seat.number}`).select2({
             minimumResultsForSearch: -1,
             data: [
-                { id: 'ADULT', text: 'mais de 7 anos' },
-                { id: 'CHILD', text: '3 a 7 anos' },
-                { id: 'BABY', text: '6 meses a 2 anos' },
-                { id: 'NEWBORN', text: '0 a 5 meses' },
+                { id: 'ADULT', text: this.translationSystem.getTranslation("ABOVE_8_YEARS") },
+                { id: 'CHILD', text: this.translationSystem.getTranslation("CHILD_AGE") },
+                { id: 'BABY', text: this.translationSystem.getTranslation("BABY_AGE") },
+                { id: 'NEWBORN', text: this.translationSystem.getTranslation("NEWBORN_AGE") },
             ],
             val: seat?.guestAge || null
         });
@@ -3318,6 +3558,7 @@ class ManageGuestsModal {
     open(table) {
         this.createModalBody(table);
         this.modalElement.style.display = "block";
+        this.translationSystem.reviewPage();
     }
 
     close() {
@@ -3395,7 +3636,8 @@ class ManageGuestsModal {
             if(totalNewborn > 0) {
     
                 document.getElementById('totalStroller').classList.remove('hide');
-                document.getElementById('totalStroller').innerHTML = `${totalNewborn} carrinho`;
+                document.getElementById('totalStroller').innerHTML = `${totalNewborn} <span translation-key="BABY_CAR">carrinho</span>`;
+                this.translationSystem.reviewPage();
             } else {
                 document.getElementById('totalStroller').classList.add('hide');
             }
