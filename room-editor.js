@@ -1791,7 +1791,7 @@ class Seat extends RoomObject {
     }
 
     updateSeatNumerationValue() {
-        this.elementNumeration.innerText = this.number;
+        this.elementNumeration.innerText = this.number + 1;
     }
 
     isElementOrChildElement(isElement) {
@@ -2774,6 +2774,7 @@ class ManageGuestsModal {
                 if(this.miniTable) {
                     this.miniTable.seats[seat.number].guestName = guestNameInput.value;
                     this.miniTable.updateSeats();
+                    this.updateTotals();
                 }
 
             }
@@ -2880,7 +2881,7 @@ class ManageGuestsModal {
     }  
 
     validateForm() {    
-        const tableName = this.formElements.name;
+        const tableName = this.formElements.name.value;
         if (tableName == '') {
             document.getElementById("tableName").setCustomValidity("Invalid field.")
             document.getElementById("tableName").reportValidity();
@@ -2897,26 +2898,26 @@ class ManageGuestsModal {
         
         let totalAdult = 0;
         if(document.getElementById('totalAdult')) {
-            totalAdult = this.formElements.seats.filter(s => s.guestAge.select2('data')[0].id == 'ADULT').length;
+            totalAdult = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'ADULT').length;
             document.getElementById('totalAdult').innerHTML = totalAdult;
         }
 
         let totalChild = 0;
         if(document.getElementById('totalChild')) {
-            totalChild = this.formElements.seats.filter(s => s.guestAge.select2('data')[0].id == 'CHILD').length;
+            totalChild = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'CHILD').length;
             
             document.getElementById('totalChild').innerHTML = totalChild;
         }
 
         let totalBaby = 0;
         if(document.getElementById('totalBaby')) {
-            totalBaby = this.formElements.seats.filter(s => s.guestAge.select2('data')[0].id == 'BABY').length;
+            totalBaby = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'BABY').length;
             document.getElementById('totalBaby').innerHTML = totalBaby;
         }
 
         let  totalNewborn = 0;
         if(document.getElementById('totalNewborn')) {
-            totalNewborn = this.formElements.seats.filter(s => s.guestAge.select2('data')[0].id == 'NEWBORN').length;
+            totalNewborn = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'NEWBORN').length;
             document.getElementById('totalNewborn').innerHTML = totalNewborn;
         }
 
