@@ -88,6 +88,13 @@ class World extends RoomObject {
         this.tables = this.tables.filter(t => t !== table);
     }
 
+    removeTables() {
+        for(let table of this.tables) {
+            table.removeOfContainer();
+        }
+        this.tables = [];
+    }
+
     applyTransform() {
         this.element.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
     }
@@ -2318,7 +2325,6 @@ class RoomEditor {
     }
 
     setRoomPlan(roomPlanImg) {
-        debugger;
         if(!this.world) {
             this.world = new World(this.editorContainerElement);
             this.world.applyTransform();
@@ -2381,6 +2387,7 @@ class RoomEditor {
 
         this.setRoomPlan(serializedData.roomPlan.imageSrc);
         
+        this.world.removeTables();
         this.world.x = serializedData.roomPlan.x;
         this.world.y = serializedData.roomPlan.y;
         this.world.scale = serializedData.roomPlan.scale;
