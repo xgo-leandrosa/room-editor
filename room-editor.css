@@ -192,7 +192,7 @@ ul {
 
 .context-menu-options>li>a:hover {
     background: #f1f3f7;
-    color: #4b00ff;
+    color: #BC9922;
 }
 
 .context-menu-options>li>a>i {
@@ -210,11 +210,18 @@ ul {
 
 .ui-row {
     background: white;
+    justify-content: left;
+}
+
+.ui-row .editorRoom-input {
+    border-right: 1px rgba(0, 0, 0, 0.65) solid;
+}
+
+.ui-row > .editorRoom-input:last-child {
+    border-right: none;
 }
 
 .editor-row {
-    margin-left: -6px;
-    margin-right: -6px;
     position: relative;
     height: auto;
     margin: 0;
@@ -228,9 +235,15 @@ ul {
     z-index: 99;
 }
 
-.editor-row .input {
+.editor-row .editorRoom-input {
     margin-right: 16px;
-    display: grid;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.editorRoom-input label {
+    margin-right: 6px;
     color: rgba(0, 0, 0, 0.65) !important;
 }
 
@@ -264,7 +277,7 @@ ul {
 }
 
 .editor-btn-primary {
-    color: #fff;
+    color: #fff !important;
     background-color: #bc9222;
     border-color: #bc9222;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
@@ -383,9 +396,10 @@ ul {
     align-content: center;
     align-items: center;
     margin-right: 10px;
+    color: rgba(0, 0, 0, 0.65) !important;
 }
 
-input[type=radio] {
+.roomEditor-radio {
     /* remove standard background appearance */
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -401,21 +415,13 @@ input[type=radio] {
     background-color: #fff;
     border-radius: 50%;
     margin: 0 3px 0 0;
+    
 }
 
-input[type="radio"]:checked {
+.roomEditor-radio:checked {
     background-color: #bc9222;
 }
 
-label {
-    font-size: 14px;
-    font-weight: 600;
-    font-family: Inter, sans-serif;
-    font-feature-settings: 'liga' 1, 'calt' 1;
-    /* fix for Chrome */
-    color: #bc9222;
-    text-transform: uppercase;
-}
 
 /* END UI*/
 

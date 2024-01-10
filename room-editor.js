@@ -2423,7 +2423,8 @@ class Seat extends RoomObject {
         this.tooltipElementRow1Icon.appendChild(this.miniSeat);
 
         this.tooltipElementRow1.appendChild(this.tooltipElementRow1Content)
-        this.tooltipElementRow1Content.innerHTML = this.guestName || "Sem convidado";
+        new TranslationSystem().getTranslation("")
+        this.tooltipElementRow1Content.innerHTML = this.guestName || "Sem convidado"; // TODO FALTA A TRADUO
 
         this.tooltipElementRow2 = document.createElement("div");
         this.tooltipElementRow2.classList.add("editor-row");
@@ -2573,7 +2574,6 @@ class MouseManager {
                         <div class="table_ui ${TableTypesIcon[agt]}  ui guestTableChooserItem" data-tableType="${agt}"></div>
                             <span class="ui guestTableChooserItem" data-tableType="${agt}" translation-key="${agt}">${agt}</span>
                             <div class="pax  ui guestTableChooserItem" data-tableType="${agt}">
-                            <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="${agt}"></i>14
                         </div>
                     </button>
                 `;
@@ -2619,6 +2619,7 @@ class MouseManager {
                     </button>
 */
     }
+    /*
     activeCouplesTables = [];
     setActiveCouplesTables(tablesTypes) {
         this.activeCouplesTables = tablesTypes;
@@ -2639,52 +2640,60 @@ class MouseManager {
             this.initializeCoupleTableSelect();    
             this.translationSystem.reviewPage();
         }
-    }
+    }*/
 
     initializeUi() {
         const ui1 = document.createElement('div');
         ui1.classList.add("editor-row");
         ui1.classList.add("ui-row");
-        ui1.style["justify-content"] = "space-between";
         
         /*<option title="round-table" value="ovals" pax="14">Redonda</option>
         <option title="square-table" value="square" pax="14">Quadrada</option>
         <option title="rectangular-table" value="forestS">Forest S</option>
         <option title="rectangular-table" value="forestM">Forest M</option>*/
         ui1.innerHTML = `
-            <div style="display: inline-flex;">
-                <div class="input" style="width: 180px;">
+        
+        <div style="display: inline-flex;">
+                <div class="editorRoom-input ui">
+                    <button class="editor-btn editor-btn-primary">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                </div>
+                <!--<div class="editorRoom-input" style="width: 180px;">
                     <label translation-key="COUPLE_TABLES">Mesa dos noivos:</label>
                     <select id="coupleTableSelect" class="coupleTableSelect ui">
                         
                     </select>
-                </div>
+                </div>-->
         
-                <div class="input ui">
-                    <label translation-key="TYPE_TABLES">Tipo:</label>
+                <div class="editorRoom-input ui">
+                    <label><span translation-key="TYPE_TABLES">Tipo</span>:</label>
                     <div class="types">
                         <div class="editor-radio">
-                            <input type="radio" id="guest" name="contact" value="guest">
+                            <input type="radio" class="roomEditor-radio" id="guest" name="contact" value="guest">
                             <span for="contactChoice1" translation-key="ROOM_PLAN_GUESTS">Convidados</span>
                         </div>
         
                         <div class="editor-radio">
-                            <input type="radio" id="staff" name="contact" value="staff">
+                            <input type="radio" class="roomEditor-radio" id="staff" name="contact" value="staff">
                             <span for="contactChoice1" translation-key="ROOM_PLAN_STAFF">Staff</span>
                         </div>
         
                         <div class="editor-radio">
-                            <input type="radio" id="children" name="contact" value="children">
+                            <input type="radio" class="roomEditor-radio" id="children" name="contact" value="children">
                             <span for="contactChoice1" translation-key="ROOM_PLAN_CHILD">Crianças</span>
                         </div>
                     </div>
                 </div>
             </div>
         
-            <button class="editor-btn editor-btn-primary">
-                <i class="fas fa-undo"></i>
-                <span translation-key="REWIND">Retroceder</span>
-            </button>
+
+            <div class="editorRoom-input">
+                <label><span translation-key="TABLES">Mesas</span>:</label>
+                <div class="tables_ui" style="margin-top: 2px">
+
+                </div>
+            </div>
         `;
         
 /*
@@ -2703,22 +2712,17 @@ class MouseManager {
         ui2.classList.add("ui-row");
 
         ui2.innerHTML = `
-        <div class="input">
-                <label translation-key="TABLES">Mesas:</label>
-                <div class="tables_ui" style="margin-top: 2px">
-                    
-                </div>
-            </div>
+       
         `;
         
         this.editorContainerElement.appendChild(ui1);
         this.editorContainerElement.appendChild(ui2);
 
-        $(document).ready(() => {
+    /*    $(document).ready(() => {
             this.initializeCoupleTableSelect();    
-        });
+        });*/
     }
-
+/*
     initializeCoupleTableSelect() {
         $('#coupleTableSelect').select2({
             minimumResultsForSearch: -1,
@@ -2795,6 +2799,37 @@ class MouseManager {
             this.selectedObject.setSelected();
             
         });
+    }
+    */
+
+    changeCoupleTable(tableType) {
+        const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
+
+            const newTableCouple = new TableTypes[tableType](this.world);
+
+            const pos = this.getWorldPositionCenterScreen();
+            if(!tableCouple) {
+                newTableCouple.x = pos.x;
+                newTableCouple.y = pos.y;
+                
+            } else {
+                newTableCouple.x = tableCouple.x;
+                newTableCouple.y = tableCouple.y;
+                newTableCouple.rotate = tableCouple.rotate;
+
+                this.world.removeTable(tableCouple);
+            }
+            
+            newTableCouple.init();
+            this.world.addTable(newTableCouple);
+            newTableCouple.applyTransform();
+
+            if(this.selectedObject) {
+                this.selectedObject.unsetSelected();
+            }
+
+            this.selectedObject = newTableCouple;
+            this.selectedObject.setSelected();
     }
 
     initializeContextMenu() {
@@ -2877,6 +2912,19 @@ class MouseManager {
                             })
                         );
                         break;
+                    case "CHANGE_COUPLE":
+                            elements[0].appendChild(
+                                this.contextMenuCreateElement({
+                                    class: "change_couple",
+                                    id: "ui-context-change_couple",
+                                    icon: "fa-pencil",
+                                    text: this.translationSystem.getTranslation("CHANGE_COUPLE"),
+                                    onclick: (event) => {
+                                        this.contextMenuAction(event, 'CHANGE_COUPLE')
+                                    }
+                                })
+                            );
+                            break;
                     case "DELETE":
                         elements[0].appendChild(
                             this.contextMenuCreateElement({
@@ -2939,10 +2987,14 @@ class MouseManager {
 
         if(this.selectedObject && this.selectedObject.tableType) {
             
-            options.push("ROTATE");
+            if(this.selectedObject.tablePurpose == "COUPLE") { 
+                options.push("CHANGE_COUPLE");
+            }
+                
             options.push("MANAGE_GUESTS");
-            
+                
             if(this.selectedObject.tablePurpose != "COUPLE") { 
+                options.push("ROTATE");
                 options.push("DELETE");
             }
 
@@ -3072,7 +3124,10 @@ class MouseManager {
             case "ROTATE":
                 this.selectedObject.addRotation(90);
                 this.selectedObject.applyTransform();
-                break;                
+                break;     
+            case "CHANGE_COUPLE":
+                this.callChangeCoupleEvent();
+                break;
             case "MANAGE_GUESTS":
                 this.guestModal.open(this.selectedObject);
                 break;
@@ -3085,6 +3140,15 @@ class MouseManager {
         }
 
         this.hideContextMenu();
+    }
+
+    setChangeCoupleEvent(action) {
+        this.changeCoupleEvent = action;
+    }
+
+    changeCoupleEvent;
+    callChangeCoupleEvent() { 
+        this.changeCoupleEvent();
     }
 }
 
@@ -3236,7 +3300,7 @@ class RoomEditor {
             object.x = serializedObject.x;
             object.y = serializedObject.y;
             object.scale = serializedObject.scale;
-            object.rotate = serializedObject.rotate;
+            object.rotate = serializedObject.rotate | 0;
             object.code = serializedObject.code;
             object.tablePurpose = serializedObject.tablePurpose;
             object.name = serializedObject.name;
@@ -3266,9 +3330,10 @@ class RoomEditor {
         this.mouseManager.setActiveGuestTables(tablesTypes);
     }
 
+    /*
     activeCoupleTables(tablesTypes) {
         this.mouseManager.setActiveCouplesTables(tablesTypes);
-    }
+    }*/
 }
 
 class ManageGuestsModal {
@@ -3497,8 +3562,8 @@ class ManageGuestsModal {
             }, 200);
         } else {
             this.miniTable = new TableTypes[this.subjectTable.tableType]();
-            this.miniTable.x = this.miniTable.halfWidth + ((bounding.width - this.miniTable.width) / 2);
-            this.miniTable.y = this.miniTable.halfHeight + 60;
+            this.miniTable.x = ((bounding.width - this.miniTable.width) / 2) - this.miniTable.halfWidth;
+            this.miniTable.y = 60 - this.miniTable.halfHeigh;
             this.miniTable.init();
             this.miniTable.world = {
                 element: this.tableDrawElement,
