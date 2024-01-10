@@ -620,9 +620,11 @@ const DEFAULT_TRANSLATIONS = [
 
 
 class RoomObject {
+
+    
     constructor() {
         this.translationSystem = new TranslationSystem();
-
+        
         this.rotate = 0;
         this.x = 0;
         this.y = 0;
@@ -635,7 +637,7 @@ class RoomObject {
         this.world = null;
         this.dragable = false;
     }
-
+    
     pan(dx, dy) {
         this.x += dx;
         this.y += dy;
@@ -662,7 +664,7 @@ class RoomObject {
     }
 
     applyTransform() {
-        this.element.style.transform = `translate(${this.x - this.halfWidth}px, ${this.y - this.halfHeight}px) scale(${this.scale}) rotate(${this.rotate}deg)`;
+        this.element.style.transform = `translate(${this.x + this.halfWidth}px, ${this.y + this.halfHeight}px) scale(${this.scale}) rotate(${this.rotate}deg)`;
     }
 }
 
@@ -722,17 +724,74 @@ class World extends RoomObject {
         this.element.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
     }
 
-    calculateIntersectionArea(rect1, rect2) {
-        const xIntersection = Math.max(0, Math.min(rect1.x + rect1.width, rect2.x + rect2.width) - Math.max(rect1.x, rect2.x));
-        const yIntersection = Math.max(0, Math.min(rect1.y + rect1.height, rect2.y + rect2.height) - Math.max(rect1.y, rect2.y));
-        return xIntersection * yIntersection;
+    debugElements = [];
+    setDebugPoints(table, color) {
+        this.addDebugPoint(color, (table.x + table.halfWidth), (table.y + table.halfHeight));
+        this.addDebugPoint(color, (table.x + table.halfWidth) + table.width, (table.y + table.halfHeight));
+        this.addDebugPoint(color, (table.x + table.halfWidth) + table.width, (table.y + table.halfHeight) + table.height);
+        this.addDebugPoint(color, (table.x + table.halfWidth), (table.y + table.halfHeight) + table.height);
+            
     }
 
-    areTablesOverlapping(tables) {
+    addDebugPoint(color, x, y) {
+        const i = this.debugElements.length;
+        this.debugElements[i] = document.createElement("div");
+        this.debugElements[i].style.position = "absolute";
+        this.debugElements[i].style.background = color;
+        this.debugElements[i].style.width = "5px";
+        this.debugElements[i].style.height = "5px";
+        this.debugElements[i].style.transform = `translate(${x}px, ${y}px)`;
+        this.element.appendChild(this.debugElements[i]);
+    }
+
+    clearDebugPoints() {
+        for(let debugPoint of this.debugElements) {
+            this.element.removeChild(debugPoint);
+        }
+
+        this.debugElements= [];
+    }
+
+
+    calculateIntersectionArea(rect1, rect2) {
+        
+        // TODO ADD FLAG
+        this.setDebugPoints(rect1, "red");
+        this.setDebugPoints(rect2, "blue");
+
+        // Check for separation along each axis
+        if (
+            (rect1.x + rect1.halfWidth) + rect1.width < (rect2.x + rect2.halfWidth) ||
+            (rect1.x + rect1.halfWidth) > (rect2.x + rect2.halfWidth) + rect2.width ||
+            (rect1.y + rect1.halfHeight) + rect1.height < (rect2.y + rect2.halfHeight) ||
+            (rect1.y + rect1.halfHeight) > (rect2.y + rect2.halfHeight) + rect2.height
+        ) {
+            // Rectangles do not intersect
+            return 0;
+        } 
+        
+    
+        // Calculate the overlap along the x-axis
+        const xOverlap = Math.min((rect1.x + rect1.halfWidth) + rect1.width, (rect2.x + rect2.halfWidth) + rect2.width) - Math.max((rect1.x + rect1.halfWidth), (rect2.x + rect2.halfWidth));
+    
+        // Calculate the overlap along the y-axis
+        const yOverlap = Math.min((rect1.y + rect1.halfHeight) + rect1.height, (rect2.y + rect2.halfHeight) + rect2.height) - Math.max((rect1.y + rect1.halfHeight), (rect2.y + rect2.halfHeight));
+    
+        // Calculate the area of intersection
+        const intersectionArea = xOverlap * yOverlap;
+    
+        return intersectionArea;
+    }
+
+    areTablesOverlapping() {
         // Helper function to calculate the intersection area of two rectangles
         for (let i = 0; i < this.tables.length; i++) {
             this.tables[i].isSafe();
         }
+
+        // TODO ADD FLAG
+        this.clearDebugPoints();
+
         // Check if any pair of tables overlap
         for (let i = 0; i < this.tables.length; i++) {
             for (let j = i + 1; j < this.tables.length; j++) {
@@ -2512,7 +2571,7 @@ class MouseManager {
                 elements[0].innerHTML += `
                     <button class="editor-btn ui guestTableChooserItem" data-tableType="${agt}">
                         <div class="table_ui ${TableTypesIcon[agt]}  ui guestTableChooserItem" data-tableType="${agt}"></div>
-                            <span translation-key="${agt}">${agt}</span>
+                            <span class="ui guestTableChooserItem" data-tableType="${agt}" translation-key="${agt}">${agt}</span>
                             <div class="pax  ui guestTableChooserItem" data-tableType="${agt}">
                             <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="${agt}"></i>14
                         </div>
@@ -2911,8 +2970,8 @@ class MouseManager {
 
             if (event.toElement.dataset["tabletype"]) {
                 const table1 = new TableTypes[event.toElement.dataset["tabletype"]](this.world);
-                table1.x = pos.x;
-                table1.y = pos.y;
+                table1.x = pos.x - table1.width;
+                table1.y = pos.y - table1.height;
                 table1.init();
                 this.world.addTable(table1);
                 table1.applyTransform();
@@ -3177,6 +3236,7 @@ class RoomEditor {
             object.x = serializedObject.x;
             object.y = serializedObject.y;
             object.scale = serializedObject.scale;
+            object.rotate = serializedObject.rotate;
             object.code = serializedObject.code;
             object.tablePurpose = serializedObject.tablePurpose;
             object.name = serializedObject.name;
