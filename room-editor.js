@@ -3397,6 +3397,7 @@ class RoomEditor {
         });
 
         this.world.updateTablesCode();
+        this.word.areTablesOverlapping();
 
         this.guestsModal.foodRestrictions = serializedData.foodRestrictions.map(m => ({
             id: m?._id,
