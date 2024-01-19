@@ -17,7 +17,6 @@
 .table-draw {
     position: absolute;
     background-color: #D6D6D6;
-    ;
 }
 
 .table-draw--selected {
@@ -246,6 +245,10 @@ ul {
     width: 50%;
 }
 
+.editor-col-draw {
+    padding-left: 20px;
+}
+
 .editorRoom-input label {
     margin-right: 6px;
     color: rgba(0, 0, 0, 0.65) !important;
@@ -406,14 +409,12 @@ ul {
 
 .roomEditor-radio {
     /* remove standard background appearance */
-    -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
     /* create custom radiobutton appearance */
     display: inline-block;
     width: 15px;
     height: 15px;
-    padding: 1px;
+    padding: 2px;
     /* background-color only for content */
     background-clip: content-box;
     border: 1px solid #bc9222;
@@ -578,6 +579,10 @@ ul {
     border-color: #c9aa44 !important;
 }
 
+.editor-default-cursor {
+    cursor: default !important;
+}
+
 .editor-btn-primary:hover,
 .editor-btn-primary:focus {
     color: #fff;
@@ -609,8 +614,8 @@ ul {
     background-color: #EBEBEB;
     border-radius: 2px;
     padding: 4px 0;
-    width: 22px;
-    min-width: 22px;
+    width: 24px;
+    min-width: 24px;
     font-size: 16px;
     font-weight: 600;
     text-align: center;
@@ -635,8 +640,8 @@ ul {
     border-radius: 2px;
     border: 1px solid #F0F0F0;
     padding: 4px 0;
-    width: 22px;
-    min-width: 22px;
+    width: 24px;
+    min-width: 24px;
     text-align: center;
     white-space: nowrap;
 }
@@ -715,6 +720,7 @@ textarea.editor-input {
     margin-right: 0 !important;
     margin-top: 2px !important;
     color: rgba(0, 0, 0, 0.65);
+    right: 3px !important;
 }
 
 .select2-container--default .select2-selection--multiple {
@@ -825,6 +831,40 @@ textarea.editor-input {
 
 .editor-stats-stroller.hide {
     display: none;
+}
+
+.editor-info-table {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.editor-group-button {
+    cursor: pointer;
+    float: left;
+}
+
+.editor-spcae-between {
+    justify-content: space-between;
+}
+
+/* Clear floats (clearfix hack) */
+.editor-group-button:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.editor-group-button button:not(:last-child) {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-right: 0;
+}
+
+.editor-group-button button:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 /* END MODAL UI */
