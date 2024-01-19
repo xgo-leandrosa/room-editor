@@ -3322,7 +3322,7 @@ class RoomEditor {
         });
 
         this.world.updateTablesCode();
-        this.word.areTablesOverlapping();
+        this.world.areTablesOverlapping();
 
         return this.world;
     }
