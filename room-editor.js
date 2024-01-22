@@ -655,6 +655,16 @@ const DEFAULT_TRANSLATIONS = [
         },
         tag: "CHANGE_TABLE",
         platform: "BO",
+    },
+    {
+        value: {
+            pt: "As alterações de ingredientes ficarão a cargo do chefe.",
+            en: "Ingredient changes will be the responsibility of the chef.",
+            es: "Los cambios de ingredientes serán responsabilidad del chef.",
+            fr: "Les changements d'ingrédients seront à la charge du chef."
+        },
+        tag: "CHEF_CHOICE",
+        platform: "BO",
     }
 ];
 
@@ -2798,7 +2808,7 @@ class MouseManager {
     
     
                     var $span = $(`
-                    <span class="option">
+                    <span class="editor-option">
                         <div style="display: inline-flex">
                             <div class="table_ui ${table?.title}"></div>
                             <span translation-key="${table.text}">${translation}</span>
@@ -2819,7 +2829,7 @@ class MouseManager {
                         translation = this.translationSystem.getTranslation(table.text);
     
                     var $state = $(
-                        `<span class="option">
+                        `<span class="editor-option">
                         <div style="display: inline-flex">
                             <div class="table_ui ${table?.title}"></div>
                             <span translation-key="${table.text}">${translation}</span>
@@ -3391,6 +3401,7 @@ class RoomEditor {
         this.guestsModal.foodRestrictions = serializedData.foodRestrictions.map(m => ({
             id: m?._id,
             text: m?.acronym?.pt,
+            subtitle: m?.subtitle?.pt,
             description: m?.description?.pt,
             notesRequired: m?.notesRequired,
             chefChoice: m?.chefChoice
@@ -3482,7 +3493,6 @@ class ManageGuestsModal {
         editorModalElement.appendChild(modalFooterElement);
 
         document.body.appendChild(this.modalElement);
-
     }
 
     changeBtnGroup = () => {
@@ -3503,7 +3513,7 @@ class ManageGuestsModal {
         // Create the first row with buttons
         const row1 = document.createElement("div");
         row1.classList.add("editor-row");
-        row1.classList.add("editor-spcae-between");
+        row1.classList.add("editor-space-between");
 
         const info = document.createElement("div");
         info.classList.add("editor-info-table");
@@ -3513,6 +3523,18 @@ class ManageGuestsModal {
             <i class="fa-regular fa-user editor-table-user" style="margin: 0 2px 0 10px"></i>${this.subjectTable.seats?.length}
         `;
         row1.appendChild(info);
+
+        const chefInfo = document.createElement("div");
+        chefInfo.classList.add("editor-info-table");
+        chefInfo.classList.add("editor-error");
+        chefInfo.id = 'chefChoice';
+        chefInfo.innerHTML = `
+            <i class="fa-solid fa-circle-info editor-table-user" style="margin: 0 5px"></i>
+            <span translation-key="CHEF_CHOICE">As alterações de ingredientes ficarão a cargo do chefe.</span>
+        `;
+        chefInfo.style.display = 'none';
+        row1.appendChild(chefInfo);
+        this.modalBodyElement.appendChild(row1);
 
         // const button1 = document.createElement("button");
         // button1.classList.add("editor-btn");
@@ -3528,40 +3550,6 @@ class ManageGuestsModal {
         // button2.innerHTML = `<i class="fa-regular fa-user" style="margin-right: 5px;"></i>${this.subjectTable.seats?.length}`;
         // buttons1.appendChild(button2);
         // row1.appendChild(buttons1);
-
-        const groupBtn = document.createElement("div");
-        groupBtn.classList.add("editor-group-button");
-
-        const buttonGroup1 = document.createElement("button");
-        buttonGroup1.id = "couplePosition";
-        buttonGroup1.classList.add("editor-btn");
-        buttonGroup1.classList.add("editor-btn-primary");
-        buttonGroup1.innerHTML = `<span translation-key="COUPLE_POSITION">Posicicionamento casal</span>`;
-        buttonGroup1.onclick = () => {
-            if (!this.globalView) return;
-            else {
-                this.globalView = !this.globalView;
-                this.changeBtnGroup();
-            }
-        };
-        groupBtn.appendChild(buttonGroup1);
-
-        const buttonGroup2 = document.createElement("button");
-        buttonGroup2.id = "globalPosition";
-        buttonGroup2.classList.add("editor-btn");
-        buttonGroup2.classList.add("editor-btn-default-focus");
-        buttonGroup2.innerHTML = `<span translation-key="ROOM_PLAN_POSITION">Posicicionamento global</span>`;
-        buttonGroup2.onclick = () => {
-            if (this.globalView) return;
-            else {
-                this.globalView = !this.globalView;
-                this.changeBtnGroup();
-            }
-        };
-        groupBtn.appendChild(buttonGroup2);
-        row1.appendChild(groupBtn);
-
-        this.modalBodyElement.appendChild(row1);
 
         // Create the second row with form and editor stats
         const row2 = document.createElement("div");
@@ -3584,7 +3572,7 @@ class ManageGuestsModal {
 
         const tableCodeDiv = document.createElement("div");
         tableCodeDiv.classList.add("editor-table-code");
-        tableCodeDiv.textContent = table.code || "X"; // TODO REMOVE
+        tableCodeDiv.textContent = (table.code + 1) || "X"; // TODO REMOVE
         formLine.appendChild(tableCodeDiv);
 
         const tableNameInput = document.createElement("input");
@@ -3648,9 +3636,46 @@ class ManageGuestsModal {
 
         const col2 = document.createElement("div");
         col2.classList.add("editor-col");
-        col2.classList.add("editor-col-draw");
-        col2.id = "table-draw";
-        this.tableDrawElement = col2;
+
+        const groupBtn = document.createElement("div");
+        groupBtn.classList.add("editor-group-button");
+        groupBtn.classList.add("editor-row");
+
+        const buttonGroup1 = document.createElement("button");
+        buttonGroup1.id = "couplePosition";
+        buttonGroup1.classList.add("editor-btn");
+        buttonGroup1.classList.add("editor-btn-primary");
+        buttonGroup1.innerHTML = `<span translation-key="COUPLE_POSITION">Posicicionamento casal</span>`;
+        buttonGroup1.onclick = () => {
+            if (!this.globalView) return;
+            else {
+                this.globalView = !this.globalView;
+                this.changeBtnGroup();
+            }
+        };
+        groupBtn.appendChild(buttonGroup1);
+
+        const buttonGroup2 = document.createElement("button");
+        buttonGroup2.id = "globalPosition";
+        buttonGroup2.classList.add("editor-btn");
+        buttonGroup2.classList.add("editor-btn-default-focus");
+        buttonGroup2.innerHTML = `<span translation-key="ROOM_PLAN_POSITION">Posicicionamento global</span>`;
+        buttonGroup2.onclick = () => {
+            if (this.globalView) return;
+            else {
+                this.globalView = !this.globalView;
+                this.changeBtnGroup();
+            }
+        };
+        groupBtn.appendChild(buttonGroup2);
+        col2.appendChild(groupBtn);
+        
+        const drawTable = document.createElement("div");
+        drawTable.classList.add("editor-row");
+        drawTable.classList.add("editor-col-draw");
+        drawTable.id = "table-draw";
+        this.tableDrawElement = drawTable;
+        col2.appendChild(drawTable);
 
         row2.appendChild(col1);
         row2.appendChild(col2);
@@ -3725,6 +3750,7 @@ class ManageGuestsModal {
             const formLineDiv = document.createElement("div");
             formLineDiv.classList.add("editor-form-line");
             formLineDiv.classList.add("editor-seat");
+            formLineDiv.id = `editor-seat-${seat.number}`;
 
             const seatCodeDiv = document.createElement("div");
             seatCodeDiv.classList.add("editor-seat-code");
@@ -3757,13 +3783,24 @@ class ManageGuestsModal {
             //this.formElements.seats[seat.number].guestAge = guestAgeInput;
             formLineDiv.appendChild(guestAgeInput);
 
-            const guestRestrictionInput = document.createElement("select");
+            // const guestRestrictionInput = document.createElement("select");
+            const guestRestrictionDiv = document.createElement("div");
+            guestRestrictionDiv.classList.add("editor-form-select-restriction");
+
+            this.formElements.seats[seat.number].foodRestrictions = [...seat.foodRestrictions] || [];
+            this.checkChefChoice();
+            const guestRestrictionInput = document.createElement("div");
+            guestRestrictionInput.classList.add("editor-input");
             guestRestrictionInput.classList.add("editor-form-select-multiple")
             guestRestrictionInput.classList.add(`editor-form-select-restriction-${seat.number}`)
             guestRestrictionInput.attributes.multiple = true;
-            guestRestrictionInput.name = `foodRestrictions${seat.number}`;
-            //this.formElements.seats[seat.number].foodRestrictions = guestRestrictionInput;
-            formLineDiv.appendChild(guestRestrictionInput);
+            guestRestrictionInput.name = `foodRestrictions-${seat.number}`;
+            guestRestrictionInput.id = `foodRestrictions${seat.number}`;
+            guestRestrictionInput.onclick = () => this.createRestrictionModal(guestRestrictionDiv, guestRestrictionInput, seat);
+            this.setSelectedResctrictions(seat, guestRestrictionInput);
+            // this.formElements.seats[seat.number].foodRestrictions = guestRestrictionInput;
+            guestRestrictionDiv.appendChild(guestRestrictionInput);
+            formLineDiv.appendChild(guestRestrictionDiv);
 
 
             seatDiv.appendChild(formLineDiv);
@@ -3773,6 +3810,92 @@ class ManageGuestsModal {
         }
 
         this.updateTotals();
+    }
+
+    createRestrictionModal(element, input, seat) {
+        const guestRestrictionSelect = document.createElement("ul");
+        guestRestrictionSelect.classList.add("editor-form-select-multiple-content");
+        guestRestrictionSelect.classList.add(`foodRestrictions${seat.number}`);
+        guestRestrictionSelect.id = `foodRestrictions${seat.number}`;
+
+        this.foodRestrictions.forEach(restriction => {
+            const restrictionOption = document.createElement("li");
+            restrictionOption.classList.add(`foodRestrictions${seat.number}`);
+
+            const checked = this.formElements.seats[seat.number].foodRestrictions.find(f => f == restriction?.id) ? true : false;
+
+            let textTranslation = restriction.text;
+            if (this.translationSystem)
+                textTranslation = this.translationSystem.getTranslation(restriction.text);
+
+            let subtitleTranslation = restriction.subtitle;
+            if (this.translationSystem)
+                subtitleTranslation = this.translationSystem.getTranslation(restriction.subtitle);
+
+            const option = document.createElement("span");
+            option.classList.add('editor-option');
+            option.style.justifyContent = 'left';
+            option.id = `foodRestrictions${seat.number}`;
+            option.innerHTML = `<input id="foodRestrictions${seat.number}" type="checkbox" name="foodRestrictions${seat.number}" value="${restriction.id}" ${checked ? 'checked' : ''}> <span id="foodRestrictions${seat.number}" translation-key="${restriction.text}">${textTranslation}</span>`;
+
+            this.tippyInstance = tippy(option, {
+                theme: 'light',
+                content: `<span id="foodRestrictions${seat.number}" translation-key="${restriction.subtitle}">${subtitleTranslation}</span>`
+            });
+
+            restrictionOption.onclick = () => this.selectRestriction(seat, input, option, restriction);
+
+            restrictionOption.appendChild(option);
+            guestRestrictionSelect.appendChild(restrictionOption);
+        });
+        this.translationSystem.reviewPage();
+
+        guestRestrictionSelect.style.display = 'block';
+        element.appendChild(guestRestrictionSelect);
+    }
+
+    selectRestriction(seat, input, option, restriction) {
+        const inputById = document.getElementById(input.id);
+        const optionById = document.getElementById(option.id);
+
+        const selectedIndex = this.formElements.seats[seat.number].foodRestrictions.findIndex(f => f == restriction.id);
+        if (selectedIndex > -1) {
+            this.formElements.seats[seat.number].foodRestrictions = this.formElements.seats[seat.number].foodRestrictions.filter(f => f != restriction.id);
+        } else this.formElements.seats[seat.number].foodRestrictions.push(restriction.id);
+        const checked = selectedIndex > -1 ? false : true;
+
+        this.setSelectedResctrictions(seat, input);
+        this.checkChefChoice();
+
+        let textTranslation = restriction.text;
+        if (this.translationSystem)
+            textTranslation = this.translationSystem.getTranslation(restriction.text);
+
+        option.innerHTML = `<input id="foodRestrictions${seat.number}" type="checkbox" name="foodRestrictions${seat.number}" value="${restriction.id}" ${checked ? 'checked' : ''}> <span id="foodRestrictions${seat.number}" translation-key="${restriction.text}">${textTranslation}</span>`;
+    }
+
+    setSelectedResctrictions(seat, input) {
+        const elemsSelected = this.foodRestrictions.filter(f => this.formElements.seats[seat.number].foodRestrictions.findIndex(f2 => f2 == f.id) > -1);
+        input.innerHTML = elemsSelected.map(m => m?.text).join(', ');
+    }
+
+    checkChefChoice() {
+        const warnChefChoice = document.getElementById('chefChoice');
+
+        const selectedRestrictions = this.formElements.seats
+            .filter(s => s.guestName.value)
+            .filter(s => s.foodRestrictions?.length > 0)
+            .map(m => m?.foodRestrictions)
+            .flat();
+        const uniqueRestrictions = [...new Set(selectedRestrictions)];
+        const chefChoiceRestrictions = this.foodRestrictions.filter(f => f?.chefChoice);
+        const restrictions = chefChoiceRestrictions.filter(f => uniqueRestrictions.includes(f?.id));
+
+        warnChefChoice.style.display = restrictions?.length > 0 ? 'block' : 'none';
+    }
+
+    closeSelectRestriction(element) {
+        element.style.display = "none";
     }
 
     initializeSeatInputs(seat) {
@@ -3789,28 +3912,48 @@ class ManageGuestsModal {
         if (seat?.guestAge) $(`.editor-select-age-${seat.number}`).val(seat.guestAge).trigger('change');
         $(`.editor-select-age-${seat.number}`).on("select2:select", () => { this.updateTotals(); });
 
-        this.formElements.seats[seat.number].foodRestrictions = $(`.editor-form-select-restriction-${seat.number}`).select2({
-            placeholder: '',
-            multiple: true,
-            closeOnSelect: false,
-            allowClear: true,
-            data: this.foodRestrictions || [],
-            // data: [
-            //     { id: '1', text: 'veg', description: 'Vegetariano' },
-            //     { id: '2', text: 'Veg', description: 'Vegan' },
-            //     { id: '3', text: 'PC', description: 'Trocar peixe por carne' },
-            //     { id: '4', text: 'CP', description: 'Trocar carne por peixe' },
-            // ],
-            templateSelection: function (table) {
-                if (!table.id) return table.text;
+        // this.formElements.seats[seat.number].foodRestrictions = $(`.editor-form-select-restriction-${seat.number}`).select2({
+        //     placeholder: '',
+        //     multiple: true,
+        //     closeOnSelect: false,
+        //     allowClear: false,
+        //     data: this.foodRestrictions || [],
+        //     templateResult: (table) => {
+        //         let textTranslation = table.text;
+        //         if (this.translationSystem)
+        //             textTranslation = this.translationSystem.getTranslation(table.text);
 
-                var $state = $(
-                    `<span class="option">${table.text}, </span>`
-                );
-                return $state;
-            }
-        });
-        if (seat?.foodRestrictions?.length > 0) $(`.editor-form-select-restriction-${seat.code}`).val(seat.foodRestrictions).trigger('change');
+        //         let subtitleTranslation = table.subtitle;
+        //         if (this.translationSystem)
+        //             subtitleTranslation = this.translationSystem.getTranslation(table.subtitle);
+
+        //         var $span = $(`
+        //         <span class="editor-option">
+        //             <span class="editor-tooltip" translation-key="${table.text}">${textTranslation}</span>
+        //                 <!-- <span style="font-size: 10px" translation-key="${table.subtitle}">(${subtitleTranslation})</span> -->
+        //         </span>`);
+
+        //         const option = document.createElement("span");
+        //         option.classList.add('editor-option');
+        //         option.innerHTML = `<span class="editor-tooltip" translation-key="${table.text}">${textTranslation}</span>`;
+
+
+        //         this.tippyInstance = tippy(option, {
+        //             theme: 'light',
+        //             content: `<span class="editor-tooltip-text" translation-key="${table.subtitle}">${subtitleTranslation}</span>`
+        //         });
+        //         return option;
+        //     },
+        //     templateSelection: function (table) {
+        //         if (!table.id) return table.text;
+
+        //         var $state = $(
+        //             `<span class="editor-option">${table.text}, </span>`
+        //         );
+        //         return $state;
+        //     }
+        // });
+        // if (seat?.foodRestrictions?.length > 0) $(`.editor-form-select-restriction-${seat.code}`).val(seat.foodRestrictions).trigger('change');
     }
 
     open(table) {
@@ -3834,7 +3977,7 @@ class ManageGuestsModal {
             for (const [i, seat] of this.subjectTable.seats.entries()) {
                 seat.guestName = this.formElements.seats[i].guestName.value;
                 seat.guestAge = this.formElements.seats[i].guestAge.select2('data')[0].id;
-                seat.foodRestrictions = this.formElements.seats[i].foodRestrictions.select2('data').map(v => v.id);
+                seat.foodRestrictions = this.formElements.seats[i].foodRestrictions;
             }
 
             this.subjectTable.updateSeats();
@@ -3865,12 +4008,12 @@ class ManageGuestsModal {
 
         const selectedRestrictions = this.formElements.seats
             .filter(s => s.guestName.value)
-            .filter(s => s.foodRestrictions.select2('data'))
-            .map(m => m.foodRestrictions.select2('data').map(v => v.id))
+            .filter(s => s.foodRestrictions?.length > 0)
+            .map(m => m?.foodRestrictions)
             .flat();
         const uniqueRestrictions = [...new Set(selectedRestrictions)];
         const requiredNotesRestrictions = this.foodRestrictions.filter(f => f?.notesRequired);
-        const restrictions = this.foodRestrictions.filter(f => uniqueRestrictions.includes(f?.id));
+        const restrictions = requiredNotesRestrictions.filter(f => uniqueRestrictions.includes(f?.id));
 
         const tableNotes = this.formElements.notes.value;
         if (restrictions?.length > 0 && tableNotes?.trim() == '') {
@@ -3935,4 +4078,22 @@ class ManageGuestsModal {
 
 if (!window.RoomEditor) {
     window.RoomEditor = RoomEditor;
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+    var elements = document.querySelectorAll('.editor-form-select-multiple-content');
+    const insideContent = event.target.id.includes('foodRestrictions');
+
+    if (!event.target.matches('.editor-form-select-multiple') && !insideContent) {
+        elements.forEach(function (element) {
+            element.style.display = 'none';
+        });
+    } else {
+        elements.forEach(function (element) {
+            if (!element?.classList?.contains(event.target.id)) {
+                element.style.display = 'none';
+            }
+        });
+    }
 }
