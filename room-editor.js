@@ -699,6 +699,7 @@ class World extends RoomObject {
         this.roomPlan = roomPlan;
         this.roomPlan.world = this;
         this.roomPlan.addToContainer();
+        this.roomPlan.buildConstraintZonePolygonElement();
     }
 
     addTable(table) {
@@ -752,6 +753,76 @@ class World extends RoomObject {
         this.debugElements= [];
     }
 
+    isPointInPolygon(x, y , polygon) {
+        if(polygon.length == 0) {
+            return true;
+        }
+         // Get the angle between the point and the first and last vertices.
+        let maxPoint = polygon.length - 1;
+        let totalAngle = this.getAngle(polygon[maxPoint].x, polygon[maxPoint].y, x, y, polygon[0].x, polygon[0].y);
+
+        // Add the angles from the point to each other pair of vertices.
+        for (let i = 0; i < maxPoint; i++) {
+            totalAngle += this.getAngle(polygon[i].x, polygon[i].y, x, y, polygon[i + 1].x, polygon[i + 1].y);
+        }
+
+        // The total angle should be 2 * Math.PI or -2 * Math.PI if
+        // the point is in the polygon and close to zero
+        // if the point is outside the polygon.
+        
+        return Math.abs(totalAngle) > 0.000001;
+    }
+
+    getAngle(ax, ay, bx, by, cx, cy) {
+        // Get the dot product.
+        let dotProduct = this.dotProduct(ax, ay, bx, by, cx, cy);
+    
+        // Get the cross product.
+        let crossProduct = this.crossProductLength(ax, ay, bx, by, cx, cy);
+    
+        // Calculate the angle.
+        return Math.atan2(crossProduct, dotProduct);
+    }
+    
+    dotProduct(ax, ay, bx, by, cx, cy) {
+        // Get the vectors' coordinates.
+        let bAx = ax - bx;
+        let bAy = ay - by;
+        let bCx = cx - bx;
+        let bCy = cy - by;
+    
+        // Calculate the dot product.
+        return (bAx * bCx + bAy * bCy);
+    }
+    
+    crossProductLength(ax, ay, bx, by, cx, cy) {
+        // Get the vectors' coordinates.
+        let bAx = ax - bx;
+        let bAy = ay - by;
+        let bCx = cx - bx;
+        let bCy = cy - by;
+    
+        // Calculate the cross product length.
+        return (bAx * bCy - bAy * bCx);
+    }
+
+    checkTableInConstraintZone(table) {
+        const isLt = this.isPointInPolygon(table.x + (table.width/2), table.y + (table.height/2), this.roomPlan.constraintZonePolygon);
+        const isRt = this.isPointInPolygon(table.x + (table.width + table.width/2), table.y + (table.height/2), this.roomPlan.constraintZonePolygon);
+        const isLb = this.isPointInPolygon(table.x + (table.width/2), table.y + (table.height + table.height/2), this.roomPlan.constraintZonePolygon);
+        const isRb = this.isPointInPolygon(table.x + (table.width + table.width/2), table.y + (table.height + table.height/2), this.roomPlan.constraintZonePolygon);
+
+        if(!(isLt && isRt && isLb && isRb)) {
+            table.isInDanger();
+        }
+
+    }
+
+    checkTablesInConstraintZone() {
+        for(let table of this.tables) {
+            this.checkTableInConstraintZone(table);
+        }
+    }
 
     calculateIntersectionArea(rect1, rect2) {
         
@@ -807,6 +878,7 @@ class World extends RoomObject {
             }
         }
         
+        this.checkTablesInConstraintZone();
         //return false;
     }
 
@@ -819,6 +891,9 @@ class World extends RoomObject {
 }
 
 class RoomPlan extends RoomObject {
+
+    constraintZonePolygon = [];
+
     constructor(imageSrc) {
         super();
         this.element = document.createElement('div');
@@ -847,6 +922,10 @@ class RoomPlan extends RoomObject {
 
             this.halfWidth = this.width / 2;
             this.halfHeight = this.height / 2;
+
+            //TODO ALWAYS DO THIS ? 
+            this.constrainElement.style.width = `${this.width}px`;
+            this.constrainElement.style.height = `${this.height}px`;
         }
 
         this.elementImg.style.width = '100%';
@@ -854,6 +933,56 @@ class RoomPlan extends RoomObject {
         this.elementImg.src = imageSrc;
         this.element.appendChild(this.elementImg);
     }
+
+    buildConstraintZonePolygonElement() {
+        const element = document.createElement("div");
+        element.style.width = `${this.width}px`;
+        element.style.height = `${this.height}px`;
+        element.style.position = "absolute";
+        this.world.element.appendChild(element);
+        this.constrainElement = element;
+
+        this.updateConstrainZonePoligonElement();
+    }
+
+    updateConstrainZonePoligonElement() {
+        if(this.constrainElement) {
+
+            if(this.constraintZonePolygon.length > 0)
+                this.constrainElement.style.background = "#ff00000f";
+            else
+                this.constrainElement.style.background = "none";
+
+            let coords = '';
+            for(let i = 0; i <= this.constraintZonePolygon.length-1; i++) {
+                const isLast = this.constraintZonePolygon.length-1 == i;
+                const p = this.constraintZonePolygon[i];
+                coords += ` ${p.x}px ${p.y}px` + (!isLast ? ',': '');
+            }
+            this.constrainElement.style["clip-path"] = `polygon(${coords})`;
+        }
+    }
+
+    clearConstraintPoints() {
+        this.constraintZonePolygon = [];
+        this.updateConstrainZonePoligonElement();
+    }
+
+    addConstraintZonePolygon(x, y) {
+        /*const element = document.createElement("div");
+        element.style.width = "20px";
+        element.style.height = "20px";
+        element.style.background = "violet";
+        element.style.position = "absolute";
+        element.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        this.world.element.appendChild(element);*/
+        this.constraintZonePolygon.push({
+            x,
+            y,
+            //element
+        });
+    }
+    
 }
 
 const TABLE_ELEMENT_OFFSET = 35;
@@ -2318,22 +2447,6 @@ const TableTypes = {
     CoupleForestMTable,
 }
 
-/*TableTypesTranslations = {
-    "RoundTable": "Redonda",
-    "SquareTable": "Quadrada",
-    "RectangularTable": "Retangular",
-    "RectangularLTable": "Retangular Aumento",
-    "ForestMTable": "Forest",
-    "CoupleRoundTable": "Redonda",
-    "CoupleOvalSTable": "Oval S",
-    "CoupleOvalMTable": "Oval M",
-    "CoupleOvalMFullTable": "Oval M Compl.",
-    "CoupleOvalLTable": "Oval L",
-    "CoupleOvalLFullTable": "Oval L Compl.",
-    "CoupleForestSTable": "Forest S",
-    "CoupleForestMTable": "Forest M",
-}*/
-
 TableTypesIcon = {
     "RoundTable": "round-table",
     "SquareTable": "square-table",
@@ -2581,226 +2694,137 @@ class MouseManager {
             this.translationSystem.reviewPage();
             
         }
-/*
-                    <button class="editor-btn ui guestTableChooserItem" data-tableType="RoundTable">
-                        <div class="table_ui round-table  ui guestTableChooserItem" data-tableType="RoundTable"></div>
-                        Redonda
-                        <div class="pax  ui guestTableChooserItem" data-tableType="RoundTable">
-                            <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="RoundTable"></i>14
-                        </div>
-                    </button>
-                    <button class="editor-btn ui guestTableChooserItem" data-tableType="SquareTable">
-                        <div class="table_ui square-table  guestTableChooserItem" data-tableType="SquareTable"></div>
-                        Quadrada
-                        <div class="pax  guestTableChooserItem" data-tableType="SquareTable">
-                            <i class="fa-regular fa-user  guestTableChooserItem" data-tableType="SquareTable"></i>14
-                        </div>
-                    </button>
-                    <button class="editor-btn ui guestTableChooserItem" data-tableType="RectangularTable">
-                        <div class="table_ui rectangular-table ui guestTableChooserItem" data-tableType="RectangularTable"></div>
-                        Retangular
-                        <div class="pax ui guestTableChooserItem" data-tableType="RectangularTable">
-                            <i class="fa-regular fa-user  ui guestTableChooserItem" data-tableType="RectangularTable"></i>14
-                        </div>
-                    </button>
-                    <button class="editor-btn ui guestTableChooserItem" data-tableType="RectangularLTable">
-                        <div class="table_ui rectangular-table ui guestTableChooserItem" data-tableType="RectangularLTable"></div>
-                        Retangular Aumento
-                        <div class="pax ui guestTableChooserItem" data-tableType="RectangularLTable">
-                            <i class="fa-regular fa-user ui guestTableChooserItem" data-tableType="RectangularLTable"></i>14
-                        </div>
-                    </button>
-                    <button class="editor-btn ui guestTableChooserItem" data-tableType="ForestMTable">
-                        <div class="table_ui rectangular-table ui guestTableChooserItem" data-tableType="ForestMTable" ></div>
-                        Forest
-                        <div class="pax ui guestTableChooserItem" data-tableType="ForestMTable" >
-                            <i class="fa-regular fa-user ui guestTableChooserItem" data-tableType="ForestMTable" ></i>14
-                        </div>
-                    </button>
-*/
     }
-    /*
-    activeCouplesTables = [];
-    setActiveCouplesTables(tablesTypes) {
-        this.activeCouplesTables = tablesTypes;
-        const elements = document.getElementsByClassName("coupleTableSelect");
 
-        if(elements.length > 0) {
-            
-            if ($('#coupleTableSelect').data('select2')) {
-                $('#coupleTableSelect').select2('destroy').empty()
-            }
-            
-            for(let act of this.activeCouplesTables) {
-                elements[0].innerHTML += `
-                    <option title="${TableTypesIcon[act]}" value="${act}" pax="14" >${act}</option>
-                `;
-            }
-
-            this.initializeCoupleTableSelect();    
-            this.translationSystem.reviewPage();
-        }
-    }*/
 
     initializeUi() {
         const ui1 = document.createElement('div');
         ui1.classList.add("editor-row");
         ui1.classList.add("ui-row");
-        
-        /*<option title="round-table" value="ovals" pax="14">Redonda</option>
-        <option title="square-table" value="square" pax="14">Quadrada</option>
-        <option title="rectangular-table" value="forestS">Forest S</option>
-        <option title="rectangular-table" value="forestM">Forest M</option>*/
-        ui1.innerHTML = `
+        /*ui1.innerHTML = `
         
         <div style="display: inline-flex;">
-                <div class="editorRoom-input ui">
-                    <button class="editor-btn editor-btn-primary">
-                        <i class="fas fa-undo"></i>
-                    </button>
-                </div>
-                <!--<div class="editorRoom-input" style="width: 180px;">
-                    <label translation-key="COUPLE_TABLES">Mesa dos noivos:</label>
-                    <select id="coupleTableSelect" class="coupleTableSelect ui">
-                        
-                    </select>
-                </div>-->
-        
-                <div class="editorRoom-input ui">
-                    <label><span translation-key="TYPE_TABLES">Tipo</span>:</label>
-                    <div class="types">
-                        <div class="editor-radio">
-                            <input type="radio" class="roomEditor-radio" id="guest" name="contact" value="guest">
-                            <span for="contactChoice1" translation-key="ROOM_PLAN_GUESTS">Convidados</span>
-                        </div>
-        
-                        <div class="editor-radio">
-                            <input type="radio" class="roomEditor-radio" id="staff" name="contact" value="staff">
-                            <span for="contactChoice1" translation-key="ROOM_PLAN_STAFF">Staff</span>
-                        </div>
-        
-                        <div class="editor-radio">
-                            <input type="radio" class="roomEditor-radio" id="children" name="contact" value="children">
-                            <span for="contactChoice1" translation-key="ROOM_PLAN_CHILD">Crianças</span>
-                        </div>
+            <div class="editorRoom-input ui">
+                <button class="editor-btn editor-btn-primary">
+                    <i class="fas fa-undo"></i>
+                </button>
+            </div>
+            <div class="editorRoom-input ui">
+                <label><span translation-key="TYPE_TABLES">Tipo</span>:</label>
+                <div class="types">
+                    <div class="editor-radio">
+                        <input type="radio" class="roomEditor-radio" id="tablePurposeGUEST" name="tablePurpose" value="guest">
+                        <span for="tablePurposeGUEST" translation-key="ROOM_PLAN_GUESTS">Convidados</span>
+                    </div>
+                    <div class="editor-radio">
+                        <input type="radio" class="roomEditor-radio" id="tablePurposeSTAFF" name="tablePurpose" value="staff">
+                        <span for="tablePurposeSTAFF" translation-key="ROOM_PLAN_STAFF">Staff</span>
+                    </div>
+                    <div class="editor-radio">
+                        <input type="radio" class="roomEditor-radio" id="tablePurposeCHILDREN" name="tablePurpose" value="children">
+                        <span for="tablePurposeCHILDREN" translation-key="ROOM_PLAN_CHILD">Crianças</span>
                     </div>
                 </div>
             </div>
+        </div>
         
 
-            <div class="editorRoom-input">
-                <label><span translation-key="TABLES">Mesas</span>:</label>
-                <div class="tables_ui" style="margin-top: 2px">
-
-                </div>
+        <div class="editorRoom-input">
+            <label><span translation-key="TABLES">Mesas</span>:</label>
+            <div class="tables_ui" style="margin-top: 2px">
             </div>
-        `;
+        </div>
+        `;*/
         
-/*
-<option title="round-table" value="CoupleRoundTable" pax="14">Redonda</option>
-<option title="round-table" value="CoupleOvalSTable" pax="14">Oval S</option>
-<option title="round-table" value="CoupleOvalMTable" pax="14">Oval M</option>
-<option title="round-table" value="CoupleOvalMFullTable" pax="14">Oval M Compl.</option>
-<option title="round-table" value="CoupleOvalLTable" pax="14">Oval L</option>
-<option title="round-table" value="CoupleOvalLFullTable" pax="14">Oval L Compl.</option>
-<option title="rectangular-table" value="CoupleForestSTable" pax="14">Forest S</option>
-<option title="rectangular-table" value="CoupleForestMTable" pax="14">Forest M</option>
-*/
-        
-        const ui2 = document.createElement('div');
-        ui2.classList.add("editor-row");
-        ui2.classList.add("ui-row");
+        const mainContainer = document.createElement('div');
+        mainContainer.style.display = 'inline-flex';
+      
+        // Create the first editorRoom-input div
+        const editorRoomInput1 = document.createElement('div');
+        editorRoomInput1.classList.add('editorRoom-input', 'ui');
+      
+        const undoButton = document.createElement('button');
+        undoButton.classList.add('editor-btn', 'editor-btn-primary', "ui");
+      
+        const undoIcon = document.createElement('i');
+        undoIcon.classList.add('fas', 'fa-undo', "ui");
+      
+        undoButton.appendChild(undoIcon);
+        editorRoomInput1.appendChild(undoButton);
+      
+        mainContainer.appendChild(editorRoomInput1);
+      
+        // Create the second editorRoom-input div
+        const editorRoomInput2 = document.createElement('div');
+        editorRoomInput2.classList.add('editorRoom-input', 'ui');
+      
+        const typeLabel = document.createElement('label');
+        typeLabel.innerHTML = '<span class="ui" translation-key="TYPE_TABLES">Tipo</span>:';
+      
+        const typesDiv = document.createElement('div');
+        typesDiv.classList.add('types');
+      
 
-        ui2.innerHTML = `
-       
-        `;
+        this.tablePurposesInputs =  {};
+        const translationsInputs = {
+            'guest':'ROOM_PLAN_GUESTS',
+            'staff':'ROOM_PLAN_STAFF',
+            'child':'ROOM_PLAN_CHILD',
+        };
+
+        ['guest', 'staff', 'child'].forEach((value, index) => {
+          const radioDiv = document.createElement('div');
+          radioDiv.classList.add('editor-radio');
+          radioDiv.classList.add('ui');
+      
+          const radioInput = document.createElement('input');
+          radioInput.type = 'radio';
+          radioInput.classList.add('roomEditor-radio', 'ui');
+          radioInput.id = `tablePurpose${value.toUpperCase()}`;
+          radioInput.name = 'tablePurpose';
+          radioInput.value = value;
+
+          this.tablePurposesInputs[value.toUpperCase()] = radioInput;
+          radioInput.onchange = (e) => {
+                this.changeSelectedTablePurpose(value.toUpperCase());
+          }
+
+          const radioSpan = document.createElement('span');
+          radioSpan.setAttribute('for', `tablePurpose${value.toUpperCase()}`);
+          radioSpan.setAttribute('translation-key', translationsInputs[value]);
+          radioSpan.classList.add("ui");
+          radioSpan.innerHTML = value.charAt(0).toUpperCase() + value.slice(1); // Capitalize first letter
+      
+          radioDiv.appendChild(radioInput);
+          radioDiv.appendChild(radioSpan);
+          typesDiv.appendChild(radioDiv);
+        });
+      
+        editorRoomInput2.appendChild(typeLabel);
+        editorRoomInput2.appendChild(typesDiv);
+        mainContainer.appendChild(editorRoomInput2);
+      
+        // Create the third editorRoom-input div
+        const editorRoomInput3 = document.createElement('div');
+        editorRoomInput3.classList.add('editorRoom-input');
+      
+        const tablesLabel = document.createElement('label');
+        tablesLabel.innerHTML = '<span translation-key="TABLES">Mesas</span>:';
+      
+        const tablesUiDiv = document.createElement('div');
+        tablesUiDiv.classList.add('tables_ui');
+        tablesUiDiv.style.marginTop = '2px';
+      
+        editorRoomInput3.appendChild(tablesLabel);
+        editorRoomInput3.appendChild(tablesUiDiv);
+        mainContainer.appendChild(editorRoomInput3);
+        
+        ui1.appendChild(mainContainer);
         
         this.editorContainerElement.appendChild(ui1);
-        this.editorContainerElement.appendChild(ui2);
-
-    /*    $(document).ready(() => {
-            this.initializeCoupleTableSelect();    
-        });*/
+        
     }
-/*
-    initializeCoupleTableSelect() {
-        $('#coupleTableSelect').select2({
-            minimumResultsForSearch: -1,
-            templateResult: (table) => {
-                let translation = table.text;
-                if(this.translationSystem)
-                    translation = this.translationSystem.getTranslation(table.text);
 
-
-                var $span = $(`
-                <span class="option">
-                    <div style="display: inline-flex">
-                        <div class="table_ui ${table?.title}"></div>
-                        <span translation-key="${table.text}">${translation}</span>
-                    </div>
-                    <div class="pax">
-                        <i class="fa-regular fa-user"></i>
-                        14pax
-                    </div>
-                </span>`);
-                return $span;
-            },
-            templateSelection: (table) => {
-                if (!table.id) {
-                    return table.text;
-                }
-                let translation = table.text;
-                if(this.translationSystem)
-                    translation = this.translationSystem.getTranslation(table.text);
-
-                var $state = $(
-                    `<span class="option">
-                    <div style="display: inline-flex">
-                        <div class="table_ui ${table?.title}"></div>
-                        <span translation-key="${table.text}">${translation}</span>
-                    </div>
-                    <div class="pax">
-                        <i class="fa-regular fa-user"></i>
-                        14pax
-                    </div>
-                </span>`
-                );
-                return $state;
-            },
-        });
-
-        $('#coupleTableSelect').on("select2:select", (event) => {
-            const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
-
-            const newTableCouple = new TableTypes[event.params.data.id](this.world);
-
-            const pos = this.getWorldPositionCenterScreen();
-            if(!tableCouple) {
-                newTableCouple.x = pos.x;
-                newTableCouple.y = pos.y;
-                
-            } else {
-                newTableCouple.x = tableCouple.x;
-                newTableCouple.y = tableCouple.y;
-                newTableCouple.rotate = tableCouple.rotate;
-
-                this.world.removeTable(tableCouple);
-            }
-            
-            newTableCouple.init();
-            this.world.addTable(newTableCouple);
-            newTableCouple.applyTransform();
-
-            if(this.selectedObject) {
-                this.selectedObject.unsetSelected();
-            }
-
-            this.selectedObject = newTableCouple;
-            this.selectedObject.setSelected();
-            
-        });
-    }
-    */
 
     changeCoupleTable(tableType) {
         const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
@@ -2828,8 +2852,8 @@ class MouseManager {
                 this.selectedObject.unsetSelected();
             }
 
-            this.selectedObject = newTableCouple;
-            this.selectedObject.setSelected();
+            newTableCouple.updateSeats();
+            this.setSelectedObject(newTableCouple);
     }
 
     initializeContextMenu() {
@@ -2843,22 +2867,6 @@ class MouseManager {
         menu.appendChild(ul);
 
         document.body.appendChild(menu);
-
-        /*document.body.innerHTML += `
-            <!-- Context menu-->
-            <div id="contextMenu" class="context-menu" style="display: none">
-                <ul class="menu">
-                    <!--<li class="share"><a href="#"><i class="fa fa-share" aria-hidden="true"></i> Share</a></li>
-                    <li class="rename"><a href="#"><i class="fa fa-pencil" aria-hidden="true"></i> Rename</a></li>
-                    <li class="link"><a href="#"><i class="fa fa-link" aria-hidden="true"></i> Copy Link Address</a></li>
-                    <li class="copy"><a href="#"><i class="fa fa-copy" aria-hidden="true"></i> Copy to</a></li>
-                    <li class="paste"><a href="#"><i class="fa fa-paste" aria-hidden="true"></i> Move to</a></li>
-                    <li class="download"><a href="#"><i class="fa fa-download" aria-hidden="true"></i> Download</a></li>-->
-                    <li class="download"><a href="#" onclick="mouseManager.contextMenuAction(event, 'ROTATE')" ><i class="fas fa-sync-alt" aria-hidden="true"></i> Rodar</a></li>
-                    <li class="trash"><a href="#" onclick="mouseManager.contextMenuAction(event, 'DELETE')"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a></li>
-                </ul>
-            </div>
-        `*/
     }
 
     contextMenuCreateElement(params) {
@@ -2943,10 +2951,33 @@ class MouseManager {
         }
     }
 
+    changeSelectedTablePurpose(type) {
+        if(this.selectedObject) {
+            if(this.selectedObject.tablePurpose != "COUPLE") {
+                this.selectedObject.tablePurpose = type;
+            }
+        }
+    }
+
+    setTablePurposeInput(type) {
+        
+        if(this.tablePurposesInputs[type])  {
+            for(let itp of Object.keys(this.tablePurposesInputs)) {
+                this.tablePurposesInputs[itp].disabled = false;
+            }
+            this.tablePurposesInputs[type].checked= true;
+        } else {
+            for(let itp of Object.keys(this.tablePurposesInputs)) {
+                this.tablePurposesInputs[itp].disabled = true;
+                this.tablePurposesInputs[itp].checked = false;
+            }
+        }
+    }
+
     getFocalPosition(event, deltaScale = 0) {
         
         if(deltaScale > 1) {
-            return { x: 0, y: 0 };
+            return { x: 0, y: 0 };isDrawingConstraintZone
         } else {
             return { x: 0, y: 0 };
         }
@@ -3004,6 +3035,20 @@ class MouseManager {
         this.activeContextMenu(event);
     }
 
+
+    setSelectedObject(obj) {
+        if(this.selectedObject) {
+            this.selectedObject.unsetSelected();
+        }
+        this.selectedObject = obj;
+
+        if(obj !== null && obj !== undefined) {
+            this.selectedObject.setSelected();
+            this.setTablePurposeInput(this.selectedObject.tablePurpose)
+        }
+
+    }
+
     handleMouseDown(event) {
 
         if (event.button === 0) {
@@ -3013,6 +3058,11 @@ class MouseManager {
         }
 
         const pos = this.getWorldPosition(event);
+
+        if (event.button == 1 && this.roomEditor.administrationMode) {
+            this.roomEditor.world.roomPlan.addConstraintZonePolygon(pos.x, pos.y);
+            this.roomEditor.world.roomPlan.updateConstrainZonePoligonElement();            
+        }
 
         if (event.button == 2 || this.contextMenuVisible == true) {
             this.hideContextMenu();
@@ -3028,30 +3078,17 @@ class MouseManager {
                 this.world.addTable(table1);
                 table1.applyTransform();
                 
-                if(this.selectedObject) {
-                    this.selectedObject.unsetSelected();
-                }
-                this.selectedObject = table1;
-                this.selectedObject.setSelected();
+                table1.updateSeats();
+                this.setSelectedObject(table1);
             }
 
             return;
         } else {
             const isWorldObject = this.world.tables.find(t => t.isElementOrChildElement(event.toElement));
             if (isWorldObject && isWorldObject.dragable) {
-                
-                if(this.selectedObject) {
-                    this.selectedObject.unsetSelected();
-                }
-
-                this.selectedObject = isWorldObject;
-                this.selectedObject.setSelected();
+                this.setSelectedObject(isWorldObject);
             } else {
-                if(this.selectedObject) {
-                    this.selectedObject.unsetSelected();
-                }
-
-                this.selectedObject = null;
+                this.setSelectedObject(null);
             }
         }
 
@@ -3113,7 +3150,6 @@ class MouseManager {
         event.preventDefault();
 
         this.contextMenuVisible = true;
-        this.contextMenuVisible = true;
         this.contextMenuElement.style.display = 'block';
         this.contextMenuElement.style.left = event.pageX + "px";
         this.contextMenuElement.style.top = event.pageY + "px";
@@ -3133,7 +3169,7 @@ class MouseManager {
                 break;
             case "DELETE":
                 this.world.removeTable(this.selectedObject);
-                this.selectedObject = null;
+                this.setSelectedObject(null);
                 break;
             default:
                 throw new Error("Unexpected action");
@@ -3194,6 +3230,8 @@ class RoomEditor {
     mouseManager = null;
     translationSystem;
     
+    administrationMode = false;
+
     constructor(
         idOfElement,
         activeLanguage = "en"
@@ -3223,7 +3261,12 @@ class RoomEditor {
         this.mouseManager.setRoomEditor(this);
     }
 
-    setRoomPlan(roomPlanImg) {
+
+    setAdministrationMode(active) {
+        this.administrationMode = active;
+    }
+
+    setRoomPlan(roomPlanImg, constraintPoints = []) {
         if(!this.world) {
             this.world = new World(this.editorContainerElement);
             this.world.applyTransform();
@@ -3232,11 +3275,18 @@ class RoomEditor {
             this.world.setRoomPlan(roomPlan);
             roomPlan.applyTransform();
             
+            
             this.mouseManager.setWorld(this.world);
         } else {
             this.world.roomPlan.updateImageSrc(roomPlanImg)
             this.mouseManager.setWorld(this.world);
         }
+
+        this.world.roomPlan.clearConstraintPoints();
+        for(let cp of constraintPoints) {
+            this.world.roomPlan.addConstraintZonePolygon(cp.x, cp.y);
+        }
+        this.world.roomPlan.updateConstrainZonePoligonElement();
     }
 
     serializeEditor() {
@@ -3293,6 +3343,13 @@ class RoomEditor {
         this.world.scale = serializedData.roomPlan.scale;
         this.world.applyTransform();
 
+
+        if(serializedData.roomPlan.constraintPoints) {
+            for(let cp of serializedData.roomPlan.constraintPoints) {
+                this.world.roomPlan.addConstraintZonePolygon(cp.x, cp.y);
+            }
+            this.world.roomPlan.updateConstrainZonePoligonElement();
+        }
 
         // Deserialize each object in the editor
         serializedData.tables.forEach((serializedObject) => {
