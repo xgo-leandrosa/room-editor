@@ -3402,7 +3402,7 @@ class RoomEditor {
                 scale: this.world.scale,
 
                 constraintPoints: [
-                    ...this.world.roomPlan.constraintPoints
+                    ...this.world.roomPlan.constraintZonePolygon
                 ]
             },
             tables: [],
