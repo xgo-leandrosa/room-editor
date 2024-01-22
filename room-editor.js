@@ -726,17 +726,75 @@ class World extends RoomObject {
     }
 
     debugElements = [];
+
+    rotatePoint(x, y, angleDegrees) {
+        // Convert angle to radians
+        var angleRadians = angleDegrees * Math.PI / 180;
+    
+        // Calculate new coordinates after rotation
+        var xPrime = x * Math.cos(angleRadians) - y * Math.sin(angleRadians);
+        var yPrime = x * Math.sin(angleRadians) + y * Math.cos(angleRadians);
+    
+        // Return the new coordinates
+        return { x: xPrime, y: yPrime };
+    }
+
+    rotatePointAroundOrigin(x, y, angleDegrees, originX = 0, originY = 0) {
+        // Translate the point to make the origin coincide with (0, 0)
+        var translatedX = x - originX;
+        var translatedY = y - originY;
+    
+        // Rotate the translated point around the origin
+        var rotatedPoint = this.rotatePoint(translatedX, translatedY, angleDegrees);
+    
+        // Translate the rotated point back to the original position
+        rotatedPoint.x += originX;
+        rotatedPoint.y += originY;
+    
+        // Return the new coordinates
+        return rotatedPoint;
+    }
+    
+
+    calculateTableAreaCorners(table) {
+        if(table.rotate > 0) { 
+            return {
+                lt: this.rotatePointAroundOrigin((table.x + table.halfWidth), (table.y + table.halfHeight), table.rotate, (table.x  + table.width), (table.y  + table.height)),
+                rt:this.rotatePointAroundOrigin((table.x + table.halfWidth) + table.width, (table.y + table.halfHeight), table.rotate, (table.x  + table.width), (table.y  + table.height)),
+                lb:this.rotatePointAroundOrigin((table.x + table.halfWidth) + table.width, (table.y + table.halfHeight) + table.height, table.rotate, (table.x  + table.width), (table.y  + table.height)),
+                rb:this.rotatePointAroundOrigin((table.x + table.halfWidth), (table.y + table.halfHeight) + table.height, table.rotate, (table.x  + table.width), (table.y  + table.height)),
+            };
+        } else {
+            return {
+                lt: { x: (table.x + table.halfWidth), y: (table.y + table.halfHeight) },
+                rt:{ x: (table.x + table.halfWidth) + table.width, y: (table.y + table.halfHeight) },
+                lb:{ x: (table.x + table.halfWidth) + table.width, y: (table.y + table.halfHeight) + table.height },
+                rb:{ x: (table.x + table.halfWidth), y: (table.y + table.halfHeight) + table.height },
+            };
+        }
+    }
+
+
     setDebugPoints(table, color) {
-        this.addDebugPoint(color, (table.x + table.halfWidth), (table.y + table.halfHeight));
-        this.addDebugPoint(color, (table.x + table.halfWidth) + table.width, (table.y + table.halfHeight));
-        this.addDebugPoint(color, (table.x + table.halfWidth) + table.width, (table.y + table.halfHeight) + table.height);
-        this.addDebugPoint(color, (table.x + table.halfWidth), (table.y + table.halfHeight) + table.height);
+
+        if(table.rotate > 0) {
             
+            
+            let localPoslt = this.rotatePointAroundOrigin((table.x + table.halfWidth), (table.y + table.halfHeight), table.rotate, (table.x  + table.width), (table.y  + table.height));
+            this.addDebugPoint(color, localPoslt.x, localPoslt.y);
+            let localPosrt = this.rotatePointAroundOrigin((table.x + table.halfWidth) + table.width, (table.y + table.halfHeight), table.rotate, (table.x  + table.width), (table.y  + table.height));
+            this.addDebugPoint(color, localPosrt.x, localPosrt.y);
+            let localPoslb = this.rotatePointAroundOrigin((table.x + table.halfWidth) + table.width, (table.y + table.halfHeight) + table.height, table.rotate, (table.x  + table.width), (table.y  + table.height));
+            this.addDebugPoint(color, localPoslb.x, localPoslb.y);
+            let localPosrb = this.rotatePointAroundOrigin((table.x + table.halfWidth), (table.y + table.halfHeight) + table.height, table.rotate, (table.x  + table.width), (table.y  + table.height));
+            this.addDebugPoint(color, localPosrb.x, localPosrb.y);
+        }   
     }
 
     addDebugPoint(color, x, y) {
         const i = this.debugElements.length;
         this.debugElements[i] = document.createElement("div");
+        this.debugElements[i].classList.add("debugPoint");;
         this.debugElements[i].style.position = "absolute";
         this.debugElements[i].style.background = color;
         this.debugElements[i].style.width = "5px";
@@ -827,6 +885,9 @@ class World extends RoomObject {
     calculateIntersectionArea(rect1, rect2) {
         
         // TODO ADD FLAG
+        const cornersRect1 = this.calculateTableAreaCorners(rect1);
+        const cornersRect2 = this.calculateTableAreaCorners(rect2);
+        
         this.setDebugPoints(rect1, "red");
         this.setDebugPoints(rect2, "blue");
 
@@ -3296,6 +3357,10 @@ class RoomEditor {
                 x: this.world.x,
                 y: this.world.y,
                 scale: this.world.scale,
+
+                constraintPoints: [
+                    ...this.world.roomPlan.constraintPoints
+                ]
             },
             tables: [],
         };
