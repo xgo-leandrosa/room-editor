@@ -543,10 +543,10 @@ const DEFAULT_TRANSLATIONS = [
     },
     {
         value: {
-            pt: "Planos de sala",
-            en: "Seating Plan",
-            es: "Plan de asientos",
-            fr: "Plan de salle"
+            pt: "Plano de sala",
+            en: "Room plan",
+            es: "Plan des salles",
+            fr: "Plano de la sala"
         },
         tag: "ROOM_PLAN",
         platform: "BO"
