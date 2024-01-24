@@ -907,32 +907,29 @@ class World extends RoomObject {
         }
     }
     
-    checkTableOverlapping(rect1, rect2) {
+    checkTableOverlapping(table1, table2) {
         
         // TODO ADD FLAG
-        this.setDebugPoints(rect1, "red");
-        this.setDebugPoints(rect2, "blue");
+        //this.setDebugPoints(table1, "red");
+        //this.setDebugPoints(table2, "blue");
 
-        //const cornersRect1 = this.calculateTableAreaCorners(rect1);
-        //const cornersRect2 = this.calculateTableAreaCorners(rect2);
-   
         if(
-            this.isPointInPolygon(rect1.corners.lt.x, rect1.corners.lt.y, rect2.corners.coordsConterClockwise)
+            this.isPointInPolygon(table1.corners.lt.x, table1.corners.lt.y, table2.corners.coordsConterClockwise)
         ) {
             return true;
         }
         if(
-            this.isPointInPolygon(rect1.corners.rt.x, rect1.corners.rt.y, rect2.corners.coordsConterClockwise)
+            this.isPointInPolygon(table1.corners.rt.x, table1.corners.rt.y, table2.corners.coordsConterClockwise)
         ) {
             return true;
         }
         if(
-            this.isPointInPolygon(rect1.corners.lb.x, rect1.corners.lb.y, rect2.corners.coordsConterClockwise)
+            this.isPointInPolygon(table1.corners.lb.x, table1.corners.lb.y, table2.corners.coordsConterClockwise)
         ) {
             return true;
         }
         if(
-            this.isPointInPolygon(rect1.corners.rb.x, rect1.corners.rb.y, rect2.corners.coordsConterClockwise)
+            this.isPointInPolygon(table1.corners.rb.x, table1.corners.rb.y, table2.corners.coordsConterClockwise)
         ) {
             return true;
         }
@@ -948,7 +945,7 @@ class World extends RoomObject {
         }
 
         // TODO ADD FLAG
-        this.clearDebugPoints();
+        //this.clearDebugPoints();
 
         // Check if any pair of tables overlap
         for (let i = 0; i < this.tables.length; i++) {
@@ -991,16 +988,15 @@ class World extends RoomObject {
             // Quadratic scaling function: scale = 1 + (distance / distanceThreshold)^2
             return 1 + 0.5 * (1 - Math.pow(distance / distanceThreshold, 2));
         } else {
-            return 1;
+            return 0;
         }
     }
       
-
     checkSnappingPoints() {
 
         for(let table of this.tables.filter(t => t.snappingPointsActive)) {
             for(let sp of table.snappingPoints) {
-                sp.scale = 1;
+                sp.scale = 0;
                 sp.applyTransform();
             }
         }
@@ -1244,8 +1240,8 @@ class Table extends RoomObject {
 
     snappingPointsActive = false;
     snappingPoints = [
-        { side: 'left', x: 0, y: 0, scale: 1 },
-        { side: 'right', x: 0, y: 0, scale: 1 },
+        { side: 'left', x: 0, y: 0, scale: 0 },
+        { side: 'right', x: 0, y: 0, scale: 0 },
     ];
     parentTable;
     childsTable = [];
