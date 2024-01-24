@@ -744,6 +744,27 @@ class RoomObject {
         return rotatedPoint;
     }
     
+    sortCoordinatesCounterclockwise(coordinates) {
+        // Find the centroid as the reference point
+        const centroid = coordinates.reduce(
+            (acc, coord) => ({ x: acc.x + coord.x, y: acc.y + coord.y }),
+            { x: 0, y: 0 }
+        );
+        centroid.x /= coordinates.length;
+        centroid.y /= coordinates.length;
+    
+        // Calculate polar angles with respect to the centroid
+        const polarAngles = coordinates.map(coord => {
+            const angle = Math.atan2(coord.y - centroid.y, coord.x - centroid.x);
+            return { coord, angle };
+        });
+    
+        // Sort coordinates based on polar angles in counterclockwise order
+        polarAngles.sort((a, b) => b.angle - a.angle);
+    
+        // Return sorted coordinates
+        return polarAngles.map(entry => entry.coord);
+    }
 
     calculateTableAreaCorners() {
         if(this.rotate > 0) { 
@@ -761,6 +782,11 @@ class RoomObject {
                 rb:{ x: (this.x + this.halfWidth), y: (this.y + this.halfHeight) + this.height },
             };
         }
+
+        this.corners.coordsConterClockwise = this.sortCoordinatesCounterclockwise([{...this.corners.lt},
+            {...this.corners.rt},
+                {...this.corners.lb},
+                    {...this.corners.rb}]);
     }
 
     applyTransform() {
@@ -932,53 +958,39 @@ class World extends RoomObject {
             this.checkTableInConstraintZone(table);
         }
     }
-
-    calculateIntersectionArea(rect1, rect2) {
-
+    
+    checkTableOverlapping(rect1, rect2) {
+        
         // TODO ADD FLAG
         this.setDebugPoints(rect1, "red");
         this.setDebugPoints(rect2, "blue");
 
         //const cornersRect1 = this.calculateTableAreaCorners(rect1);
         //const cornersRect2 = this.calculateTableAreaCorners(rect2);
-        
-
-        // Check for separation along each axis
-        /*if(
-            (rect1.corners.rt.x > rect2.corners.lt.x)
-        ) {
-            debugger;
-        }
-
+   
         if(
-            (rect1.corners.rt.x < rect2.corners.lt.x) ||
-             (rect1.corners.lt.x > rect2.corners.rt.x) ||
-             (rect1.corners.lb.y > rect2.corners.lt.y) ||
-             (rect1.corners.lt.y < rect2.corners.lb.y)) {
-                return 0;
-        }*/
-        
-        if (
-            (rect1.x + rect1.halfWidth) + rect1.width < (rect2.x + rect2.halfWidth) ||
-            (rect1.x + rect1.halfWidth) > (rect2.x + rect2.halfWidth) + rect2.width ||
-            (rect1.y + rect1.halfHeight) + rect1.height < (rect2.y + rect2.halfHeight) ||
-            (rect1.y + rect1.halfHeight) > (rect2.y + rect2.halfHeight) + rect2.height
+            this.isPointInPolygon(rect1.corners.lt.x, rect1.corners.lt.y, rect2.corners.coordsConterClockwise)
         ) {
-            // Rectangles do not intersect
-            return 0;
+            return true;
+        }
+        if(
+            this.isPointInPolygon(rect1.corners.rt.x, rect1.corners.rt.y, rect2.corners.coordsConterClockwise)
+        ) {
+            return true;
+        }
+        if(
+            this.isPointInPolygon(rect1.corners.lb.x, rect1.corners.lb.y, rect2.corners.coordsConterClockwise)
+        ) {
+            return true;
+        }
+        if(
+            this.isPointInPolygon(rect1.corners.rb.x, rect1.corners.rb.y, rect2.corners.coordsConterClockwise)
+        ) {
+            return true;
         }
 
 
-        // Calculate the overlap along the x-axis
-        const xOverlap = Math.min((rect1.x + rect1.halfWidth) + rect1.width, (rect2.x + rect2.halfWidth) + rect2.width) - Math.max((rect1.x + rect1.halfWidth), (rect2.x + rect2.halfWidth));
-
-        // Calculate the overlap along the y-axis
-        const yOverlap = Math.min((rect1.y + rect1.halfHeight) + rect1.height, (rect2.y + rect2.halfHeight) + rect2.height) - Math.max((rect1.y + rect1.halfHeight), (rect2.y + rect2.halfHeight));
-
-        // Calculate the area of intersection
-        const intersectionArea = xOverlap * yOverlap;
-
-        return intersectionArea;
+        return false;
     }
 
     areTablesOverlapping() {
@@ -994,10 +1006,8 @@ class World extends RoomObject {
         for (let i = 0; i < this.tables.length; i++) {
             for (let j = i + 1; j < this.tables.length; j++) {
                 // Compare the two tables using their coordinates and dimensions
-                const intersectionArea = this.calculateIntersectionArea(this.tables[i], this.tables[j]);
-                const minArea = Math.min(this.tables[i].width * this.tables[i].height, this.tables[j].width * this.tables[j].height);
-                // If the intersection area is greater than a certain threshold, the tables are considered overlapping
-                if (intersectionArea / minArea > 0) {
+                const tablesOverlapping = this.checkTableOverlapping(this.tables[i], this.tables[j]);
+                if (tablesOverlapping) {
                     this.tables[j].isInDanger();
                     this.tables[i].isInDanger();
                     //return true;
@@ -1052,7 +1062,7 @@ class World extends RoomObject {
             if(tablesSnapping)
                 break;
 
-            for(let table2 of this.tables.filter(t => t.snappingPointsActive && table1 != t )) {
+            for(let table2 of this.tables.filter(t => t.snappingPointsActive && table1 != t && (table1.tableElementSize|table1.tableElementSizeWidth) == (t.tableElementSize|t.tableElementSizeWidth))) {
                 if(tablesSnapping)
                     break;
 
