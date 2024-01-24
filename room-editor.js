@@ -671,7 +671,8 @@ const DEFAULT_TRANSLATIONS = [
 
 class RoomObject {
 
-
+    corners = {};
+    
     constructor() {
         this.translationSystem = new TranslationSystem();
 
@@ -713,10 +714,64 @@ class RoomObject {
         this.world.element.removeChild(this.element);
     }
 
+    rotatePoint(x, y, angleDegrees) {
+        // Convert angle to radians
+        var angleRadians = angleDegrees * Math.PI / 180;
+    
+        // Calculate new coordinates after rotation
+        var xPrime = x * Math.cos(angleRadians) - y * Math.sin(angleRadians);
+        var yPrime = x * Math.sin(angleRadians) + y * Math.cos(angleRadians);
+    
+        // Return the new coordinates
+        return { x: xPrime, y: yPrime };
+    }
+
+
+
+    rotatePointAroundOrigin(x, y, angleDegrees, originX = 0, originY = 0) {
+        // Translate the point to make the origin coincide with (0, 0)
+        var translatedX = x - originX;
+        var translatedY = y - originY;
+    
+        // Rotate the translated point around the origin
+        var rotatedPoint = this.rotatePoint(translatedX, translatedY, angleDegrees);
+    
+        // Translate the rotated point back to the original position
+        rotatedPoint.x += originX;
+        rotatedPoint.y += originY;
+    
+        // Return the new coordinates
+        return rotatedPoint;
+    }
+    
+
+    calculateTableAreaCorners() {
+        if(this.rotate > 0) { 
+            this.corners = {
+                lt: this.rotatePointAroundOrigin((this.x + this.halfWidth), (this.y + this.halfHeight), this.rotate, (this.x  + this.width), (this.y  + this.height)),
+                rt:this.rotatePointAroundOrigin((this.x + this.halfWidth) + this.width, (this.y + this.halfHeight), this.rotate, (this.x  + this.width), (this.y  + this.height)),
+                lb:this.rotatePointAroundOrigin((this.x + this.halfWidth) + this.width, (this.y + this.halfHeight) + this.height, this.rotate, (this.x  + this.width), (this.y  + this.height)),
+                rb:this.rotatePointAroundOrigin((this.x + this.halfWidth), (this.y + this.halfHeight) + this.height, this.rotate, (this.x  + this.width), (this.y  + this.height)),
+            };
+        } else {
+            this.corners = {
+                lt: { x: (this.x + this.halfWidth), y: (this.y + this.halfHeight) },
+                rt:{ x: (this.x + this.halfWidth) + this.width, y: (this.y + this.halfHeight) },
+                lb:{ x: (this.x + this.halfWidth) + this.width, y: (this.y + this.halfHeight) + this.height },
+                rb:{ x: (this.x + this.halfWidth), y: (this.y + this.halfHeight) + this.height },
+            };
+        }
+    }
+
     applyTransform() {
         this.element.style.transform = `translate(${this.x + this.halfWidth}px, ${this.y + this.halfHeight}px) scale(${this.scale}) rotate(${this.rotate}deg)`;
+
+        this.calculateTableAreaCorners();
     }
 }
+
+const SNAPPING_POINT_ACTIVE_DISTANCE=20;
+const SNAPPING_POINT_BLOW_DISTANCE=230;
 
 class World extends RoomObject {
     roomPlan;
@@ -779,68 +834,12 @@ class World extends RoomObject {
 
     debugElements = [];
 
-    rotatePoint(x, y, angleDegrees) {
-        // Convert angle to radians
-        var angleRadians = angleDegrees * Math.PI / 180;
-    
-        // Calculate new coordinates after rotation
-        var xPrime = x * Math.cos(angleRadians) - y * Math.sin(angleRadians);
-        var yPrime = x * Math.sin(angleRadians) + y * Math.cos(angleRadians);
-    
-        // Return the new coordinates
-        return { x: xPrime, y: yPrime };
-    }
-
-    rotatePointAroundOrigin(x, y, angleDegrees, originX = 0, originY = 0) {
-        // Translate the point to make the origin coincide with (0, 0)
-        var translatedX = x - originX;
-        var translatedY = y - originY;
-    
-        // Rotate the translated point around the origin
-        var rotatedPoint = this.rotatePoint(translatedX, translatedY, angleDegrees);
-    
-        // Translate the rotated point back to the original position
-        rotatedPoint.x += originX;
-        rotatedPoint.y += originY;
-    
-        // Return the new coordinates
-        return rotatedPoint;
-    }
-    
-
-    calculateTableAreaCorners(table) {
-        if(table.rotate > 0) { 
-            return {
-                lt: this.rotatePointAroundOrigin((table.x + table.halfWidth), (table.y + table.halfHeight), table.rotate, (table.x  + table.width), (table.y  + table.height)),
-                rt:this.rotatePointAroundOrigin((table.x + table.halfWidth) + table.width, (table.y + table.halfHeight), table.rotate, (table.x  + table.width), (table.y  + table.height)),
-                lb:this.rotatePointAroundOrigin((table.x + table.halfWidth) + table.width, (table.y + table.halfHeight) + table.height, table.rotate, (table.x  + table.width), (table.y  + table.height)),
-                rb:this.rotatePointAroundOrigin((table.x + table.halfWidth), (table.y + table.halfHeight) + table.height, table.rotate, (table.x  + table.width), (table.y  + table.height)),
-            };
-        } else {
-            return {
-                lt: { x: (table.x + table.halfWidth), y: (table.y + table.halfHeight) },
-                rt:{ x: (table.x + table.halfWidth) + table.width, y: (table.y + table.halfHeight) },
-                lb:{ x: (table.x + table.halfWidth) + table.width, y: (table.y + table.halfHeight) + table.height },
-                rb:{ x: (table.x + table.halfWidth), y: (table.y + table.halfHeight) + table.height },
-            };
-        }
-    }
-
 
     setDebugPoints(table, color) {
-
-        if(table.rotate > 0) {
-            
-            
-            let localPoslt = this.rotatePointAroundOrigin((table.x + table.halfWidth), (table.y + table.halfHeight), table.rotate, (table.x  + table.width), (table.y  + table.height));
-            this.addDebugPoint(color, localPoslt.x, localPoslt.y);
-            let localPosrt = this.rotatePointAroundOrigin((table.x + table.halfWidth) + table.width, (table.y + table.halfHeight), table.rotate, (table.x  + table.width), (table.y  + table.height));
-            this.addDebugPoint(color, localPosrt.x, localPosrt.y);
-            let localPoslb = this.rotatePointAroundOrigin((table.x + table.halfWidth) + table.width, (table.y + table.halfHeight) + table.height, table.rotate, (table.x  + table.width), (table.y  + table.height));
-            this.addDebugPoint(color, localPoslb.x, localPoslb.y);
-            let localPosrb = this.rotatePointAroundOrigin((table.x + table.halfWidth), (table.y + table.halfHeight) + table.height, table.rotate, (table.x  + table.width), (table.y  + table.height));
-            this.addDebugPoint(color, localPosrb.x, localPosrb.y);
-        }   
+        this.addDebugPoint(color, table.corners.lt.x, table.corners.lt.y);
+        this.addDebugPoint(color, table.corners.rt.x, table.corners.rt.y);
+        this.addDebugPoint(color, table.corners.lb.x, table.corners.lb.y);
+        this.addDebugPoint(color, table.corners.rb.x, table.corners.rb.y);
     }
 
     addDebugPoint(color, x, y) {
@@ -917,10 +916,10 @@ class World extends RoomObject {
     }
 
     checkTableInConstraintZone(table) {
-        const isLt = this.isPointInPolygon(table.x + (table.width/2), table.y + (table.height/2), this.roomPlan.constraintZonePolygon);
-        const isRt = this.isPointInPolygon(table.x + (table.width + table.width/2), table.y + (table.height/2), this.roomPlan.constraintZonePolygon);
-        const isLb = this.isPointInPolygon(table.x + (table.width/2), table.y + (table.height + table.height/2), this.roomPlan.constraintZonePolygon);
-        const isRb = this.isPointInPolygon(table.x + (table.width + table.width/2), table.y + (table.height + table.height/2), this.roomPlan.constraintZonePolygon);
+        const isLt = this.isPointInPolygon(table.corners.lt.x, table.corners.lt.y, this.roomPlan.constraintZonePolygon);
+        const isRt = this.isPointInPolygon(table.corners.rt.x, table.corners.rt.y, this.roomPlan.constraintZonePolygon);
+        const isLb = this.isPointInPolygon(table.corners.lb.x, table.corners.lb.y, this.roomPlan.constraintZonePolygon);
+        const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, this.roomPlan.constraintZonePolygon);
 
         if(!(isLt && isRt && isLb && isRb)) {
             table.isInDanger();
@@ -937,13 +936,28 @@ class World extends RoomObject {
     calculateIntersectionArea(rect1, rect2) {
 
         // TODO ADD FLAG
-        const cornersRect1 = this.calculateTableAreaCorners(rect1);
-        const cornersRect2 = this.calculateTableAreaCorners(rect2);
-        
         this.setDebugPoints(rect1, "red");
         this.setDebugPoints(rect2, "blue");
 
+        //const cornersRect1 = this.calculateTableAreaCorners(rect1);
+        //const cornersRect2 = this.calculateTableAreaCorners(rect2);
+        
+
         // Check for separation along each axis
+        /*if(
+            (rect1.corners.rt.x > rect2.corners.lt.x)
+        ) {
+            debugger;
+        }
+
+        if(
+            (rect1.corners.rt.x < rect2.corners.lt.x) ||
+             (rect1.corners.lt.x > rect2.corners.rt.x) ||
+             (rect1.corners.lb.y > rect2.corners.lt.y) ||
+             (rect1.corners.lt.y < rect2.corners.lb.y)) {
+                return 0;
+        }*/
+        
         if (
             (rect1.x + rect1.halfWidth) + rect1.width < (rect2.x + rect2.halfWidth) ||
             (rect1.x + rect1.halfWidth) > (rect2.x + rect2.halfWidth) + rect2.width ||
@@ -999,6 +1013,154 @@ class World extends RoomObject {
         for (let i = 0; i < this.tables.length; i++) {
             this.tables[i].code = i;
             this.tables[i].updateTableNumerationValue();
+        }
+    }
+
+    arePointsClose(point1, point2, distanceThreshold) {
+        const dx = point1.x - point2.x;
+        const dy = point1.y - point2.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+      
+        return distance < distanceThreshold;
+    }
+
+    scaleBaseOnDistance(point1, point2, distanceThreshold) {
+        const dx = point1.x - point2.x;
+        const dy = point1.y - point2.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+      
+        if (distance < distanceThreshold) {
+            // Quadratic scaling function: scale = 1 + (distance / distanceThreshold)^2
+            return 1 + 0.5 * (1 - Math.pow(distance / distanceThreshold, 2));
+        } else {
+            return 1;
+        }
+    }
+      
+
+    checkSnappingPoints() {
+
+        for(let table of this.tables.filter(t => t.snappingPointsActive)) {
+            for(let sp of table.snappingPoints) {
+                sp.scale = 1;
+                sp.applyTransform();
+            }
+        }
+
+        let  tablesSnapping = null;
+        for(let table1 of this.tables.filter(t => t.snappingPointsActive)) {
+            if(tablesSnapping)
+                break;
+
+            for(let table2 of this.tables.filter(t => t.snappingPointsActive && table1 != t )) {
+                if(tablesSnapping)
+                    break;
+
+                for(let spt1 of table1.snappingPoints) {
+                    if(tablesSnapping)
+                        break;
+                    
+                    const sp1WorldPosition = { x: table1.halfWidth + table1.x + spt1.x, y: table1.halfHeight + table1.y + spt1.y};
+
+                    for(let spt2 of table2.snappingPoints.filter(sp => sp.side != spt1.side)) {
+                        if(tablesSnapping)
+                            break;
+
+                        const sp2WorldPosition = { x: table2.halfWidth + table2.x + spt2.x, y: table2.halfHeight + table2.y + spt2.y};
+
+                        if(this.arePointsClose(sp1WorldPosition, sp2WorldPosition, SNAPPING_POINT_ACTIVE_DISTANCE)) {
+                            tablesSnapping = {
+                                table1,
+                                snappingPointTable1: spt1,
+                                table2,
+                                snappingPointTable2: spt2,
+
+                            }
+                        } else {
+                                const scale = this.scaleBaseOnDistance(sp1WorldPosition, sp2WorldPosition, SNAPPING_POINT_BLOW_DISTANCE);
+                                if(scale > spt1.scale) {
+                                    spt1.scale = scale;
+                                    spt1.applyTransform();
+
+                                }
+                                if(scale > spt2.scale) { 
+                                    spt2.scale = scale;
+                                    spt2.applyTransform();
+                                }
+                        }
+                    }
+                    
+                }
+            }
+        }
+
+        if(tablesSnapping) {
+            // TODO ASK IF WANT TO JOIN
+            this.joinTable(tablesSnapping);
+        }
+    }
+
+    getMidpoint(point1, point2) {
+        const midX = (point1.x + point2.x) / 2;
+        const midY = (point1.y + point2.y) / 2;
+      
+        return { x: midX, y: midY };
+    }
+
+    joinTable(tablesSnapping) {
+        const {table1, table2} = tablesSnapping
+        
+        if(table1.tableType == "ExpandedTable" || table2.tableType == "ExpandedTable") {
+
+            let expandedTable = null;
+            let tableToJoin = null;
+            if(table1.tableType == "ExpandedTable" && table2.tableType == "ExpandedTable") {
+                // TODO QUE DEUS TENHA PIADADE
+            } else {
+                if(table1.tableType == "ExpandedTable") {
+                    expandedTable = table1;
+                    tableToJoin = table2;
+                }
+                if(table2.tableType == "ExpandedTable") {
+                    expandedTable = table2;
+                    tableToJoin = table1;
+                }
+            }
+
+            expandedTable.x -= (tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize) + ((tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize) / 2) ;
+            expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize;
+            expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize;
+            expandedTable.width = expandedTable.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
+            expandedTable.sizeChanged();
+            expandedTable.applyTransform();
+            expandedTable.tableElementUpdateSize();
+            expandedTable.updateSnappingPoints();
+
+            expandedTable.updateSeats();
+            this.removeTable(tableToJoin);
+
+        } else {
+            const pos = this.getMidpoint({ x: table1.x, y: table1.y}, { x: table2.x, y: table2.y})
+            const newExpandedTable = new ExpandedTable(this.world);
+            
+            newExpandedTable.tableElementSizeHeight = table1.tableElementSizeHeight || table1.tableElementSize;
+            newExpandedTable.tableElementSizeWidth = (table1.tableElementSizeWidth || table1.tableElementSize) + (table2.tableElementSizeWidth || table2.tableElementSize);
+            
+            newExpandedTable.snappingPoints.find(sp => sp.side == 'right').x = newExpandedTable.tableElementSizeWidth + TABLE_ELEMENT_OFFSET;
+            
+            newExpandedTable.height = table1.height;
+            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
+
+            newExpandedTable.x = pos.x - (newExpandedTable.width / 2);
+            newExpandedTable.y = pos.y;
+            newExpandedTable.sizeChanged();
+            newExpandedTable.init();
+            this.addTable(newExpandedTable);
+            newExpandedTable.applyTransform();
+            newExpandedTable.updateSeats();
+            /*this.setSelectedObject(table1);*/
+            this.removeTable(table1);
+            this.removeTable(table2);
         }
     }
 }
@@ -1099,7 +1261,7 @@ class RoomPlan extends RoomObject {
 }
 
 const TABLE_ELEMENT_OFFSET = 35;
-
+const SNAPPING_POINT_SIZE = 15;
 class Table extends RoomObject {
 
     code = "";
@@ -1115,10 +1277,20 @@ class Table extends RoomObject {
 
     tableElement;
     tableElementSize = 105;
+    tableElementPosition = { x: 0, y: 0 };
+    tableElement = 0;
 
     inDanger = false;
 
     spaceBetweenTables = 0;
+
+    snappingPointsActive = false;
+    snappingPoints = [
+        { side: 'left', x: 0, y: 0, scale: 1 },
+        { side: 'right', x: 0, y: 0, scale: 1 },
+    ];
+    parentTable;
+    childsTable = [];
 
     constructor() {
         super();
@@ -1127,24 +1299,38 @@ class Table extends RoomObject {
         this.element.classList.add('table');
         this.width = this.tableDefaultSize;
         this.height = this.tableDefaultSize;
+        
+        this.sizeChanged();
+    }
+    
+    sizeChanged() {
+        
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
-
         this.element.style.width = `${this.width}px`;
         this.element.style.height = `${this.height}px`;
+
+        this.calculateTableAreaCorners();
     }
 
     init() {
         this.initializeSeats();
+
+        if(this.snappingPointsActive) {
+            this.addSnappingPoints();
+        }
+
         this.addTableElement();
         this.addSeatsTooltips();
         this.updateSeatsNumerations();
         this.addTableNumeration();
+
     }
 
     initializeSeats() {
         for (let seatPosition of this.seatsPositions) {
             const seat = new Seat(this);
+            seat.side = seatPosition.side;
             seat.rotate = seatPosition.rotate || 0;
             seat.x = seatPosition.x + (this.spaceBetweenTables / 2);
             seat.y = seatPosition.y + (this.spaceBetweenTables / 2);
@@ -1216,14 +1402,183 @@ class Table extends RoomObject {
         this.tableElement.classList.remove('table-draw--selected');
     }
 
+    tableElementTransform() {
+        this.tableElement.style.transform = `translate(${this.tableElementPosition.x}px, ${this.tableElementPosition.y}px) scale(1)`;        
+    }
+
     destroy() {
 
+    }
+
+    updateSnappingPoints() {
+
+        this.snappingPoints[0].x = TABLE_ELEMENT_OFFSET;
+        this.snappingPoints[0].y = TABLE_ELEMENT_OFFSET + ((this.tableElementSizeHeight || this.tableElementSize) / 2);
+        
+        this.snappingPoints[1].x = TABLE_ELEMENT_OFFSET + (this.tableElementSizeWidth || this.tableElementSize) - SNAPPING_POINT_SIZE;
+        this.snappingPoints[1].y =  TABLE_ELEMENT_OFFSET + ((this.tableElementSizeHeight || this.tableElementSize) / 2);
+
+        for(let sp of this.snappingPoints) {
+            sp.applyTransform();
+        }
+    }
+
+    addSnappingPoints() {
+        
+        for(let sp of this.snappingPoints) {
+            sp.locked = false;
+
+            sp.applyTransform = function () {
+                this.element.style.transform = `translate(${sp.x}px, ${sp.y}px) scale(${sp.scale})`;
+            }
+
+            const spe = document.createElement("div");
+            sp.element = spe;
+            spe.style.position = "absolute";
+            spe.style.width = `${SNAPPING_POINT_SIZE}px`;
+            spe.style.height = `${SNAPPING_POINT_SIZE}px`;
+            spe.style.backgroundColor = "#ffb1b1";
+            spe.style.border = "1px solid #ff5252";
+            spe.style['border-radius'] = "50%";
+            spe.style['z-index'] = 1;
+
+            spe.style.transform = `translate(${sp.x}px, ${sp.y}px) scale(1)`;
+
+            this.element.appendChild(spe);
+        }
+
+        this.updateSnappingPoints();
+    }
+}
+
+class ExpandedTable extends Table {
+    width = 360;
+    height = 190;
+
+    spaceBetweenTables = 0;
+
+    seatsPositions = [];
+
+    seats = [];
+    tableType = "ExpandedTable";
+
+    tableElement;
+    tableElementSizeWidth = 300;
+    tableElementSizeHeight = 130;
+
+    snappingPointsActive=true;
+
+    constructor() {
+        super();
+        this.dragable = true;
+        this.element = document.createElement('div');
+        this.element.classList.add('table');
+
+        this.width = this.width + this.spaceBetweenTables;
+        this.height = this.height + this.spaceBetweenTables;
+
+        this.halfWidth = this.width / 2;
+        this.halfHeight = this.height / 2;
+
+        this.element.style.width = `${this.width}px`;
+        this.element.style.height = `${this.height}px`;
+
+    }
+
+    initializeSeats() {
+    }
+
+    updateSeats() {
+
+        for(let seat of this.seats) {
+            seat.destroy();
+        }
+        this.seats = [];
+
+        this.seatsPositions = [];
+        const topsNumbersSeats = Math.floor(this.tableElementSizeWidth / 70);
+        const sidesNumbersSeats = Math.floor(this.tableElementSizeHeight / 70);
+
+        let globalNumber = 0;
+        for(let i = 0; i <= topsNumbersSeats; i++) {
+            this.seatsPositions.push({
+                number: globalNumber,
+                x: 60 + (i * 60),
+                y: 0,
+                rotate: 0,
+            });
+            globalNumber++;
+        }
+        for(let i = 0; i <= sidesNumbersSeats; i++) {
+            this.seatsPositions.push({
+                number: globalNumber,
+                x: this.tableElementSizeWidth + TABLE_ELEMENT_OFFSET,
+                y: 60 + (i * 60),
+                rotate: 90,
+            });
+            globalNumber++;
+        }
+        for(let i = topsNumbersSeats; i >= 0; i--) {
+            this.seatsPositions.push({
+                number: globalNumber,
+                x: 60 + (i * 60),
+                y: this.tableElementSizeHeight + TABLE_ELEMENT_OFFSET,
+                rotate: 180,
+            });
+            globalNumber++;
+        }
+        for(let i = sidesNumbersSeats; i >= 0; i--) {
+            this.seatsPositions.push({
+                number: globalNumber,
+                x: 0,
+                y: 60 + (i * 60),
+                rotate: 270,
+            });
+            globalNumber++;
+        }
+
+        for (let seatPosition of this.seatsPositions) {
+            const seat = new Seat(this);
+            seat.side = seatPosition.side;
+            seat.rotate = seatPosition.rotate || 0;
+            seat.x = seatPosition.x + (this.spaceBetweenTables/2);
+            seat.y = seatPosition.y + (this.spaceBetweenTables/2);
+            seat.number = seatPosition.number;
+            seat.isCouple = !!seatPosition.couple;
+            seat.applyTransform();
+            seat.updateStatus();
+            seat.addTooltip();
+            this.seats.push(seat);
+        }
+
+        this.updateSeatsNumerations();
+
+    }
+
+    tableElementUpdateSize() {
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
+    }
+
+    addTableElement() {
+        this.tableElement = document.createElement('div');
+        this.tableElement.classList.add('table-draw');
+        this.element.appendChild(this.tableElement);
+
+        this.tableElementUpdateSize();
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+
+        this.tableElementTransform();
     }
 }
 
 class SquareTable extends Table {
     tableDefaultSize = 270;
     spaceBetweenTables = 0;
+
+    snappingPointsActive=true;
 
     seatsPositions = [
         {
@@ -1324,13 +1679,19 @@ class SquareTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSize}px`;
         this.tableElement.style.height = `${this.tableElementSize}px`;
-        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px, ${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px) scale(1)`;
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+
+        this.tableElementTransform();
     }
 }
 
 class RectangularTable extends Table {
     width = 360;
     height = 190;
+
+    snappingPointsActive=true;
 
     spaceBetweenTables = 0;
 
@@ -1419,8 +1780,8 @@ class RectangularTable extends Table {
     tableType = "RectangularTable";
 
     tableElement;
-    tableElementWidth = 300;
-    tableElementHeight = 130;
+    tableElementSizeWidth = 300;
+    tableElementSizeHeight = 130;
 
     constructor() {
         super();
@@ -1444,15 +1805,21 @@ class RectangularTable extends Table {
         this.tableElement.classList.add('table-draw');
         this.element.appendChild(this.tableElement);
 
-        this.tableElement.style.width = `${this.tableElementWidth}px`;
-        this.tableElement.style.height = `${this.tableElementHeight}px`;
-        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px, ${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px) scale(1)`;
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+
+        this.tableElementTransform();
     }
 }
 
 class RectangularLTable extends Table {
     width = 520;
     height = 200;
+
+    snappingPointsActive=true;
 
     spaceBetweenTables = 0;
 
@@ -1552,8 +1919,8 @@ class RectangularLTable extends Table {
     tableType = "RectangularLTable";
 
     tableElement;
-    tableElementWidth = 450;
-    tableElementHeight = 130;
+    tableElementSizeWidth = 450;
+    tableElementSizeHeight = 130;
 
     constructor() {
         super();
@@ -1577,9 +1944,13 @@ class RectangularLTable extends Table {
         this.tableElement.classList.add('table-draw');
         this.element.appendChild(this.tableElement);
 
-        this.tableElement.style.width = `${this.tableElementWidth}px`;
-        this.tableElement.style.height = `${this.tableElementHeight}px`;
-        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px, ${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px) scale(1)`;
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+
+        this.tableElementTransform();
     }
 }
 
@@ -1678,14 +2049,21 @@ class RoundTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSize}px`;
         this.tableElement.style.height = `${this.tableElementSize}px`;
-        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px, ${TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2)}px) scale(1)`;
         this.tableElement.style["border-radius"] = "50%";
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+
+        this.tableElementTransform();
     }
 }
 
 class ForestMTable extends Table {
     tableDefaultSizeWidth = 255;
     tableDefaultSizeHeight = 185;
+
+    snappingPointsActive=true;
+
     seatsPositions = [
         {
             number: 0,
@@ -1777,7 +2155,12 @@ class ForestMTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
-        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET}px, ${TABLE_ELEMENT_OFFSET}px) scale(1)`;
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET;
+
+
+        this.tableElementTransform();
     }
 }
 
@@ -1828,8 +2211,12 @@ class CoupleRoundTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSize}px`;
         this.tableElement.style.height = `${this.tableElementSize}px`;
-        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET}px, ${TABLE_ELEMENT_OFFSET}px) scale(1)`;
         this.tableElement.style["border-radius"] = "50%";
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET;
+
+        this.tableElementTransform();
     }
 }
 
@@ -1882,8 +2269,13 @@ class CoupleOvalSTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
-        this.tableElement.style.transform = `translate(30px, 40px) scale(1)`;
         this.tableElement.style["border-radius"] = "60px";
+
+        this.tableElementPosition.x = 30;
+        this.tableElementPosition.y = 40;
+
+
+        this.tableElementTransform();
     }
 }
 
@@ -1984,8 +2376,13 @@ class CoupleOvalMTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
-        this.tableElement.style.transform = `translate(30px, 40px) scale(1)`;
         this.tableElement.style["border-radius"] = "60px";
+
+        this.tableElementPosition.x = 30;
+        this.tableElementPosition.y = 40;
+
+
+        this.tableElementTransform();
     }
 }
 
@@ -2098,8 +2495,13 @@ class CoupleOvalMFullTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
-        this.tableElement.style.transform = `translate(30px, 40px) scale(1)`;
         this.tableElement.style["border-radius"] = "60px";
+
+        this.tableElementPosition.x = 30;
+        this.tableElementPosition.y = 40;
+
+
+        this.tableElementTransform();
     }
 }
 
@@ -2229,6 +2631,7 @@ class CoupleOvalLTable extends Table {
 
     }
 
+
     addTableElement() {
         this.tableElement = document.createElement('div');
         this.tableElement.classList.add('table-draw');
@@ -2236,8 +2639,12 @@ class CoupleOvalLTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
-        this.tableElement.style.transform = `translate(30px, 40px) scale(1)`;
         this.tableElement.style["border-radius"] = "60px";
+
+        this.tableElementPosition.x = 30;
+        this.tableElementPosition.y = 40;
+
+        this.tableElementTransform();
     }
 }
 
@@ -2386,8 +2793,12 @@ class CoupleOvalLFullTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
-        this.tableElement.style.transform = `translate(30px, 40px) scale(1)`;
         this.tableElement.style["border-radius"] = "60px";
+
+        this.tableElementPosition.x = 30;
+        this.tableElementPosition.y = 40;
+
+        this.tableElementTransform();
     }
 }
 
@@ -2438,13 +2849,20 @@ class CoupleForestSTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
-        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET}px, ${TABLE_ELEMENT_OFFSET}px) scale(1)`;
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET;
+
+        this.tableElementTransform();
     }
 }
 
 class CoupleForestMTable extends Table {
     tableDefaultSizeWidth = 255;
     tableDefaultSizeHeight = 185;
+
+    snappingPointsActive=true;
+
     seatsPositions = [
         {
             number: 0,
@@ -2539,7 +2957,11 @@ class CoupleForestMTable extends Table {
 
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
-        this.tableElement.style.transform = `translate(${TABLE_ELEMENT_OFFSET}px, ${TABLE_ELEMENT_OFFSET}px) scale(1)`;
+
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET;
+
+        this.tableElementTransform();
     }
 }
 
@@ -2585,6 +3007,8 @@ class Seat extends RoomObject {
 
     width = 35;
     height = 35;
+
+    side;
 
     constructor(table) {
         super();
@@ -2728,6 +3152,10 @@ class Seat extends RoomObject {
     isElementOrChildElement(isElement) {
         return this.element === isElement;
     }
+
+    destroy() {
+        this.table.element.removeChild(this.element);
+    }
 }
 
 class MouseManager {
@@ -2774,7 +3202,9 @@ class MouseManager {
         this.pointerDiv = document.createElement("div");
         this.pointerDiv.style.width = "10px";
         this.pointerDiv.style.height = "10px";
-        this.pointerDiv.style.background = "red";
+        this.pointerDiv.style.background = "c7c7c7";
+        this.pointerDiv.style['border-radius'] = '50%';
+        this.pointerDiv.style['border'] = '1px solid #979797';
         this.world.element.appendChild(this.pointerDiv);
     }
 
@@ -3228,9 +3658,12 @@ class MouseManager {
     handleMouseUp(event) {
         if (event.button === 0) {
             this.dragging = false;
+
+            // TODO CHECK IF THIS IS OK
+            this.world.areTablesOverlapping();
+            this.world.checkSnappingPoints();
         }
 
-        this.world.areTablesOverlapping();
     }
 
     handleMouseWheel(event) {
@@ -3473,10 +3906,10 @@ class RoomEditor {
             object.init();
             // Add other properties specific to your object
 
-            for (const objSeat of serializedObject.seats) {
-                object.seats[objSeat.number | objSeat.code].guestName = objSeat.guestName;
-                object.seats[objSeat.number | objSeat.code].guestAge = objSeat.guestAge;
-                object.seats[objSeat.number | objSeat.code].foodRestrictions = objSeat.foodRestrictions;
+            for(const objSeat of serializedObject.seats) {
+                object.seats[objSeat.number].guestName = objSeat.guestName;
+                object.seats[objSeat.number].guestAge = objSeat.guestAge;
+                object.seats[objSeat.number].foodRestrictions = objSeat.foodRestrictions;
             }
             object.updateSeats();
 
