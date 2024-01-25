@@ -1207,6 +1207,9 @@ class RoomPlan extends RoomObject {
             //TODO ALWAYS DO THIS ? 
             this.constrainElement.style.width = `${this.width}px`;
             this.constrainElement.style.height = `${this.height}px`;
+
+
+            
         }
 
         this.elementImg.style.width = '100%';
@@ -3513,36 +3516,7 @@ class MouseManager {
         }
     }
 
-    getFocalPosition(event, deltaScale = 0) {
-        
-        if(this.world.scale <= 1) {
-            console.log("<1")
-            console.log("deltaScale")
-            console.log(deltaScale)
-            if(deltaScale > 1) {
-                return { x: -0 * this.world.scale, y: -0 * this.world.scale };
-            } else {
-                return { x: 0 * this.world.scale, y: 0 * this.world.scale };
-            }
-        } else {
-            console.log(">1")
-            console.log("deltaScale")
-            console.log(deltaScale)
-            if(deltaScale > 1) {
-                return { x: -30 * this.world.scale, y: -30 * this.world.scale };
-            } else {
-                return { x: 30 * this.world.scale, y: 30 * this.world.scale };
-            }
-        }
-
-
-        if(deltaScale > 1) {
-            return { x: 0, y: 0 };
-        } else {
-            return { x: 0, y: 0 };
-        }
-    }
-
+    
     getWorldPositionCenterScreen() {
         const editorRect = this.editorContainerElement.getBoundingClientRect();
         //const worldRect = this.world.element.getBoundingClientRect();
@@ -3552,8 +3526,8 @@ class MouseManager {
 
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
-        console.log("World Position:", { x, y })
-        this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        //console.log("World Position center screen:", { x, y })
+        //this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
     }
@@ -3567,8 +3541,8 @@ class MouseManager {
 
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
-        console.log("World Position:", { x, y })
-        this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        //console.log("World Position:", { x, y })
+        //this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
     }
@@ -3618,7 +3592,7 @@ class MouseManager {
         }
 
         const pos = this.getWorldPosition(event);
-
+        
         if (event.button == 1 && this.roomEditor.administrationMode) {
             this.roomEditor.world.roomPlan.addConstraintZonePolygon(pos.x, pos.y);
             this.roomEditor.world.roomPlan.updateConstrainZonePoligonElement();            
@@ -3696,9 +3670,6 @@ class MouseManager {
         const scaleDelta = event.deltaY > 0 ? -1 : 1;
         const zoom = Math.exp(scaleDelta * this.zoomIntensity);
 
-        const posFocal = this.getFocalPosition(event, zoom);
-
-        this.world.pan(posFocal.x, posFocal.y);
         this.world.zoom(zoom);
         this.world.applyTransform();
     }
