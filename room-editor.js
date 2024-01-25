@@ -1,205 +1,215 @@
 const DEFAULT_TRANSLATIONS = [
     {
         value: {
-          pt: "Cancelar",
-          en: "Cancel",
-          es: "Cancelar",
-          fr: "Annuler"
+            pt: "Cancelar",
+            en: "Cancel",
+            es: "Cancelar",
+            fr: "Annuler"
         },
         tag: "CANCEL",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Eliminar",
-          en: "Delete",
-          es: "Eliminar",
-          fr: "Éliminer"
+            pt: "Eliminar",
+            en: "Delete",
+            es: "Eliminar",
+            fr: "Éliminer"
         },
         "canBeDeleted": true,
         platform: "BO",
         tag: "DELETE"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Rodar",
-          en: "Rotate",
-          es: "Girar",
-          fr: "Tourner"
+            pt: "Rodar",
+            en: "Rotate",
+            es: "Girar",
+            fr: "Tourner"
         },
         platform: "BO",
         tag: "ROTATE"
-      },
-      {
+    },
+    {
         value: {
-          pt: "A partir dos 8 anos",
-          en: "From 8 years old",
-          es: "A partir de 8 años",
-          fr: "A partir de 8 ans"
+            pt: "A partir dos 8 anos",
+            en: "From 8 years old",
+            es: "A partir de 8 años",
+            fr: "A partir de 8 ans"
         },
         tag: "ABOVE_8_YEARS",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Maior de 8 anos",
-          en: "Over 8 years old",
-          es: "Mayores de 8 años",
-          fr: "Plus de 8 ans"
+            pt: "Maior de 8 anos",
+            en: "Over 8 years old",
+            es: "Mayores de 8 años",
+            fr: "Plus de 8 ans"
         },
         tag: "ADULT_AGE",
         platform: "BO",
-      },
-      {
+    },
+    {
         value: {
-          pt: "3 aos 7 anos",
-          en: "3 to 7 years old",
-          es: "3 a 7 años",
-          fr: "3 à 7 ans"
+            pt: "3 aos 7 anos",
+            en: "3 to 7 years old",
+            es: "3 a 7 años",
+            fr: "3 à 7 ans"
         },
         tag: "CHILD_AGE",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "6 meses a 2 anos",
-          en: "6 months to 2 years",
-          es: "6 meses a 2 años",
-          fr: "6 meses a 2 años"
+            pt: "6 meses a 2 anos",
+            en: "6 months to 2 years",
+            es: "6 meses a 2 años",
+            fr: "6 meses a 2 años"
         },
         tag: "BABY_AGE",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Carrinho",
-          en: "Stroller",
-          es: "Cochecito",
-          fr: "Poussette"
+            pt: "Carrinho",
+            en: "Stroller",
+            es: "Cochecito",
+            fr: "Poussette"
         },
         tag: "BABY_CAR",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Dos 6 meses a 2 anos",
-          en: "From 6 months to 2 years",
-          es: "De 6 meses a 2 años",
-          fr: "De 6 meses a 2 años"
+            pt: "Dos 6 meses a 2 anos",
+            en: "From 6 months to 2 years",
+            es: "De 6 meses a 2 años",
+            fr: "De 6 meses a 2 años"
         },
         tag: "FROM_BABY_AGE",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Dos 3 aos 7 anos",
-          en: "From 3 to 7 years old",
-          es: "De 3 a 7 años",
-          fr: "De 3 à 7 ans"
+            pt: "Dos 3 aos 7 anos",
+            en: "From 3 to 7 years old",
+            es: "De 3 a 7 años",
+            fr: "De 3 à 7 ans"
         },
         tag: "FROM_CHILD_AGE",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Dos 0 a 5 meses",
-          en: "From 0 to 5 months",
-          es: "De 0 a 5 meses",
-          fr: "De 0 à 5 mois"
+            pt: "Dos 0 a 5 meses",
+            en: "From 0 to 5 months",
+            es: "De 0 a 5 meses",
+            fr: "De 0 à 5 mois"
         },
         tag: "FROM_NEWBORN_AGE",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "0 a 5 meses",
-          en: "0 to 5 months",
-          es: "0 a 5 meses",
-          fr: "0 à 5 mois"
+            pt: "Dos 0 aos 2 anos",
+            en: "From 0 to 2 years",
+            es: "De 0 a 2 años",
+            fr: "De 0 à 2 ans"
+        },
+        tag: "FROM_NEWBORN_CHILD_AGE",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "0 a 5 meses",
+            en: "0 to 5 months",
+            es: "0 a 5 meses",
+            fr: "0 à 5 mois"
         },
         tag: "NEWBORN_AGE",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Notas",
-          en: "Notes",
-          es: "Notas",
-          fr: "Remarques"
+            pt: "Notas",
+            en: "Notes",
+            es: "Notas",
+            fr: "Remarques"
         },
         tag: "NOTES",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Crianças",
-          en: "Children",
-          es: "Niños",
-          fr: "Enfants"
+            pt: "Crianças",
+            en: "Children",
+            es: "Niños",
+            fr: "Enfants"
         },
         tag: "ROOM_PLAN_CHILD",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Convidados",
-          en: "Guests",
-          es: "Invitados",
-          fr: "Invités"
+            pt: "Convidados",
+            en: "Guests",
+            es: "Invitados",
+            fr: "Invités"
         },
         tag: "ROOM_PLAN_GUESTS",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Staff",
-          en: "Staff",
-          es: "Staff",
-          fr: "Staff"
+            pt: "Staff",
+            en: "Staff",
+            es: "Staff",
+            fr: "Staff"
         },
         tag: "ROOM_PLAN_STAFF",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Mesas para",
-          en: "Tables for",
-          es: "Tablas para",
-          fr: "Tables pour"
+            pt: "Mesas para",
+            en: "Tables for",
+            es: "Tablas para",
+            fr: "Tables pour"
         },
         platform: "BO",
         tag: "TYPE_TABLES"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Mesa do casal",
-          en: "Couple's table",
-          es: "Mesa de pareja",
-          fr: "La table des couples"
+            pt: "Mesa do casal",
+            en: "Couple's table",
+            es: "Mesa de pareja",
+            fr: "La table des couples"
         },
         tag: "COUPLE_TABLES",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Gerir convidados",
-          en: "Manage guests",
-          es: "Administrar invitados",
-          fr: "Gérer les invités"
+            pt: "Gerir convidados",
+            en: "Manage guests",
+            es: "Administrar invitados",
+            fr: "Gérer les invités"
         },
         tag: "MNG_GUESTS",
         platform: "BO"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Mesas",
-          en: "Tables",
-          es: "Tablas",
-          fr: "Tables"
+            pt: "Mesas",
+            en: "Tables",
+            es: "Tablas",
+            fr: "Tables"
         },
         platform: "BO",
         tag: "TABLES"
-      },
+    },
 
 
 
@@ -208,413 +218,453 @@ const DEFAULT_TRANSLATIONS = [
 
 
     {
-      value: {
-        pt: "Média pax/mesa",
-        en: "Average pax/table",
-        es: "Promedio pax/tabla",
-        fr: "Moyenne pax/table"
-      },
-      tag: "AVG_PAX_TABLES",
-      platform: "BO"
-    },
-    
-   
-    {
-      value: {
-        pt: "Posicionamento casal",
-        en: "Couple positioning",
-        es: "Posicionamiento de pareja",
-        fr: "Positionnement du couple"
-      },
-      tag: "COUPLE_POSITION",
-      platform: "BO"
-    },
-    
-    {
-      value: {
-        pt: "c/convidados à frente",
-        en: "w/guests in front",
-        es: "con invitados al frente",
-        fr: "avec des invités devant"
-      },
-      tag: "COUPLE_TABLE_COMPLETE",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "s/convidados à frente",
-        en: "w/o guests at the front",
-        es: "sin invitados al frente",
-        fr: "sans invités à l'avant"
-      },
-      tag: "COUPLE_TABLE_INCOMPLETE",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Mesa de noivos > 8 pax",
-        en: "Couple table > 8 pax",
-        es: "Mesa de novios > 8 pax",
-        fr: "Table de marié > 8 pax"
-      },
-      tag: "COUPLE_TABLE_OPTIONS",
-      platform: "BO"
-    },
-    
-    {
-      value: {
-        pt: "Cadeiras vazias",
-        en: "Empty chairs",
-        es: "Sillas vacias",
-        fr: "Chaises vides"
-      },
-      tag: "EMPTY_CHAIRS",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Erro",
-        en: "Error",
-        es: "Error",
-        fr: "Erreur"
-      },
-      "canBeDeleted": false,
-      tag: "ERROR",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Evento de",
-        en: "Event by",
-        es: "Evento por",
-        fr: "Événement par"
-      },
-      tag: "EVENT_BY",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Cadeiras preenchidas",
-        en: "Filled chairs",
-        es: "Sillas llenas",
-        fr: "Chaises remplies"
-      },
-      tag: "FILLED_CHAIRS",
-      platform: "BO"
-    },
-   
-    {
-      value: {
-        pt: "Convidados previstos",
-        en: "Expected guests",
-        es: "Invitados esperados",
-        fr: "Invités attendus"
-      },
-      tag: "GUEST_EXPECTED",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Plano dos convidados",
-        en: "Guest plan",
-        es: "Plan de invitados",
-        fr: "Forfait invité"
-      },
-      tag: "GUEST_PLAN",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Não é possível unir as mesas",
-        en: "Unable to join tables",
-        es: "No se puede unir mesas",
-        fr: "Impossible de rejoindre les tables"
-      },
-      "canBeDeleted": false,
-      tag: "INVALID_TABLE_JOIN",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Unir mesas",
-        en: "Join tables",
-        es: "Unirse tablas",
-        fr: "Joindre des tables"
-      },
-      "canBeDeleted": false,
-      tag: "JOIN_TABLES",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Deseja unir as mesas?",
-        en: "Do you want to join the tables?",
-        es: "¿Quieres unirte a las mesas?",
-        fr: "Voulez-vous rejoindre les tables?"
-      },
-      "canBeDeleted": false,
-      tag: "JOIN_TABLES_QUESTION",
-      platform: "BO"
-    },
-    {
-      value: {
-        pt: "Ao unir as mesas, o plano de sala e posicionamentos das outras mesas poderão alterar de maneira a respeitar as regras de sala e posicionamentos.",
-        en: "When joining tables, the room plan and positioning of other tables may change in order to respect the room rules and positions.",
-        es: "Al unir mesas, el plano de la sala y la ubicación de otras mesas pueden cambiar para respetar las reglas y posiciones de la sala.",
-        fr: "Lors de la jonction des tables, le plan de la salle et le positionnement des autres tables peuvent changer afin de respecter les règles et positions de la salle."
-      },
-      "canBeDeleted": false,
-      tag: "JOIN_TABLES_QUESTION_DESCRIPTION",
-      platform: "BO"
-    },
-    
-    
-    
-    {
-      value: {
-        pt: "Nº",
-        en: "No.",
-        es: "Nº",
-        fr: "N°"
-      },
-      tag: "NUMBER_SHORT",
-      platform: "BO"
+        value: {
+            pt: "Média pax/mesa",
+            en: "Average pax/table",
+            es: "Promedio pax/tabla",
+            fr: "Moyenne pax/table"
+        },
+        tag: "AVG_PAX_TABLES",
+        platform: "BO"
     },
 
 
     {
         value: {
-          pt: "Redonda",
-          en: "Round",
-          es: "Redondo",
-          fr: "Rond"
+            pt: "Posicionamento casal",
+            en: "Couple positioning",
+            es: "Posicionamiento de pareja",
+            fr: "Positionnement du couple"
+        },
+        tag: "COUPLE_POSITION",
+        platform: "BO"
+    },
+
+    {
+        value: {
+            pt: "c/convidados à frente",
+            en: "w/guests in front",
+            es: "con invitados al frente",
+            fr: "avec des invités devant"
+        },
+        tag: "COUPLE_TABLE_COMPLETE",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "s/convidados à frente",
+            en: "w/o guests at the front",
+            es: "sin invitados al frente",
+            fr: "sans invités à l'avant"
+        },
+        tag: "COUPLE_TABLE_INCOMPLETE",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Mesa de noivos > 8 pax",
+            en: "Couple table > 8 pax",
+            es: "Mesa de novios > 8 pax",
+            fr: "Table de marié > 8 pax"
+        },
+        tag: "COUPLE_TABLE_OPTIONS",
+        platform: "BO"
+    },
+
+    {
+        value: {
+            pt: "Cadeiras vazias",
+            en: "Empty chairs",
+            es: "Sillas vacias",
+            fr: "Chaises vides"
+        },
+        tag: "EMPTY_CHAIRS",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Erro",
+            en: "Error",
+            es: "Error",
+            fr: "Erreur"
+        },
+        "canBeDeleted": false,
+        tag: "ERROR",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Evento de",
+            en: "Event by",
+            es: "Evento por",
+            fr: "Événement par"
+        },
+        tag: "EVENT_BY",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Cadeiras preenchidas",
+            en: "Filled chairs",
+            es: "Sillas llenas",
+            fr: "Chaises remplies"
+        },
+        tag: "FILLED_CHAIRS",
+        platform: "BO"
+    },
+
+    {
+        value: {
+            pt: "Convidados previstos",
+            en: "Expected guests",
+            es: "Invitados esperados",
+            fr: "Invités attendus"
+        },
+        tag: "GUEST_EXPECTED",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Plano dos convidados",
+            en: "Guest plan",
+            es: "Plan de invitados",
+            fr: "Forfait invité"
+        },
+        tag: "GUEST_PLAN",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Não é possível unir as mesas",
+            en: "Unable to join tables",
+            es: "No se puede unir mesas",
+            fr: "Impossible de rejoindre les tables"
+        },
+        "canBeDeleted": false,
+        tag: "INVALID_TABLE_JOIN",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Unir mesas",
+            en: "Join tables",
+            es: "Unirse tablas",
+            fr: "Joindre des tables"
+        },
+        "canBeDeleted": false,
+        tag: "JOIN_TABLES",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Deseja unir as mesas?",
+            en: "Do you want to join the tables?",
+            es: "¿Quieres unirte a las mesas?",
+            fr: "Voulez-vous rejoindre les tables?"
+        },
+        "canBeDeleted": false,
+        tag: "JOIN_TABLES_QUESTION",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Ao unir as mesas, o plano de sala e posicionamentos das outras mesas poderão alterar de maneira a respeitar as regras de sala e posicionamentos.",
+            en: "When joining tables, the room plan and positioning of other tables may change in order to respect the room rules and positions.",
+            es: "Al unir mesas, el plano de la sala y la ubicación de otras mesas pueden cambiar para respetar las reglas y posiciones de la sala.",
+            fr: "Lors de la jonction des tables, le plan de la salle et le positionnement des autres tables peuvent changer afin de respecter les règles et positions de la salle."
+        },
+        "canBeDeleted": false,
+        tag: "JOIN_TABLES_QUESTION_DESCRIPTION",
+        platform: "BO"
+    },
+
+
+
+    {
+        value: {
+            pt: "Nº",
+            en: "No.",
+            es: "Nº",
+            fr: "N°"
+        },
+        tag: "NUMBER_SHORT",
+        platform: "BO"
+    },
+
+
+    {
+        value: {
+            pt: "Redonda",
+            en: "Round",
+            es: "Redondo",
+            fr: "Rond"
         },
         tag: "CoupleRoundTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Oval S",
-          en: "Oval S",
-          es: "Ovalado S",
-          fr: "Ovale S"
+            pt: "Oval S",
+            en: "Oval S",
+            es: "Ovalado S",
+            fr: "Ovale S"
         },
         tag: "CoupleOvalSTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Oval M",
-          en: "Oval M",
-          es: "Ovalado M",
-          fr: "Ovale M"
+            pt: "Oval M",
+            en: "Oval M",
+            es: "Ovalado M",
+            fr: "Ovale M"
         },
         tag: "CoupleOvalMTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Oval M completa",
-          en: "Oval M complete",
-          es: "Ovalado M completo",
-          fr: "Ovale M complet"
+            pt: "Oval M completa",
+            en: "Oval M complete",
+            es: "Ovalado M completo",
+            fr: "Ovale M complet"
         },
         tag: "CoupleOvalMFullTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Oval L",
-          en: "Oval L",
-          es: "Ovalado L",
-          fr: "Ovale L"
+            pt: "Oval L",
+            en: "Oval L",
+            es: "Ovalado L",
+            fr: "Ovale L"
         },
         tag: "CoupleOvalLFullTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Oval L completa",
-          en: "Oval L complete",
-          es: "Ovalado L completo",
-          fr: "Ovale L complet"
+            pt: "Oval L completa",
+            en: "Oval L complete",
+            es: "Ovalado L completo",
+            fr: "Ovale L complet"
         },
         tag: "CoupleOvalLTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Forest S",
-          en: "Forest S",
-          es: "Forest S",
-          fr: "Forest S"
+            pt: "Forest S",
+            en: "Forest S",
+            es: "Forest S",
+            fr: "Forest S"
         },
         tag: "CoupleForestSTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Forest M",
-          en: "Forest M",
-          es: "Forest M",
-          fr: "Forest M"
+            pt: "Forest M",
+            en: "Forest M",
+            es: "Forest M",
+            fr: "Forest M"
         },
         tag: "CoupleForestMTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Forest M",
-          en: "Forest M",
-          es: "Forest M",
-          fr: "Forest M"
+            pt: "Forest M",
+            en: "Forest M",
+            es: "Forest M",
+            fr: "Forest M"
         },
         tag: "ForestMTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Redonda",
-          en: "Round",
-          es: "Redondo",
-          fr: "Rond"
+            pt: "Redonda",
+            en: "Round",
+            es: "Redondo",
+            fr: "Rond"
         },
         tag: "RoundTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Quadrada",
-          en: "Square",
-          es: "Cuadrado",
-          fr: "Carré"
+            pt: "Quadrada",
+            en: "Square",
+            es: "Cuadrado",
+            fr: "Carré"
         },
         tag: "SquareTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Retangular M",
-          en: "Rectangular M",
-          es: "Rectángulo M",
-          fr: "Rectangulaire M"
+            pt: "Retangular M",
+            en: "Rectangular M",
+            es: "Rectángulo M",
+            fr: "Rectangulaire M"
         },
         tag: "RectangularTable"
-      },
-      {
+    },
+    {
         value: {
-          pt: "Retangular L",
-          en: "Rectangular L",
-          es: "Rectángulo L",
-          fr: "Rectangulaire L"
+            pt: "Retangular L",
+            en: "Rectangular L",
+            es: "Rectángulo L",
+            fr: "Rectangulaire L"
         },
         tag: "RectangularLTable"
-      },
-    {
-      value: {
-        pt: "Oval",
-        en: "Oval",
-        es: "Oval",
-        fr: "Ovale"
-      },
-      tag: "OVAL_TABLE",
-      platform: "BO"
     },
     {
-      value: {
-        pt: "Retangular",
-        en: "Rectangular",
-        es: "Rectangular",
-        fr: "Rectangulaire"
-      },
-      tag: "RECTANGULAR_TABLE",
-      platform: "BO"
+        value: {
+            pt: "Oval",
+            en: "Oval",
+            es: "Oval",
+            fr: "Ovale"
+        },
+        tag: "OVAL_TABLE",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Retangular",
+            en: "Rectangular",
+            es: "Rectangular",
+            fr: "Rectangulaire"
+        },
+        tag: "RECTANGULAR_TABLE",
+        platform: "BO"
     },
 
 
     {
-      value: {
-        pt: "Retroceder",
-        en: "Rewind",
-        es: "Regresa",
-        fr: "Retourner"
-      },
-      platform: "BO",
-      tag: "REWIND"
+        value: {
+            pt: "Retroceder",
+            en: "Rewind",
+            es: "Regresa",
+            fr: "Retourner"
+        },
+        platform: "BO",
+        tag: "REWIND"
     },
     {
-      value: {
-        pt: "Planos de sala",
-        en: "Seating Plan",
-        es: "Plan de asientos",
-        fr: "Plan de salle"
-      },
-      tag: "ROOM_PLAN",
-      platform: "BO"
+        value: {
+            pt: "Plano de sala",
+            en: "Room plan",
+            es: "Plan des salles",
+            fr: "Plano de la sala"
+        },
+        tag: "ROOM_PLAN",
+        platform: "BO"
     },
-   
+
     {
-      value: {
-        pt: "Posicionamento global",
-        en: "Global positioning",
-        es: "Posicionamiento global",
-        fr: "Positionnement global"
-      },
-      tag: "ROOM_PLAN_POSITION",
-      platform: "BO"
+        value: {
+            pt: "Posicionamento global",
+            en: "Global positioning",
+            es: "Posicionamiento global",
+            fr: "Positionnement global"
+        },
+        tag: "ROOM_PLAN_POSITION",
+        platform: "BO"
     },
-   
+
     {
-      value: {
-        pt: "Total mesas",
-        en: "Total tables",
-        es: "Tablas totales",
-        fr: "Tables totaux"
-      },
-      tag: "ROOM_PLAN_TOTAL_TABLES",
-      platform: "BO"
-    },
-    
-    {
-      value: {
-        pt: "Redonda",
-        en: "Round",
-        es: "Redondo",
-        fr: "Rond"
-      },
-      tag: "ROUND_TABLE",
-      platform: "BO"
+        value: {
+            pt: "Total mesas",
+            en: "Total tables",
+            es: "Tablas totales",
+            fr: "Tables totaux"
+        },
+        tag: "ROOM_PLAN_TOTAL_TABLES",
+        platform: "BO"
     },
     {
-      value: {
-        pt: "Quadrada",
-        en: "Square",
-        es: "Cuadrado",
-        fr: "Carré"
-      },
-      tag: "SQUARE_TABLE",
-      platform: "BO"
+        value: {
+            pt: "PAX total",
+            en: "Total PAX",
+            es: "PAX totales",
+            fr: "Total PAX"
+        },
+        tag: "ROOM_PLAN_TOTAL_PAX",
+        platform: "BO"
     },
-    
+
     {
-      value: {
-        pt: "Folhetos de mesa",
-        en: "Table flyers",
-        es: "Folletos de mesa",
-        fr: "Dépliants de table"
-      },
-      tag: "TABLE_FLYERS",
-      platform: "BO"
+        value: {
+            pt: "Redonda",
+            en: "Round",
+            es: "Redondo",
+            fr: "Rond"
+        },
+        tag: "ROUND_TABLE",
+        platform: "BO"
     },
     {
-      value: {
-        pt: "Posição inválida",
-        en: "Invalid position",
-        es: "Posición no válida",
-        fr: "Poste invalide"
-      },
-      tag: "TABLE_INVALID_POSITION",
-      platform: "BO"
+        value: {
+            pt: "Quadrada",
+            en: "Square",
+            es: "Cuadrado",
+            fr: "Carré"
+        },
+        tag: "SQUARE_TABLE",
+        platform: "BO"
     },
-    
+
     {
-      value: {
-        pt: "Local",
-        en: "Venue",
-        es: "Lugar",
-        fr: "Lieu"
-      },
-      tag: "WEDDING_PLACE_SHORT",
-      platform: "BO"
+        value: {
+            pt: "Folhetos de mesa",
+            en: "Table flyers",
+            es: "Folletos de mesa",
+            fr: "Dépliants de table"
+        },
+        tag: "TABLE_FLYERS",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Posição inválida",
+            en: "Invalid position",
+            es: "Posición no válida",
+            fr: "Poste invalide"
+        },
+        tag: "TABLE_INVALID_POSITION",
+        platform: "BO"
+    },
+
+    {
+        value: {
+            pt: "Local",
+            en: "Venue",
+            es: "Lugar",
+            fr: "Lieu"
+        },
+        tag: "WEDDING_PLACE_SHORT",
+        platform: "BO"
+    },
+    {
+        value: {
+            pt: "Sem convidados",
+            en: "No guests",
+            es: "Sin invitados",
+            fr: "Aucun invité"
+        },
+        tag: "NO_GUESTS",
+        platform: "BO",
+    },
+    {
+        value: {
+            pt: "Alterar mesa",
+            en: "Change table",
+            es: "Cambiar tabla",
+            fr: "Changer de tableau"
+        },
+        tag: "CHANGE_TABLE",
+        platform: "BO",
+    },
+    {
+        value: {
+            pt: "As alterações de ingredientes ficarão a cargo do chefe.",
+            en: "Ingredient changes will be the responsibility of the chef.",
+            es: "Los cambios de ingredientes serán responsabilidad del chef.",
+            fr: "Les changements d'ingrédients seront à la charge du chef."
+        },
+        tag: "CHEF_CHOICE",
+        platform: "BO",
     }
 ];
 
@@ -625,7 +675,7 @@ class RoomObject {
     
     constructor() {
         this.translationSystem = new TranslationSystem();
-        
+
         this.rotate = 0;
         this.x = 0;
         this.y = 0;
@@ -638,7 +688,7 @@ class RoomObject {
         this.world = null;
         this.dragable = false;
     }
-    
+
     pan(dx, dy) {
         this.x += dx;
         this.y += dy;
@@ -651,7 +701,7 @@ class RoomObject {
     addRotation(rotation) {
         this.rotate += rotation;
 
-        if(this.rotate > 360) {
+        if (this.rotate > 360) {
             this.rotate = 0;
         }
     }
@@ -760,6 +810,8 @@ class World extends RoomObject {
 
         this.tables = [];
 
+        this.foodRestrictions = [];
+
         this.element = document.createElement("div");
         this.element.classList.add('world');
         //this.element.style.width=this.worldSize + 'px';
@@ -796,7 +848,7 @@ class World extends RoomObject {
     }
 
     removeTables() {
-        for(let table of this.tables) {
+        for (let table of this.tables) {
             table.removeOfContainer();
         }
         this.tables = [];
@@ -829,11 +881,11 @@ class World extends RoomObject {
     }
 
     clearDebugPoints() {
-        for(let debugPoint of this.debugElements) {
+        for (let debugPoint of this.debugElements) {
             this.element.removeChild(debugPoint);
         }
 
-        this.debugElements= [];
+        this.debugElements = [];
     }
 
     isPointInPolygon(x, y , polygon) {
@@ -1136,7 +1188,7 @@ class RoomPlan extends RoomObject {
     }
 
     updateImageSrc(imageSrc) {
-        if(this.elementImg) {
+        if (this.elementImg) {
             this.element.removeChild(this.elementImg);
         }
 
@@ -1228,7 +1280,7 @@ class Table extends RoomObject {
     seats = [];
     tableType = "Table";
     tablePurpose = "GUEST";
-    
+
     tableElement;
     tableElementSize = 105;
     tableElementPosition = { x: 0, y: 0 };
@@ -1286,8 +1338,8 @@ class Table extends RoomObject {
             const seat = new Seat(this);
             seat.side = seatPosition.side;
             seat.rotate = seatPosition.rotate || 0;
-            seat.x = seatPosition.x + (this.spaceBetweenTables/2);
-            seat.y = seatPosition.y + (this.spaceBetweenTables/2);
+            seat.x = seatPosition.x + (this.spaceBetweenTables / 2);
+            seat.y = seatPosition.y + (this.spaceBetweenTables / 2);
             seat.number = seatPosition.number;
             seat.isCouple = !!seatPosition.couple;
             seat.applyTransform();
@@ -1321,9 +1373,9 @@ class Table extends RoomObject {
     addTableNumeration() {
         this.tableElementNumeration = document.createElement("div");
         this.tableElementNumeration.classList.add('tableNumeration');
-        
+
         this.tableElementNumeration.style.left = "45%";
-        this.tableElementNumeration.style.top =  "40%";
+        this.tableElementNumeration.style.top = "40%";
         this.updateTableNumerationValue();
         this.tableElement.appendChild(this.tableElementNumeration);
     }
@@ -2138,8 +2190,8 @@ class CoupleRoundTable extends Table {
     ];
     seats = [];
     tableType = "CoupleRoundTable";
-    tablePurpose="COUPLE";
-    
+    tablePurpose = "COUPLE";
+
     tableElement;
     tableElementSize = 180;
 
@@ -2195,7 +2247,7 @@ class CoupleOvalSTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalSTable";
-    tablePurpose="COUPLE";
+    tablePurpose = "COUPLE";
 
     tableElement;
     tableElementSizeWidth = 250;
@@ -2214,7 +2266,7 @@ class CoupleOvalSTable extends Table {
         this.element.style.width = `${this.width}px`;
         this.element.style.height = `${this.height}px`;
 
-    } 
+    }
 
     addTableElement() {
         this.tableElement = document.createElement('div');
@@ -2302,7 +2354,7 @@ class CoupleOvalMTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalMTable";
-    tablePurpose="COUPLE";
+    tablePurpose = "COUPLE";
 
     tableElement;
     tableElementSizeWidth = 400;
@@ -2421,7 +2473,7 @@ class CoupleOvalMFullTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalMFullTable";
-    tablePurpose="COUPLE";
+    tablePurpose = "COUPLE";
 
     tableElement;
     tableElementSizeWidth = 400;
@@ -2564,7 +2616,7 @@ class CoupleOvalLTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalLTable";
-    tablePurpose="COUPLE";
+    tablePurpose = "COUPLE";
 
     tableElement;
     tableElementSizeWidth = 600;
@@ -2719,7 +2771,7 @@ class CoupleOvalLFullTable extends Table {
     ];
     seats = [];
     tableType = "CoupleOvalLFullTable";
-    tablePurpose="COUPLE";
+    tablePurpose = "COUPLE";
 
     tableElement;
     tableElementSizeWidth = 600;
@@ -2775,7 +2827,7 @@ class CoupleForestSTable extends Table {
     ];
     seats = [];
     tableType = "CoupleForestSTable";
-    tablePurpose="COUPLE";
+    tablePurpose = "COUPLE";
 
     tableElement;
     tableElementSizeWidth = 205;
@@ -2883,7 +2935,7 @@ class CoupleForestMTable extends Table {
     ];
     seats = [];
     tableType = "CoupleForestMTable";
-    tablePurpose="COUPLE";
+    tablePurpose = "COUPLE";
 
     tableElement;
     tableElementSizeWidth = 195;
@@ -2943,11 +2995,11 @@ TableTypesIcon = {
     "RectangularLTable": "rectangular-table",
     "ForestMTable": "rectangular-table",
     "CoupleRoundTable": "round-table",
-    "CoupleOvalSTable": "round-table",
-    "CoupleOvalMTable": "round-table",
-    "CoupleOvalMFullTable": "round-table",
-    "CoupleOvalLTable": "round-table",
-    "CoupleOvalLFullTable": "round-table",
+    "CoupleOvalSTable": "oval-table",
+    "CoupleOvalMTable": "oval-table",
+    "CoupleOvalMFullTable": "oval-table",
+    "CoupleOvalLTable": "oval-table",
+    "CoupleOvalLFullTable": "oval-table",
     "CoupleForestSTable": "rectangular-table",
     "CoupleForestMTable": "rectangular-table",
 }
@@ -2972,18 +3024,18 @@ class Seat extends RoomObject {
         this.element.style.width = `${this.width}px`;
         this.element.style.height = `${this.height}px`;
 
-        
+
         this.addToContainer();
     }
 
     updateStatus() {
-        if(this.isCouple) {
+        if (this.isCouple) {
             this.element.classList.add('seat--couple');
             this.setFilledCouple();
         } else {
             this.element.classList.remove('seat--couple');
 
-            if(this.guestName) {
+            if (this.guestName) {
                 this.setFilled();
             } else {
                 this.setREM();
@@ -2996,7 +3048,7 @@ class Seat extends RoomObject {
         this.element.classList.remove('seat--filled');
         this.element.classList.add('seat--rem');
     }
-    
+
     setFilledCouple() {
         this.element.classList.remove('seat--couple--rem');
         this.element.classList.add('seat--couple--filled');
@@ -3027,8 +3079,8 @@ class Seat extends RoomObject {
         this.tooltipElementRow1Icon.appendChild(this.miniSeat);
 
         this.tooltipElementRow1.appendChild(this.tooltipElementRow1Content)
-        new TranslationSystem().getTranslation("")
-        this.tooltipElementRow1Content.innerHTML = this.guestName || "Sem convidado"; // TODO FALTA A TRADUO
+
+        this.tooltipElementRow1Content.innerHTML = this.guestName || new TranslationSystem().getTranslation("NO_GUESTS"); // TODO FALTA A TRADUO
 
         this.tooltipElementRow2 = document.createElement("div");
         this.tooltipElementRow2.classList.add("editor-row");
@@ -3045,15 +3097,15 @@ class Seat extends RoomObject {
         this.tooltipElement.appendChild(this.tooltipElementRow1);
         this.tooltipElement.appendChild(this.tooltipElementRow2);
 
-        this.tippyInstance = tippy(this.element, { 
+        this.tippyInstance = tippy(this.element, {
             theme: 'light',
-            content: this.tooltipElement 
+            content: this.tooltipElement
         });
     }
 
     guestAgeTranslation() {
         let guestAgeTranslation = "";
-        switch(this.guestAge) {
+        switch (this.guestAge) {
             case 'ADULT':
                 guestAgeTranslation = this.translationSystem.getTranslation("ADULT_AGE");
                 break;
@@ -3073,16 +3125,16 @@ class Seat extends RoomObject {
     updateToolTip() {
         this.tooltipElementRow1Content.innerText = this.guestName || "Sem convidado";
 
-        if(this.isCouple) {
+        if (this.isCouple) {
             this.miniSeat.classList.add('seat--couple');
             this.miniSeat.classList.remove('seat--couple--rem');
             this.miniSeat.classList.add('seat--couple--filled');
         } else {
             this.miniSeat.classList.remove('seat--couple');
 
-            if(this.guestName) {
+            if (this.guestName) {
                 this.miniSeat.classList.remove('seat--rem');
-            this.miniSeat.classList.add('seat--filled');
+                this.miniSeat.classList.add('seat--filled');
             } else {
                 this.miniSeat.classList.remove('seat--filled');
                 this.miniSeat.classList.add('seat--rem');
@@ -3114,11 +3166,11 @@ class Seat extends RoomObject {
 
 class MouseManager {
     selectedObject = null;
-    editorContainerElement=null;
+    editorContainerElement = null;
     guestModal;
     roomEditor;
     translationSystem;
-    
+
     constructor(world, editorContainerElement, guestModal) {
         this.editorContainerElement = editorContainerElement;
         this.guestModal = guestModal;
@@ -3136,15 +3188,12 @@ class MouseManager {
         this.zoomIntensity = 0.02;
         this.contextMenuVisible = false;
         this.contextMenuElement = document.getElementById("contextMenu");
-
-
-        
     }
 
     setRoomEditor(roomEditor) {
         this.roomEditor = roomEditor;
     }
-    
+
     setBindings() {
         this.editorContainerElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
         this.editorContainerElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -3167,17 +3216,15 @@ class MouseManager {
 
     activeGuestTables = [];
 
-    
-
     setActiveGuestTables(tablesTypes) {
         this.activeGuestTables = tablesTypes;
         const elements = document.getElementsByClassName("tables_ui");
 
-        if(elements.length > 0) {
+        if (elements.length > 0) {
             elements[0].innerHTML = "";
 
-            
-            for(let agt of this.activeGuestTables) {
+
+            for (let agt of this.activeGuestTables) {
 
                 elements[0].innerHTML += `
                     <button class="editor-btn ui guestTableChooserItem" data-tableType="${agt}">
@@ -3189,7 +3236,7 @@ class MouseManager {
                 `;
             }
             this.translationSystem.reviewPage();
-            
+
         }
     }
 
@@ -3198,41 +3245,6 @@ class MouseManager {
         const ui1 = document.createElement('div');
         ui1.classList.add("editor-row");
         ui1.classList.add("ui-row");
-        /*ui1.innerHTML = `
-        
-        <div style="display: inline-flex;">
-            <div class="editorRoom-input ui">
-                <button class="editor-btn editor-btn-primary">
-                    <i class="fas fa-undo"></i>
-                </button>
-            </div>
-            <div class="editorRoom-input ui">
-                <label><span translation-key="TYPE_TABLES">Tipo</span>:</label>
-                <div class="types">
-                    <div class="editor-radio">
-                        <input type="radio" class="roomEditor-radio" id="tablePurposeGUEST" name="tablePurpose" value="guest">
-                        <span for="tablePurposeGUEST" translation-key="ROOM_PLAN_GUESTS">Convidados</span>
-                    </div>
-                    <div class="editor-radio">
-                        <input type="radio" class="roomEditor-radio" id="tablePurposeSTAFF" name="tablePurpose" value="staff">
-                        <span for="tablePurposeSTAFF" translation-key="ROOM_PLAN_STAFF">Staff</span>
-                    </div>
-                    <div class="editor-radio">
-                        <input type="radio" class="roomEditor-radio" id="tablePurposeCHILDREN" name="tablePurpose" value="children">
-                        <span for="tablePurposeCHILDREN" translation-key="ROOM_PLAN_CHILD">Crianças</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-
-        <div class="editorRoom-input">
-            <label><span translation-key="TABLES">Mesas</span>:</label>
-            <div class="tables_ui" style="margin-top: 2px">
-            </div>
-        </div>
-        `;*/
-        
         const mainContainer = document.createElement('div');
         mainContainer.style.display = 'inline-flex';
       
@@ -3319,38 +3331,68 @@ class MouseManager {
         ui1.appendChild(mainContainer);
         
         this.editorContainerElement.appendChild(ui1);
-        
-    }
 
+        const ui3 = document.createElement('div');
+        ui3.classList.add("editor-row");
+        ui3.classList.add("ui-row");
+        ui3.classList.add("room-editor-row-stats");
+        ui3.innerHTML = `
+            <div class="room-editor-stats">
+                <span translation-key="ADULT_AGE">Maior de 8 anos:</span>
+                <span id="editorTotalAdult" class="room-editor-stat-value">0</span>
+            </div>
+            <div class="room-editor-stats">
+                <span translation-key="FROM_CHILD_AGE">Dos 3 aos 7 anos</span>
+                <span id="editorTotalChild" class="room-editor-stat-value">0</span>
+            </div>
+            <div class="room-editor-stats">
+                <span translation-key="FROM_NEWBORN_CHILD_AGE">Dos 0 aos 2 anos</span>
+                <span id="editorTotalBaby" class="room-editor-stat-value">0</span>
+            </div>
+            <div class="room-editor-stats">
+                <span translation-key="ROOM_PLAN_TOTAL_TABLES">Total mesas</span>
+                <span id="editorTotalTables" class="room-editor-stat-value">0</span>
+            </div>
+            <div class="room-editor-stats">
+                <span translation-key="AVG_PAX_TABLES">Média pax/mesa</span>
+                <span id="editorAvg" class="room-editor-stat-value editor-stats-danger">0</span>
+            </div>
+            <div class="room-editor-stats">
+                <span translation-key="ROOM_PLAN_TOTAL_PAX">Total PAX</span>
+                <span id="editorPax" class="room-editor-stat-value editor-stats-pax">0</span>
+            </div>
+        `;
+
+        this.editorContainerElement.appendChild(ui1);
+        this.editorContainerElement.appendChild(ui3);
+
+
+    }
 
     changeCoupleTable(tableType) {
         const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
 
-            const newTableCouple = new TableTypes[tableType](this.world);
+        const newTableCouple = new TableTypes[tableType](this.world);
 
-            const pos = this.getWorldPositionCenterScreen();
-            if(!tableCouple) {
-                newTableCouple.x = pos.x;
-                newTableCouple.y = pos.y;
-                
-            } else {
-                newTableCouple.x = tableCouple.x;
-                newTableCouple.y = tableCouple.y;
-                newTableCouple.rotate = tableCouple.rotate;
+        const pos = this.getWorldPositionCenterScreen();
+        if (!tableCouple) {
+            newTableCouple.x = pos.x;
+            newTableCouple.y = pos.y;
 
-                this.world.removeTable(tableCouple);
-            }
-            
-            newTableCouple.init();
-            this.world.addTable(newTableCouple);
-            newTableCouple.applyTransform();
+        } else {
+            newTableCouple.x = tableCouple.x;
+            newTableCouple.y = tableCouple.y;
+            newTableCouple.rotate = tableCouple.rotate;
 
-            if(this.selectedObject) {
-                this.selectedObject.unsetSelected();
-            }
+            this.world.removeTable(tableCouple);
+        }
 
-            newTableCouple.updateSeats();
-            this.setSelectedObject(newTableCouple);
+        newTableCouple.init();
+        this.world.addTable(newTableCouple);
+        newTableCouple.applyTransform();
+
+        newTableCouple.updateSeats();
+        this.setSelectedObject(newTableCouple);
     }
 
     initializeContextMenu() {
@@ -3370,13 +3412,13 @@ class MouseManager {
         const element = document.createElement("li");
         element.classList.add(params.class);
         const aElement = document.createElement("a");
-        aElement.href= "#";
-        aElement.id=params.id;
+        aElement.href = "#";
+        aElement.id = params.id;
         element.appendChild(aElement);
         const iElement = document.createElement("i");
         iElement.classList.add("fas")
         iElement.classList.add(params.icon)
-        iElement.ariaHidden=true;
+        iElement.ariaHidden = true;
         aElement.onclick = params.onclick;
         aElement.appendChild(iElement);
         aElement.innerHTML += " " + params.text;
@@ -3385,12 +3427,12 @@ class MouseManager {
 
     contextMenuActiveOptions(options) {
         const elements = document.getElementsByClassName("context-menu-options");
-        if(elements.length > 0 ) {
+        if (elements.length > 0) {
             elements[0].innerHTML = '';
 
-            for(let option of options) {
+            for (let option of options) {
 
-                switch(option) {
+                switch (option) {
                     case "ROTATE":
                         elements[0].appendChild(
                             this.contextMenuCreateElement({
@@ -3418,18 +3460,18 @@ class MouseManager {
                         );
                         break;
                     case "CHANGE_COUPLE":
-                            elements[0].appendChild(
-                                this.contextMenuCreateElement({
-                                    class: "change_couple",
-                                    id: "ui-context-change_couple",
-                                    icon: "fa-pencil",
-                                    text: this.translationSystem.getTranslation("CHANGE_COUPLE"),
-                                    onclick: (event) => {
-                                        this.contextMenuAction(event, 'CHANGE_COUPLE')
-                                    }
-                                })
-                            );
-                            break;
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "change_couple",
+                                id: "ui-context-change_couple",
+                                icon: "fa-pencil",
+                                text: this.translationSystem.getTranslation("CHANGE_TABLE"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'CHANGE_COUPLE')
+                                }
+                            })
+                        );
+                        break;
                     case "DELETE":
                         elements[0].appendChild(
                             this.contextMenuCreateElement({
@@ -3505,12 +3547,12 @@ class MouseManager {
         const editorRect = this.editorContainerElement.getBoundingClientRect();
         //const worldRect = this.world.element.getBoundingClientRect();
         const roomPlanRect = document.getElementsByClassName("roomPlan")[0].getBoundingClientRect()
-        let x = ((editorRect.x + (editorRect.width/2)) - (roomPlanRect.left)) / this.world.scale;
-        let y = ((editorRect.y + (editorRect.height/2)) - (roomPlanRect.top)) / this.world.scale;
-        
+        let x = ((editorRect.x + (editorRect.width / 2)) - (roomPlanRect.left)) / this.world.scale;
+        let y = ((editorRect.y + (editorRect.height / 2)) - (roomPlanRect.top)) / this.world.scale;
+
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
-        console.log("World Position:", {x, y})
+        console.log("World Position:", { x, y })
         this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
@@ -3520,12 +3562,12 @@ class MouseManager {
         //const editorRect = this.editorContainerElement.getBoundingClientRect();
         //const worldRect = this.world.element.getBoundingClientRect();
         const roomPlanRect = document.getElementsByClassName("roomPlan")[0].getBoundingClientRect()
-        let x = (event.clientX  - (roomPlanRect.left)) / this.world.scale;
-        let y = (event.clientY  - (roomPlanRect.top)) / this.world.scale;
-        
+        let x = (event.clientX - (roomPlanRect.left)) / this.world.scale;
+        let y = (event.clientY - (roomPlanRect.top)) / this.world.scale;
+
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
-        console.log("World Position:", {x, y})
+        console.log("World Position:", { x, y })
         this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
@@ -3534,15 +3576,15 @@ class MouseManager {
     handleContextMenu(event) {
         const options = [];
 
-        if(this.selectedObject && this.selectedObject.tableType) {
-            
-            if(this.selectedObject.tablePurpose == "COUPLE") { 
+        if (this.selectedObject && this.selectedObject.tableType) {
+
+            if (this.selectedObject.tablePurpose == "COUPLE") {
                 options.push("CHANGE_COUPLE");
             }
-                
+
             options.push("MANAGE_GUESTS");
-                
-            if(this.selectedObject.tablePurpose != "COUPLE") { 
+
+            if (this.selectedObject.tablePurpose != "COUPLE") {
                 options.push("ROTATE");
                 options.push("DELETE");
             }
@@ -3653,7 +3695,7 @@ class MouseManager {
     handleMouseWheel(event) {
         const scaleDelta = event.deltaY > 0 ? -1 : 1;
         const zoom = Math.exp(scaleDelta * this.zoomIntensity);
-        
+
         const posFocal = this.getFocalPosition(event, zoom);
 
         this.world.pan(posFocal.x, posFocal.y);
@@ -3677,11 +3719,11 @@ class MouseManager {
     }
 
     contextMenuAction(event, action) {
-        switch(action) {
+        switch (action) {
             case "ROTATE":
                 this.selectedObject.addRotation(90);
                 this.selectedObject.applyTransform();
-                break;     
+                break;
             case "CHANGE_COUPLE":
                 this.callChangeCoupleEvent();
                 break;
@@ -3704,23 +3746,23 @@ class MouseManager {
     }
 
     changeCoupleEvent;
-    callChangeCoupleEvent() { 
+    callChangeCoupleEvent() {
         this.changeCoupleEvent();
     }
 }
 
 class TranslationSystem {
 
-    activeLanguage="en";
+    activeLanguage = "en";
 
     constructor() {
         if (TranslationSystem._instance) {
-          return TranslationSystem._instance
+            return TranslationSystem._instance
         }
         TranslationSystem._instance = this;
-    
+
         this.setActiveLanguage(this.activeLanguage);
-      }
+    }
 
     setActiveLanguage(activeLanguage) {
         this.activeLanguage = activeLanguage;
@@ -3730,7 +3772,7 @@ class TranslationSystem {
     getTranslation(key) {
         const translations = DEFAULT_TRANSLATIONS.find(t => t.tag == key);
 
-        if(translations) {
+        if (translations) {
             return translations.value[this.activeLanguage];
         }
 
@@ -3738,7 +3780,7 @@ class TranslationSystem {
     }
 
     reviewPage() {
-        for(const node of document.querySelectorAll('[translation-key]')) {
+        for (const node of document.querySelectorAll('[translation-key]')) {
             const key = node.getAttribute("translation-key");
             node.innerText = this.getTranslation(key);
         }
@@ -3747,7 +3789,7 @@ class TranslationSystem {
 
 class RoomEditor {
     editorContainerElement = null;
-    word = null;
+    world = null;
     mouseManager = null;
     translationSystem;
     
@@ -3756,13 +3798,13 @@ class RoomEditor {
     constructor(
         idOfElement,
         activeLanguage = "en"
-        ) {
-            this.editorContainerElement = document.getElementById(idOfElement);
-            this.editorContainerElement.style.overflow = "hidden";
-            this.translationSystem = new TranslationSystem();
-            this.translationSystem.setActiveLanguage(activeLanguage);
+    ) {
+        this.editorContainerElement = document.getElementById(idOfElement);
+        this.editorContainerElement.style.overflow = "hidden";
+        this.translationSystem = new TranslationSystem();
+        this.translationSystem.setActiveLanguage(activeLanguage);
 
-            this.guestsModal = new ManageGuestsModal();
+        this.guestsModal = new ManageGuestsModal();
 
         /*const savedWorld = localStorage.getItem('savedWorld');
         if (savedWorld) {
@@ -3791,7 +3833,7 @@ class RoomEditor {
         if(!this.world) {
             this.world = new World(this.editorContainerElement);
             this.world.applyTransform();
-            
+
             const roomPlan = new RoomPlan(roomPlanImg);
             this.world.setRoomPlan(roomPlan);
             roomPlan.applyTransform();
@@ -3861,7 +3903,7 @@ class RoomEditor {
         // Deserialize the world
 
         this.setRoomPlan(serializedData.roomPlan.imageSrc);
-        
+
         this.world.removeTables();
         this.world.x = serializedData.roomPlan.x;
         this.world.y = serializedData.roomPlan.y;
@@ -3906,6 +3948,15 @@ class RoomEditor {
         this.world.updateTablesCode();
         this.world.areTablesOverlapping();
 
+        this.guestsModal.foodRestrictions = serializedData.foodRestrictions.map(m => ({
+            id: m?._id,
+            text: m?.acronym?.pt,
+            subtitle: m?.subtitle?.pt,
+            description: m?.description?.pt,
+            notesRequired: m?.notesRequired,
+            chefChoice: m?.chefChoice
+        }));
+
         return this.world;
     }
 
@@ -3928,7 +3979,11 @@ class ManageGuestsModal {
     formElements = {};
 
     translationSystem;
-    
+
+    foodRestrictions = [];
+
+    globalView = 0;
+
     constructor() {
         this.translationSystem = new TranslationSystem();
         this.modalElement = document.createElement("div");
@@ -3940,7 +3995,7 @@ class ManageGuestsModal {
 
         this.modalElement.appendChild(editorModalElement);
 
-        const closeElementButton =document.createElement("i");
+        const closeElementButton = document.createElement("i");
         closeElementButton.id = "iconClose";
         closeElementButton.classList.add("fa-solid");
         closeElementButton.classList.add("fa-x");
@@ -3958,11 +4013,11 @@ class ManageGuestsModal {
         this.modalBodyElement = document.createElement("div");
         this.modalBodyElement.classList.add("editor-modal-body");
         editorModalElement.appendChild(this.modalBodyElement);
-        
+
         // Add modal footer
         const modalFooterElement = document.createElement("div");
         modalFooterElement.classList.add("editor-modal-footer");
-        
+
         const btnCancelElement = document.createElement("button");
         btnCancelElement.id = "btnClose";
         btnCancelElement.type = "button";
@@ -3974,7 +4029,7 @@ class ManageGuestsModal {
             this.close();
         };
         modalFooterElement.appendChild(btnCancelElement);
-        
+
         const btnSaveElement = document.createElement("button");
         btnSaveElement.type = "submit";
         btnSaveElement.classList.add("editor-btn");
@@ -3984,35 +4039,67 @@ class ManageGuestsModal {
             this.save();
         };
         modalFooterElement.appendChild(btnSaveElement);
-        
+
         editorModalElement.appendChild(modalFooterElement);
-        
+
         document.body.appendChild(this.modalElement);
-        
+    }
+
+    changeBtnGroup = () => {
+        const btnCouple = document.getElementById('couplePosition');
+        if (!this.globalView) btnCouple.classList.replace("editor-btn-default-focus", "editor-btn-primary");
+        else btnCouple.classList.replace("editor-btn-primary", "editor-btn-default-focus");
+
+        const btnGlobal = document.getElementById('globalPosition');
+        if (this.globalView) btnGlobal.classList.replace("editor-btn-default-focus", "editor-btn-primary");
+        else btnGlobal.classList.replace("editor-btn-primary", "editor-btn-default-focus");
     }
 
     createModalBody(table) {
         this.subjectTable = table;
-        this.modalBodyElement.innerHTML = '';        
+        this.modalBodyElement.innerHTML = '';
         this.formElements = {};
 
         // Create the first row with buttons
         const row1 = document.createElement("div");
         row1.classList.add("editor-row");
+        row1.classList.add("editor-space-between");
 
-        const button1 = document.createElement("button");
-        button1.classList.add("editor-btn");
-        button1.classList.add("editor-btn-default-focus");
-        button1.innerHTML = `<div class="editor-table round-table"></div><span translation-key="${this.subjectTable.tableType}">${this.subjectTable.tableType}</span>`;
-        row1.appendChild(button1);
+        const info = document.createElement("div");
+        info.classList.add("editor-info-table");
+        info.innerHTML = `
+            <div class="editor-table round-table"></div>
+            <span translation-key="${this.subjectTable.tableType}">${this.subjectTable.tableType}</span>
+            <i class="fa-regular fa-user editor-table-user" style="margin: 0 2px 0 10px"></i>${this.subjectTable.seats?.length}
+        `;
+        row1.appendChild(info);
 
-        const button2 = document.createElement("button");
-        button2.classList.add("editor-btn");
-        button2.classList.add("editor-btn-default-focus");
-        button2.innerHTML = '<i class="fa-regular fa-user" style="margin-right: 5px;"></i>14';
-        row1.appendChild(button2);
-
+        const chefInfo = document.createElement("div");
+        chefInfo.classList.add("editor-info-table");
+        chefInfo.classList.add("editor-error");
+        chefInfo.id = 'chefChoice';
+        chefInfo.innerHTML = `
+            <i class="fa-solid fa-circle-info editor-table-user" style="margin: 0 5px"></i>
+            <span translation-key="CHEF_CHOICE">As alterações de ingredientes ficarão a cargo do chefe.</span>
+        `;
+        chefInfo.style.display = 'none';
+        row1.appendChild(chefInfo);
         this.modalBodyElement.appendChild(row1);
+
+        // const button1 = document.createElement("button");
+        // button1.classList.add("editor-btn");
+        // button1.classList.add("editor-btn-default-focus");
+        // button1.classList.add("editor-default-cursor");
+        // button1.innerHTML = `<div class="editor-table round-table"></div><span translation-key="${this.subjectTable.tableType}">${this.subjectTable.tableType}</span>`;
+        // buttons1.appendChild(button1);
+
+        // const button2 = document.createElement("button");
+        // button2.classList.add("editor-btn");
+        // button2.classList.add("editor-btn-default-focus");
+        // button2.classList.add("editor-default-cursor");
+        // button2.innerHTML = `<i class="fa-regular fa-user" style="margin-right: 5px;"></i>${this.subjectTable.seats?.length}`;
+        // buttons1.appendChild(button2);
+        // row1.appendChild(buttons1);
 
         // Create the second row with form and editor stats
         const row2 = document.createElement("div");
@@ -4035,7 +4122,7 @@ class ManageGuestsModal {
 
         const tableCodeDiv = document.createElement("div");
         tableCodeDiv.classList.add("editor-table-code");
-        tableCodeDiv.textContent = table.code || "X"; // TODO REMOVE
+        tableCodeDiv.textContent = (table.code + 1) || "X"; // TODO REMOVE
         formLine.appendChild(tableCodeDiv);
 
         const tableNameInput = document.createElement("input");
@@ -4082,7 +4169,7 @@ class ManageGuestsModal {
 
         const editorStatsGlobalDiv = document.createElement("div");
         editorStatsGlobalDiv.classList.add("editor-stats-global");
-        
+
         editorStatsGlobalDiv.innerHTML = `
             <span class="editor-stats-total">
                 <span id="total">0</span>
@@ -4094,13 +4181,51 @@ class ManageGuestsModal {
         editorFormLine.appendChild(editorStatsGlobalDiv);
 
         formElement.appendChild(editorFormLine);
-        
+
         col1.appendChild(formElement);
 
         const col2 = document.createElement("div");
         col2.classList.add("editor-col");
-        col2.id = "table-draw";
-        this.tableDrawElement = col2;
+
+        const groupBtn = document.createElement("div");
+        groupBtn.classList.add("editor-group-button");
+        groupBtn.classList.add("editor-row");
+
+        const buttonGroup1 = document.createElement("button");
+        buttonGroup1.id = "couplePosition";
+        buttonGroup1.classList.add("editor-btn");
+        buttonGroup1.classList.add("editor-btn-primary");
+        buttonGroup1.innerHTML = `<span translation-key="COUPLE_POSITION">Posicicionamento casal</span>`;
+        buttonGroup1.onclick = () => {
+            if (!this.globalView) return;
+            else {
+                this.globalView = !this.globalView;
+                this.changeBtnGroup();
+            }
+        };
+        groupBtn.appendChild(buttonGroup1);
+
+        const buttonGroup2 = document.createElement("button");
+        buttonGroup2.id = "globalPosition";
+        buttonGroup2.classList.add("editor-btn");
+        buttonGroup2.classList.add("editor-btn-default-focus");
+        buttonGroup2.innerHTML = `<span translation-key="ROOM_PLAN_POSITION">Posicicionamento global</span>`;
+        buttonGroup2.onclick = () => {
+            if (this.globalView) return;
+            else {
+                this.globalView = !this.globalView;
+                this.changeBtnGroup();
+            }
+        };
+        groupBtn.appendChild(buttonGroup2);
+        col2.appendChild(groupBtn);
+        
+        const drawTable = document.createElement("div");
+        drawTable.classList.add("editor-row");
+        drawTable.classList.add("editor-col-draw");
+        drawTable.id = "table-draw";
+        this.tableDrawElement = drawTable;
+        col2.appendChild(drawTable);
 
         row2.appendChild(col1);
         row2.appendChild(col2);
@@ -4137,8 +4262,8 @@ class ManageGuestsModal {
 
     drawTable() {
         const bounding = this.tableDrawElement.getBoundingClientRect();
-        
-        if(bounding.width == 0) {
+
+        if (bounding.width == 0) {
             const timeout = setTimeout(() => {
                 clearTimeout(timeout);
                 this.drawTable();
@@ -4154,14 +4279,14 @@ class ManageGuestsModal {
             this.miniTable.addToContainer();
             this.miniTable.applyTransform();
 
-            for(const miniSeat of this.miniTable.seats) {
+            for (const miniSeat of this.miniTable.seats) {
                 miniSeat.guestName = this.subjectTable.seats[miniSeat.number].guestName;
                 miniSeat.guestAge = this.subjectTable.seats[miniSeat.number].guestAge;
                 miniSeat.foodRestrictions = this.subjectTable.seats[miniSeat.number].foodRestrictions;
             }
 
             this.miniTable.updateSeats();
-            
+
         }
 
     }
@@ -4169,12 +4294,13 @@ class ManageGuestsModal {
     initializeSeats(seatDiv, table) {
         this.formElements.seats = [];
 
-        for(const seat of table.seats) {
+        for (const seat of table.seats) {
             this.formElements.seats[seat.number] = {};
 
             const formLineDiv = document.createElement("div");
             formLineDiv.classList.add("editor-form-line");
             formLineDiv.classList.add("editor-seat");
+            formLineDiv.id = `editor-seat-${seat.number}`;
 
             const seatCodeDiv = document.createElement("div");
             seatCodeDiv.classList.add("editor-seat-code");
@@ -4189,7 +4315,7 @@ class ManageGuestsModal {
             guestNameInput.name = `guestName-${seat.number}`;
             guestNameInput.value = seat.guestName || '';
             guestNameInput.onblur = () => {
-                if(this.miniTable) {
+                if (this.miniTable) {
                     this.miniTable.seats[seat.number].guestName = guestNameInput.value;
                     this.miniTable.updateSeats();
                     this.updateTotals();
@@ -4207,26 +4333,122 @@ class ManageGuestsModal {
             //this.formElements.seats[seat.number].guestAge = guestAgeInput;
             formLineDiv.appendChild(guestAgeInput);
 
-            const guestRestrictionInput = document.createElement("select");
+            // const guestRestrictionInput = document.createElement("select");
+            const guestRestrictionDiv = document.createElement("div");
+            guestRestrictionDiv.classList.add("editor-form-select-restriction");
+
+            this.formElements.seats[seat.number].foodRestrictions = [...seat.foodRestrictions] || [];
+            this.checkChefChoice();
+            const guestRestrictionInput = document.createElement("div");
+            guestRestrictionInput.classList.add("editor-input");
             guestRestrictionInput.classList.add("editor-form-select-multiple")
             guestRestrictionInput.classList.add(`editor-form-select-restriction-${seat.number}`)
             guestRestrictionInput.attributes.multiple = true;
-            guestRestrictionInput.name = `foodRestrictions${seat.number}`;
-            //this.formElements.seats[seat.number].foodRestrictions = guestRestrictionInput;
-            formLineDiv.appendChild(guestRestrictionInput);
+            guestRestrictionInput.name = `foodRestrictions-${seat.number}`;
+            guestRestrictionInput.id = `foodRestrictions${seat.number}`;
+            guestRestrictionInput.onclick = () => this.createRestrictionModal(guestRestrictionDiv, guestRestrictionInput, seat);
+            this.setSelectedResctrictions(seat, guestRestrictionInput);
+            // this.formElements.seats[seat.number].foodRestrictions = guestRestrictionInput;
+            guestRestrictionDiv.appendChild(guestRestrictionInput);
+            formLineDiv.appendChild(guestRestrictionDiv);
 
 
-            seatDiv.appendChild(formLineDiv);                
+            seatDiv.appendChild(formLineDiv);
         }
-        for(let seat of table.seats) {
+        for (let seat of table.seats) {
             this.initializeSeatInputs(seat);
         }
 
         this.updateTotals();
     }
 
+    createRestrictionModal(element, input, seat) {
+        const guestRestrictionSelect = document.createElement("ul");
+        guestRestrictionSelect.classList.add("editor-form-select-multiple-content");
+        guestRestrictionSelect.classList.add(`foodRestrictions${seat.number}`);
+        guestRestrictionSelect.id = `foodRestrictions${seat.number}`;
+
+        this.foodRestrictions.forEach(restriction => {
+            const restrictionOption = document.createElement("li");
+            restrictionOption.classList.add(`foodRestrictions${seat.number}`);
+
+            const checked = this.formElements.seats[seat.number].foodRestrictions.find(f => f == restriction?.id) ? true : false;
+
+            let textTranslation = restriction.text;
+            if (this.translationSystem)
+                textTranslation = this.translationSystem.getTranslation(restriction.text);
+
+            let subtitleTranslation = restriction.subtitle;
+            if (this.translationSystem)
+                subtitleTranslation = this.translationSystem.getTranslation(restriction.subtitle);
+
+            const option = document.createElement("span");
+            option.classList.add('editor-option');
+            option.style.justifyContent = 'left';
+            option.id = `foodRestrictions${seat.number}`;
+            option.innerHTML = `<input id="foodRestrictions${seat.number}" type="checkbox" name="foodRestrictions${seat.number}" value="${restriction.id}" ${checked ? 'checked' : ''}> <span id="foodRestrictions${seat.number}" translation-key="${restriction.text}">${textTranslation}</span>`;
+
+            this.tippyInstance = tippy(option, {
+                theme: 'light',
+                content: `<span id="foodRestrictions${seat.number}" translation-key="${restriction.subtitle}">${subtitleTranslation}</span>`
+            });
+
+            restrictionOption.onclick = () => this.selectRestriction(seat, input, option, restriction);
+
+            restrictionOption.appendChild(option);
+            guestRestrictionSelect.appendChild(restrictionOption);
+        });
+        this.translationSystem.reviewPage();
+
+        guestRestrictionSelect.style.display = 'block';
+        element.appendChild(guestRestrictionSelect);
+    }
+
+    selectRestriction(seat, input, option, restriction) {
+        const inputById = document.getElementById(input.id);
+        const optionById = document.getElementById(option.id);
+
+        const selectedIndex = this.formElements.seats[seat.number].foodRestrictions.findIndex(f => f == restriction.id);
+        if (selectedIndex > -1) {
+            this.formElements.seats[seat.number].foodRestrictions = this.formElements.seats[seat.number].foodRestrictions.filter(f => f != restriction.id);
+        } else this.formElements.seats[seat.number].foodRestrictions.push(restriction.id);
+        const checked = selectedIndex > -1 ? false : true;
+
+        this.setSelectedResctrictions(seat, input);
+        this.checkChefChoice();
+
+        let textTranslation = restriction.text;
+        if (this.translationSystem)
+            textTranslation = this.translationSystem.getTranslation(restriction.text);
+
+        option.innerHTML = `<input id="foodRestrictions${seat.number}" type="checkbox" name="foodRestrictions${seat.number}" value="${restriction.id}" ${checked ? 'checked' : ''}> <span id="foodRestrictions${seat.number}" translation-key="${restriction.text}">${textTranslation}</span>`;
+    }
+
+    setSelectedResctrictions(seat, input) {
+        const elemsSelected = this.foodRestrictions.filter(f => this.formElements.seats[seat.number].foodRestrictions.findIndex(f2 => f2 == f.id) > -1);
+        input.innerHTML = elemsSelected.map(m => m?.text).join(', ');
+    }
+
+    checkChefChoice() {
+        const warnChefChoice = document.getElementById('chefChoice');
+
+        const selectedRestrictions = this.formElements.seats
+            .filter(s => s.guestName.value)
+            .filter(s => s.foodRestrictions?.length > 0)
+            .map(m => m?.foodRestrictions)
+            .flat();
+        const uniqueRestrictions = [...new Set(selectedRestrictions)];
+        const chefChoiceRestrictions = this.foodRestrictions.filter(f => f?.chefChoice);
+        const restrictions = chefChoiceRestrictions.filter(f => uniqueRestrictions.includes(f?.id));
+
+        warnChefChoice.style.display = restrictions?.length > 0 ? 'block' : 'none';
+    }
+
+    closeSelectRestriction(element) {
+        element.style.display = "none";
+    }
+
     initializeSeatInputs(seat) {
-        
         this.formElements.seats[seat.number].guestAge = $(`.editor-select-age-${seat.number}`).select2({
             minimumResultsForSearch: -1,
             data: [
@@ -4240,27 +4462,48 @@ class ManageGuestsModal {
         if (seat?.guestAge) $(`.editor-select-age-${seat.number}`).val(seat.guestAge).trigger('change');
         $(`.editor-select-age-${seat.number}`).on("select2:select", () => { this.updateTotals(); });
 
-        this.formElements.seats[seat.number].foodRestrictions = $(`.editor-form-select-restriction-${seat.number}`).select2({
-            placeholder: '',
-            multiple: true,
-            closeOnSelect: false,
-            allowClear: true,
-            data: [
-                { id: '1', text: 'veg', description: 'Vegetariano' },
-                { id: '2', text: 'Veg', description: 'Vegan' },
-                { id: '3', text: 'PC', description: 'Trocar peixe por carne' },
-                { id: '4', text: 'CP', description: 'Trocar carne por peixe' },
-            ],
-            templateSelection: function (table) {
-                if (!table.id) return table.text;
+        // this.formElements.seats[seat.number].foodRestrictions = $(`.editor-form-select-restriction-${seat.number}`).select2({
+        //     placeholder: '',
+        //     multiple: true,
+        //     closeOnSelect: false,
+        //     allowClear: false,
+        //     data: this.foodRestrictions || [],
+        //     templateResult: (table) => {
+        //         let textTranslation = table.text;
+        //         if (this.translationSystem)
+        //             textTranslation = this.translationSystem.getTranslation(table.text);
 
-                var $state = $(
-                    `<span class="option">${table.text}, </span>`
-                );
-                return $state;
-            }
-        });
-        if (seat?.foodRestrictions?.length > 0) $(`.editor-form-select-restriction-${seat.code}`).val(seat.foodRestrictions).trigger('change');
+        //         let subtitleTranslation = table.subtitle;
+        //         if (this.translationSystem)
+        //             subtitleTranslation = this.translationSystem.getTranslation(table.subtitle);
+
+        //         var $span = $(`
+        //         <span class="editor-option">
+        //             <span class="editor-tooltip" translation-key="${table.text}">${textTranslation}</span>
+        //                 <!-- <span style="font-size: 10px" translation-key="${table.subtitle}">(${subtitleTranslation})</span> -->
+        //         </span>`);
+
+        //         const option = document.createElement("span");
+        //         option.classList.add('editor-option');
+        //         option.innerHTML = `<span class="editor-tooltip" translation-key="${table.text}">${textTranslation}</span>`;
+
+
+        //         this.tippyInstance = tippy(option, {
+        //             theme: 'light',
+        //             content: `<span class="editor-tooltip-text" translation-key="${table.subtitle}">${subtitleTranslation}</span>`
+        //         });
+        //         return option;
+        //     },
+        //     templateSelection: function (table) {
+        //         if (!table.id) return table.text;
+
+        //         var $state = $(
+        //             `<span class="editor-option">${table.text}, </span>`
+        //         );
+        //         return $state;
+        //     }
+        // });
+        // if (seat?.foodRestrictions?.length > 0) $(`.editor-form-select-restriction-${seat.code}`).val(seat.foodRestrictions).trigger('change');
     }
 
     open(table) {
@@ -4276,17 +4519,17 @@ class ManageGuestsModal {
     save() {
         // Add logic to handle saving data
         console.log("Saving data...");
-        if(this.validateForm())  {
-            
+        if (this.validateForm()) {
+
             this.subjectTable.name = this.formElements.name.value;
             this.subjectTable.notes = this.formElements.notes.value;
 
-            for(const [i, seat] of this.subjectTable.seats.entries()) {
+            for (const [i, seat] of this.subjectTable.seats.entries()) {
                 seat.guestName = this.formElements.seats[i].guestName.value;
                 seat.guestAge = this.formElements.seats[i].guestAge.select2('data')[0].id;
-                seat.foodRestrictions = this.formElements.seats[i].foodRestrictions.select2('data').map(v => v.id);
+                seat.foodRestrictions = this.formElements.seats[i].foodRestrictions;
             }
-            
+
             this.subjectTable.updateSeats();
             this.close();
         }
@@ -4297,52 +4540,76 @@ class ManageGuestsModal {
         // Add logic to handle form submission
         console.log("Form submitted:", event);
         this.save();
-    }  
+    }
 
-    validateForm() {    
+    validateForm() {
+        let isValid = false;
         const tableName = this.formElements.name.value;
-        if (tableName == '') {
-            document.getElementById("tableName").setCustomValidity("Invalid field.")
-            document.getElementById("tableName").reportValidity();
+        document.getElementById("tableName").setCustomValidity("");
+
+        // if (tableName == '') {
+        //     document.getElementById("tableName").setCustomValidity("Invalid field.")
+        //     document.getElementById("tableName").reportValidity();
+        //     return false;
+        // } else {
+        //     document.getElementById("tableName").setCustomValidity("");
+        //     isValid = true;
+        // }
+
+        const selectedRestrictions = this.formElements.seats
+            .filter(s => s.guestName.value)
+            .filter(s => s.foodRestrictions?.length > 0)
+            .map(m => m?.foodRestrictions)
+            .flat();
+        const uniqueRestrictions = [...new Set(selectedRestrictions)];
+        const requiredNotesRestrictions = this.foodRestrictions.filter(f => f?.notesRequired);
+        const restrictions = requiredNotesRestrictions.filter(f => uniqueRestrictions.includes(f?.id));
+
+        const tableNotes = this.formElements.notes.value;
+        if (restrictions?.length > 0 && tableNotes?.trim() == '') {
+            document.getElementById("notes").setCustomValidity("Invalid field.")
+            document.getElementById("notes").reportValidity();
             return false;
         } else {
-            document.getElementById("tableName").setCustomValidity("");
-            return true;
+            document.getElementById("notes").setCustomValidity("");
+            isValid = true;
         }
+
+        return isValid;
 
         // You can add more functionality as needed.
     }
 
     updateTotals() {
-        
+
         let totalAdult = 0;
-        if(document.getElementById('totalAdult')) {
+        if (document.getElementById('totalAdult')) {
             totalAdult = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'ADULT').length;
             document.getElementById('totalAdult').innerHTML = totalAdult;
         }
 
         let totalChild = 0;
-        if(document.getElementById('totalChild')) {
+        if (document.getElementById('totalChild')) {
             totalChild = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'CHILD').length;
-            
+
             document.getElementById('totalChild').innerHTML = totalChild;
         }
 
         let totalBaby = 0;
-        if(document.getElementById('totalBaby')) {
+        if (document.getElementById('totalBaby')) {
             totalBaby = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'BABY').length;
             document.getElementById('totalBaby').innerHTML = totalBaby;
         }
 
-        let  totalNewborn = 0;
-        if(document.getElementById('totalNewborn')) {
+        let totalNewborn = 0;
+        if (document.getElementById('totalNewborn')) {
             totalNewborn = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'NEWBORN').length;
             document.getElementById('totalNewborn').innerHTML = totalNewborn;
         }
 
-        if(document.getElementById('totalStroller')) {
-            if(totalNewborn > 0) {
-    
+        if (document.getElementById('totalStroller')) {
+            if (totalNewborn > 0) {
+
                 document.getElementById('totalStroller').classList.remove('hide');
                 document.getElementById('totalStroller').innerHTML = `${totalNewborn} <span translation-key="BABY_CAR">carrinho</span>`;
                 this.translationSystem.reviewPage();
@@ -4359,6 +4626,24 @@ class ManageGuestsModal {
 
 
 
-if(!window.RoomEditor) {
+if (!window.RoomEditor) {
     window.RoomEditor = RoomEditor;
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+    var elements = document.querySelectorAll('.editor-form-select-multiple-content');
+    const insideContent = event.target.id.includes('foodRestrictions');
+
+    if (!event.target.matches('.editor-form-select-multiple') && !insideContent) {
+        elements.forEach(function (element) {
+            element.style.display = 'none';
+        });
+    } else {
+        elements.forEach(function (element) {
+            if (!element?.classList?.contains(event.target.id)) {
+                element.style.display = 'none';
+            }
+        });
+    }
 }
