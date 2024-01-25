@@ -1214,7 +1214,7 @@ class RoomPlan extends RoomObject {
     
 }
 
-const TABLE_ELEMENT_OFFSET = 35;
+const TABLE_ELEMENT_OFFSET = 40;
 const SNAPPING_POINT_SIZE = 15;
 class Table extends RoomObject {
 
@@ -3473,8 +3473,29 @@ class MouseManager {
 
     getFocalPosition(event, deltaScale = 0) {
         
+        if(this.world.scale <= 1) {
+            console.log("<1")
+            console.log("deltaScale")
+            console.log(deltaScale)
+            if(deltaScale > 1) {
+                return { x: -0 * this.world.scale, y: -0 * this.world.scale };
+            } else {
+                return { x: 0 * this.world.scale, y: 0 * this.world.scale };
+            }
+        } else {
+            console.log(">1")
+            console.log("deltaScale")
+            console.log(deltaScale)
+            if(deltaScale > 1) {
+                return { x: -30 * this.world.scale, y: -30 * this.world.scale };
+            } else {
+                return { x: 30 * this.world.scale, y: 30 * this.world.scale };
+            }
+        }
+
+
         if(deltaScale > 1) {
-            return { x: 0, y: 0 };isDrawingConstraintZone
+            return { x: 0, y: 0 };
         } else {
             return { x: 0, y: 0 };
         }
