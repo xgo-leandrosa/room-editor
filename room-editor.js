@@ -3435,7 +3435,7 @@ class MouseManager {
         const element = document.createElement("li");
         element.classList.add(params.class);
         const aElement = document.createElement("a");
-        aElement.href = "#";
+        //aElement.href = "#";
         aElement.id = params.id;
         element.appendChild(aElement);
         const iElement = document.createElement("i");
