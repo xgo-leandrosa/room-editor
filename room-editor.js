@@ -679,6 +679,8 @@ class RoomObject {
         this.rotate = 0;
         this.x = 0;
         this.y = 0;
+        this.originX = 0;
+        this.originY = 0;
         this.width = 0;
         this.height = 0;
         this.halfWidth = 0;
@@ -828,6 +830,17 @@ class World extends RoomObject {
         return { x: this.x - x, y: this.y - y };
     }
 
+    worldSize(width, height) {
+        this.element.style.width= `${width}px`;
+        this.element.style.height = `${height}px`;
+    }
+    
+    worldOrigin(x, y) {
+        this.originX = x;
+        this.originY = y;
+        this.element.style['transform-origin'] = `${x}px ${y}px`;
+    }
+
     setRoomPlan(roomPlan) {
         this.roomPlan = roomPlan;
         this.roomPlan.world = this;
@@ -855,6 +868,10 @@ class World extends RoomObject {
     }
 
     applyTransform() {
+        //const finalX = this.x - (this.originX * (1 - this.scale ));
+        //const finalY = this.y - (this.originY * (1 - this.scale ));
+        //this.element.style.transform = `translate(${finalX}px, ${finalY}px) scale(${this.scale})`;
+        
         this.element.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
     }
 
@@ -1209,7 +1226,9 @@ class RoomPlan extends RoomObject {
             this.constrainElement.style.height = `${this.height}px`;
 
 
-            
+            //this.world.worldSize(this.width, this.height);
+            this.world.worldOrigin(this.halfWidth, this.halfHeight);
+            //this.world.applyTransform();
         }
 
         this.elementImg.style.width = '100%';
@@ -3191,6 +3210,7 @@ class MouseManager {
         this.zoomIntensity = 0.02;
         this.contextMenuVisible = false;
         this.contextMenuElement = document.getElementById("contextMenu");
+
     }
 
     setRoomEditor(roomEditor) {
@@ -3592,6 +3612,7 @@ class MouseManager {
         }
 
         const pos = this.getWorldPosition(event);
+
         
         if (event.button == 1 && this.roomEditor.administrationMode) {
             this.roomEditor.world.roomPlan.addConstraintZonePolygon(pos.x, pos.y);
@@ -3669,9 +3690,14 @@ class MouseManager {
     handleMouseWheel(event) {
         const scaleDelta = event.deltaY > 0 ? -1 : 1;
         const zoom = Math.exp(scaleDelta * this.zoomIntensity);
-
+        const pos1 = this.getWorldPosition(event);
+            
         this.world.zoom(zoom);
         this.world.applyTransform();
+    
+        const pos2 = this.getWorldPosition(event);
+        this.world.pan(-(pos1.x - pos2.x) * this.world.scale, -(pos1.y - pos2.y) * this.world.scale);
+        this.world.applyTransform();    
     }
 
     hideContextMenu() {
