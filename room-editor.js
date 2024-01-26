@@ -3698,6 +3698,8 @@ class MouseManager {
         const pos2 = this.getWorldPosition(event);
         this.world.pan(-(pos1.x - pos2.x) * this.world.scale, -(pos1.y - pos2.y) * this.world.scale);
         this.world.applyTransform();    
+
+        event.preventDefault();
     }
 
     hideContextMenu() {
