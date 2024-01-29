@@ -1195,9 +1195,29 @@ class World extends RoomObject {
     }
 }
 
+class Zone {
+    
+    zoneElement;
+
+    name="Nova Zona";
+    polygon = [];
+    allowedTables = [];
+    allowedOrientation = null;
+    color= "red";
+
+    constructor() {
+
+    }
+}
+
 class RoomPlan extends RoomObject {
 
+    editorMode = null; // "CONTRAINT_ZONE" || "ZONE"
+
     constraintZonePolygon = [];
+
+    zones = [
+    ]
 
     constructor(imageSrc) {
         super();
@@ -1293,6 +1313,10 @@ class RoomPlan extends RoomObject {
         });
     }
     
+
+    addZone() {
+        this.zones.push(new Zone());
+    }
 }
 
 const TABLE_ELEMENT_OFFSET = 30;
@@ -2979,6 +3003,9 @@ class MouseManager {
     roomEditor;
     translationSystem;
 
+    activeGuestTables = [];
+    activeCouplesTables = [];
+
     constructor(world, editorContainerElement, guestModal) {
         this.editorContainerElement = editorContainerElement;
         this.guestModal = guestModal;
@@ -3023,7 +3050,6 @@ class MouseManager {
         this.world.element.appendChild(this.pointerDiv);
     }
 
-    activeGuestTables = [];
 
     setActiveGuestTables(tablesTypes) {
         this.activeGuestTables = tablesTypes;
@@ -3046,6 +3072,27 @@ class MouseManager {
             }
             this.translationSystem.reviewPage();
 
+        }
+    }
+
+    setActiveCouplesTables(tablesTypes) {
+        this.activeCouplesTables = tablesTypes;
+        const elements = document.getElementsByClassName("coupleTableSelect");
+
+        if(elements.length > 0) {
+            
+            if ($('#coupleTableSelect').data('select2')) {
+                $('#coupleTableSelect').select2('destroy').empty()
+            }
+            
+            for(let act of this.activeCouplesTables) {
+                elements[0].innerHTML += `
+                    <option title="${TableTypesIcon[act]}" value="${act}" pax="14" >${act}</option>
+                `;
+            }
+
+            this.initializeCoupleTableSelect();    
+            this.translationSystem.reviewPage();
         }
     }
 
@@ -3137,6 +3184,33 @@ class MouseManager {
         editorRoomInput3.appendChild(tablesUiDiv);
         mainContainer.appendChild(editorRoomInput3);
         
+        // TODO CHECK IF OS TO ACTIVE SELECT
+        /*<!--<div class="editorRoom-input" style="width: 180px;">
+        <label translation-key="COUPLE_TABLES">Mesa dos noivos:</label>
+        <select id="coupleTableSelect" class="coupleTableSelect ui">
+            
+        </select>
+    </div>-->*/
+        const coupleInput = document.createElement("div");
+        coupleInput.classList.add("editorRoom-input");
+        coupleInput.style.width = "260px";
+
+        const coupleInputLabel = document.createElement("label");
+        const coupleInputLabelSpan = document.createElement("span");
+        coupleInputLabelSpan.innerText = "Mesa dos noivos";
+        coupleInputLabelSpan.setAttribute('translation-key', 'COUPLE_TABLES');
+        coupleInputLabel.appendChild(coupleInputLabelSpan);
+        coupleInputLabel.innerHTML += ":";
+        coupleInput.appendChild(coupleInputLabel);
+
+        const coupleInputSelect = document.createElement("label");
+        coupleInputSelect.id = "coupleTableSelect";
+        coupleInputSelect.classList.add("coupleTableSelect");
+        coupleInputSelect.classList.add("ui");
+        coupleInput.appendChild(coupleInputSelect);
+        
+        mainContainer.appendChild(coupleInput);
+    
         ui1.appendChild(mainContainer);
         
         this.editorContainerElement.appendChild(ui1);
@@ -3176,6 +3250,88 @@ class MouseManager {
         this.editorContainerElement.appendChild(ui3);
 
 
+
+        $(document).ready(() => {
+            this.initializeCoupleTableSelect();    
+        });
+    }
+
+    initializeCoupleTableSelect() {
+        $('#coupleTableSelect').select2({
+            minimumResultsForSearch: -1,
+            templateResult: (table) => {
+                let translation = table.text;
+                if(this.translationSystem)
+                    translation = this.translationSystem.getTranslation(table.text);
+
+
+                var $span = $(`
+                <span class="option">
+                    <div style="display: inline-flex">
+                        <div class="table_ui ${table?.title}"></div>
+                        <span translation-key="${table.text}">${translation}</span>
+                    </div>
+                    <div class="pax">
+                        <i class="fa-regular fa-user"></i>
+                        14pax
+                    </div>
+                </span>`);
+                return $span;
+            },
+            templateSelection: (table) => {
+                if (!table.id) {
+                    return table.text;
+                }
+                let translation = table.text;
+                if(this.translationSystem)
+                    translation = this.translationSystem.getTranslation(table.text);
+
+                var $state = $(
+                    `<span class="option">
+                    <div style="display: inline-flex">
+                        <div class="table_ui ${table?.title}"></div>
+                        <span translation-key="${table.text}">${translation}</span>
+                    </div>
+                    <div class="pax">
+                        <i class="fa-regular fa-user"></i>
+                        14pax
+                    </div>
+                </span>`
+                );
+                return $state;
+            },
+        });
+
+        $('#coupleTableSelect').on("select2:select", (event) => {
+            const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
+
+            const newTableCouple = new TableTypes[event.params.data.id](this.world);
+
+            const pos = this.getWorldPositionCenterScreen();
+            if(!tableCouple) {
+                newTableCouple.x = pos.x;
+                newTableCouple.y = pos.y;
+                
+            } else {
+                newTableCouple.x = tableCouple.x;
+                newTableCouple.y = tableCouple.y;
+                newTableCouple.rotate = tableCouple.rotate;
+
+                this.world.removeTable(tableCouple);
+            }
+            
+            newTableCouple.init();
+            this.world.addTable(newTableCouple);
+            newTableCouple.applyTransform();
+
+            if(this.selectedObject) {
+                this.selectedObject.unsetSelected();
+            }
+
+            this.selectedObject = newTableCouple;
+            this.selectedObject.setSelected();
+            
+        });
     }
 
     changeCoupleTable(tableType) {
@@ -3401,8 +3557,12 @@ class MouseManager {
 
         
         if (event.button == 1 && this.roomEditor.administrationMode) {
-            this.roomEditor.world.roomPlan.addConstraintZonePolygon(pos.x, pos.y);
-            this.roomEditor.world.roomPlan.updateConstrainZonePoligonElement();            
+
+            if(this.roomEditor.editorMode == "CONTRAINT_ZONE") {
+                this.roomEditor.world.roomPlan.addConstraintZonePolygon(pos.x, pos.y);
+                this.roomEditor.world.roomPlan.updateConstrainZonePoligonElement();            
+            }
+            
         }
 
         if (event.button == 2 || this.contextMenuVisible == true) {
@@ -3774,10 +3934,9 @@ class RoomEditor {
         this.mouseManager.setActiveGuestTables(tablesTypes);
     }
 
-    /*
     activeCoupleTables(tablesTypes) {
         this.mouseManager.setActiveCouplesTables(tablesTypes);
-    }*/
+    }
 }
 
 class ManageGuestsModal {
