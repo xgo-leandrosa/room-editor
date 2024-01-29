@@ -1288,7 +1288,7 @@ class RoomPlan extends RoomObject {
     
 }
 
-const TABLE_ELEMENT_OFFSET = 40;
+const TABLE_ELEMENT_OFFSET = 30;
 const SNAPPING_POINT_SIZE = 15;
 class Table extends RoomObject {
 
@@ -1304,7 +1304,8 @@ class Table extends RoomObject {
     tablePurpose = "GUEST";
 
     tableElement;
-    tableElementSize = 105;
+    tableElementSizeWidth = 105;
+    tableElementSizeHeight = 105;
     tableElementPosition = { x: 0, y: 0 };
     tableElement = 0;
 
@@ -1441,10 +1442,10 @@ class Table extends RoomObject {
     updateSnappingPoints() {
 
         this.snappingPoints[0].x = TABLE_ELEMENT_OFFSET;
-        this.snappingPoints[0].y = TABLE_ELEMENT_OFFSET + ((this.tableElementSizeHeight || this.tableElementSize) / 2);
+        this.snappingPoints[0].y = TABLE_ELEMENT_OFFSET + ((this.tableElementSizeHeight) / 2);
         
-        this.snappingPoints[1].x = TABLE_ELEMENT_OFFSET + (this.tableElementSizeWidth || this.tableElementSize) - SNAPPING_POINT_SIZE;
-        this.snappingPoints[1].y =  TABLE_ELEMENT_OFFSET + ((this.tableElementSizeHeight || this.tableElementSize) / 2);
+        this.snappingPoints[1].x = TABLE_ELEMENT_OFFSET + (this.tableElementSizeWidth) - SNAPPING_POINT_SIZE;
+        this.snappingPoints[1].y =  TABLE_ELEMENT_OFFSET + ((this.tableElementSizeHeight) / 2);
 
         for(let sp of this.snappingPoints) {
             sp.applyTransform();
@@ -1683,7 +1684,8 @@ class SquareTable extends Table {
     tableType = "SquareTable";
 
     tableElement;
-    tableElementSize = 200;
+    tableElementSizeWidth = 200;
+    tableElementSizeHeight = 200;
 
     constructor() {
         super();
@@ -1705,8 +1707,8 @@ class SquareTable extends Table {
         this.tableElement.classList.add('table-draw');
         this.element.appendChild(this.tableElement);
 
-        this.tableElement.style.width = `${this.tableElementSize}px`;
-        this.tableElement.style.height = `${this.tableElementSize}px`;
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
         this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
         this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
@@ -2053,7 +2055,8 @@ class RoundTable extends Table {
     tableType = "RoundTable";
 
     tableElement;
-    tableElementSize = 180;
+    tableElementSizeWidth = 180;
+    tableElementSizeHeight = 180;
 
     constructor() {
         super();
@@ -2075,8 +2078,8 @@ class RoundTable extends Table {
         this.tableElement.classList.add('table-draw');
         this.element.appendChild(this.tableElement);
 
-        this.tableElement.style.width = `${this.tableElementSize}px`;
-        this.tableElement.style.height = `${this.tableElementSize}px`;
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "50%";
 
         this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
@@ -2215,7 +2218,8 @@ class CoupleRoundTable extends Table {
     tablePurpose = "COUPLE";
 
     tableElement;
-    tableElementSize = 180;
+    tableElementSizeWidth = 180;
+    tableElementSizeHeight = 180;
 
     constructor() {
         super();
@@ -2237,8 +2241,8 @@ class CoupleRoundTable extends Table {
         this.tableElement.classList.add('table-draw');
         this.element.appendChild(this.tableElement);
 
-        this.tableElement.style.width = `${this.tableElementSize}px`;
-        this.tableElement.style.height = `${this.tableElementSize}px`;
+        this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
+        this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "50%";
 
         this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
@@ -2995,6 +2999,7 @@ class CoupleForestMTable extends Table {
 
 const TableTypes = {
     Table,
+    ExpandedTable,
     SquareTable,
     RectangularTable,
     RectangularLTable,
@@ -3231,7 +3236,7 @@ class MouseManager {
         this.pointerDiv = document.createElement("div");
         this.pointerDiv.style.width = "10px";
         this.pointerDiv.style.height = "10px";
-        this.pointerDiv.style.background = "c7c7c7";
+        this.pointerDiv.style.background = "#c7c7c7";
         this.pointerDiv.style['border-radius'] = '50%';
         this.pointerDiv.style['border'] = '1px solid #979797';
         this.world.element.appendChild(this.pointerDiv);
@@ -3879,6 +3884,8 @@ class RoomEditor {
                 notes: table.notes,
                 tablePurpose: table.tablePurpose,
 
+                width: table.tableElementSizeWidth,
+                height: table.tableElementSizeHeight,
 
                 seats: table.seats.map(s => ({
                     code: s.code,
@@ -3929,14 +3936,33 @@ class RoomEditor {
             object.name = serializedObject.name;
             object.notes = serializedObject.notes;
             object.init();
-            // Add other properties specific to your object
+            
+            // ExpandedTable Only
+            if(object.tableType == "ExpandedTable") {
+                object.tableElementSizeHeight = serializedObject.height;
+                object.tableElementSizeWidth = serializedObject.width;
+            
+                object.snappingPoints.find(sp => sp.side == 'right').x = object.tableElementSizeWidth + TABLE_ELEMENT_OFFSET;
+                
+                object.width = object.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
+                object.height = object.tableElementSizeHeight + (TABLE_ELEMENT_OFFSET * 2)
+
+                object.tableElementUpdateSize();
+                object.updateSnappingPoints();
+                object.sizeChanged();
+                object.applyTransform();
+                object.updateSeats();
+            }
 
             for(const objSeat of serializedObject.seats) {
                 object.seats[objSeat.number].guestName = objSeat.guestName;
                 object.seats[objSeat.number].guestAge = objSeat.guestAge;
                 object.seats[objSeat.number].foodRestrictions = objSeat.foodRestrictions;
             }
-            object.updateSeats();
+
+            if(object.tableType != "ExpandedTable") { 
+                object.updateSeats();
+            }
 
 
             // Add the deserialized object to the world
@@ -3947,7 +3973,7 @@ class RoomEditor {
         this.world.updateTablesCode();
         this.world.areTablesOverlapping();
 
-        this.guestsModal.foodRestrictions = serializedData.foodRestrictions.map(m => ({
+        this.guestsModal.foodRestrictions = (serializedData.foodRestrictions || []).map(m => ({
             id: m?._id,
             text: m?.acronym?.pt,
             subtitle: m?.subtitle?.pt,
