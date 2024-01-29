@@ -1154,6 +1154,9 @@ class World extends RoomObject {
             expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize;
             expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize;
             expandedTable.width = expandedTable.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
+
+            expandedTable.topsNumbersSeats += table1.topsNumbersSeats;
+
             expandedTable.sizeChanged();
             expandedTable.applyTransform();
             expandedTable.tableElementUpdateSize();
@@ -1176,6 +1179,10 @@ class World extends RoomObject {
 
             newExpandedTable.x = pos.x - (newExpandedTable.width / 2);
             newExpandedTable.y = pos.y;
+
+            newExpandedTable.seatsTopNumber = table1.seatsTopNumber * 2;
+            newExpandedTable.seatsSidesNumber = table1.seatsSidesNumber;
+
             newExpandedTable.sizeChanged();
             newExpandedTable.init();
             this.addTable(newExpandedTable);
@@ -1297,6 +1304,9 @@ class Table extends RoomObject {
     notes = "";
 
     tableDefaultSize = 155;
+
+    seatsTopNumber = 0;
+    seatsSidesNumber = 0;
     seatsPositions = [
     ];
     seats = [];
@@ -1326,8 +1336,9 @@ class Table extends RoomObject {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSize;
-        this.height = this.tableDefaultSize;
+
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
         
         this.sizeChanged();
     }
@@ -1339,10 +1350,17 @@ class Table extends RoomObject {
         this.element.style.width = `${this.width}px`;
         this.element.style.height = `${this.height}px`;
 
+        // RECALCULATE TABLE NUMERATION
+        if(this.tableElementNumeration) {
+            this.tableElementNumeration.style.left = `${this.halfWidth - TABLE_ELEMENT_OFFSET - 18}px`;
+            this.tableElementNumeration.style.top = `${this.halfHeight  - TABLE_ELEMENT_OFFSET - 25}px`;
+        }
+
         this.calculateTableAreaCorners();
     }
 
     init() {
+        this.calculateSeatPositions();
         this.initializeSeats();
 
         if(this.snappingPointsActive) {
@@ -1356,12 +1374,91 @@ class Table extends RoomObject {
 
     }
 
+    calculateSeatPositions() {
+
+        if(this.seatsPositions.length > 0)
+            return;
+
+        if(this.isRound) {
+            // CALCULATE SEATS POSITIONS
+            
+            this.seatsPositions = [];
+            const numSeats = this.seatsTopNumber || 10;
+            let centerX = this.tableElementSizeWidth / 2 + (TABLE_ELEMENT_OFFSET/2);
+            let centerY = this.tableElementSizeHeight / 2  + (TABLE_ELEMENT_OFFSET/2);
+            let radius = this.tableElementSizeWidth / 2 + (TABLE_ELEMENT_OFFSET/2);
+
+            for (let i = 0; i < numSeats; i++) {
+                const angle = (i / numSeats) * 2 * Math.PI - Math.PI / 2;
+                const objectX = centerX + radius * Math.cos(angle);
+                const objectY = centerY + radius * Math.sin(angle);
+
+                this.seatsPositions.push( { number: i, x:  objectX, y: objectY, rotate: i * (360 / numSeats)});        
+            }
+        } else {
+            this.seatsPositions = [];
+
+           const topsNumbersSeats = this.seatsTopNumber > 0 ? this.seatsTopNumber : Math.floor(this.tableElementSizeWidth / 70);
+           const sidesNumbersSeats = this.seatsSidesNumber > 0 ? this.seatsSidesNumber : Math.floor(this.tableElementSizeHeight / 70);
+
+           let seatSize = 35;
+           let distanceBetweenSeatsTops = seatSize;
+           let distanceBetweenSeatsSides = seatSize;
+           distanceBetweenSeatsTops = (this.tableElementSizeWidth - ((topsNumbersSeats) * seatSize)) / (topsNumbersSeats + 1)
+           distanceBetweenSeatsSides = (this.tableElementSizeHeight - ((sidesNumbersSeats) * seatSize)) / (sidesNumbersSeats + 1)
+           
+           let globalNumber = 0;
+           for(let i = 0; i <= (topsNumbersSeats - 1); i++) {
+            
+               this.seatsPositions.push({
+                   number: globalNumber,
+                   x: 4 + (TABLE_ELEMENT_OFFSET + this.spaceBetweenTables) + (distanceBetweenSeatsTops) + (i * distanceBetweenSeatsTops) + (i * seatSize),
+                   y: 0,
+                   rotate: 0,
+               });
+               globalNumber++;
+           }
+
+           for(let i = 0; i <= (sidesNumbersSeats - 1); i++) {
+               this.seatsPositions.push({
+                   number: globalNumber,
+                   x: this.tableElementSizeWidth + TABLE_ELEMENT_OFFSET,
+                   y:  (TABLE_ELEMENT_OFFSET + this.spaceBetweenTables) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * seatSize),
+                   rotate: 90,
+               });
+               globalNumber++;
+           }
+
+           for(let i = (topsNumbersSeats - 1); i >= 0; i--) {
+               this.seatsPositions.push({
+                   number: globalNumber,
+                   x:   (TABLE_ELEMENT_OFFSET + this.spaceBetweenTables) + (distanceBetweenSeatsTops) +  + (i * distanceBetweenSeatsTops) + (i * seatSize),
+                   y: this.tableElementSizeHeight + TABLE_ELEMENT_OFFSET,
+                   rotate: 180,
+               });
+               globalNumber++;
+           }
+
+           for(let i = (sidesNumbersSeats - 1); i >= 0; i--) {
+               this.seatsPositions.push({
+                   number: globalNumber,
+                   x: 0,
+                   y:   (TABLE_ELEMENT_OFFSET + this.spaceBetweenTables) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * seatSize),
+                   rotate: 270,
+               });
+               globalNumber++;
+           }
+
+        }
+
+   }
+
     initializeSeats() {
         for (let seatPosition of this.seatsPositions) {
             const seat = new Seat(this);
             seat.side = seatPosition.side;
             seat.rotate = seatPosition.rotate || 0;
-            seat.x = seatPosition.x + (this.spaceBetweenTables / 2);
+            seat.x = seatPosition.x + (this.spaceBetweenTables / 2) - 4;
             seat.y = seatPosition.y + (this.spaceBetweenTables / 2);
             seat.number = seatPosition.number;
             seat.isCouple = !!seatPosition.couple;
@@ -1397,8 +1494,10 @@ class Table extends RoomObject {
         this.tableElementNumeration = document.createElement("div");
         this.tableElementNumeration.classList.add('tableNumeration');
 
-        this.tableElementNumeration.style.left = "45%";
-        this.tableElementNumeration.style.top = "40%";
+        this.tableElementNumeration.style.left = `${this.halfWidth - TABLE_ELEMENT_OFFSET - 18}px`;
+        this.tableElementNumeration.style.top = `${this.halfHeight  - TABLE_ELEMENT_OFFSET - 25}px`;
+        //this.tableElementNumeration.style.left = "45%";
+        //this.tableElementNumeration.style.top = "40%";
         this.updateTableNumerationValue();
         this.tableElement.appendChild(this.tableElementNumeration);
     }
@@ -1503,8 +1602,8 @@ class ExpandedTable extends Table {
         this.element = document.createElement('div');
         this.element.classList.add('table');
 
-        this.width = this.width + this.spaceBetweenTables;
-        this.height = this.height + this.spaceBetweenTables;
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
 
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
@@ -1525,7 +1624,7 @@ class ExpandedTable extends Table {
         this.seats = [];
 
         this.seatsPositions = [];
-        const topsNumbersSeats = Math.floor(this.tableElementSizeWidth / 70);
+        /*const topsNumbersSeats = Math.floor(this.tableElementSizeWidth / 70);
         const sidesNumbersSeats = Math.floor(this.tableElementSizeHeight / 70);
 
         let globalNumber = 0;
@@ -1564,13 +1663,15 @@ class ExpandedTable extends Table {
                 rotate: 270,
             });
             globalNumber++;
-        }
+        }*/
+
+        this.calculateSeatPositions();
 
         for (let seatPosition of this.seatsPositions) {
             const seat = new Seat(this);
             seat.side = seatPosition.side;
             seat.rotate = seatPosition.rotate || 0;
-            seat.x = seatPosition.x + (this.spaceBetweenTables/2);
+            seat.x = seatPosition.x + (this.spaceBetweenTables/2) - 4;
             seat.y = seatPosition.y + (this.spaceBetweenTables/2);
             seat.number = seatPosition.number;
             seat.isCouple = !!seatPosition.couple;
@@ -1581,6 +1682,11 @@ class ExpandedTable extends Table {
         }
 
         this.updateSeatsNumerations();
+
+        for (let seat of this.seats) {
+            seat.updateStatus();
+            seat.updateToolTip();
+        }
 
     }
 
@@ -1609,76 +1715,9 @@ class SquareTable extends Table {
 
     snappingPointsActive=true;
 
+    seatsTopNumber = 3;
+    seatsSidesNumber = 3;
     seatsPositions = [
-        {
-            number: 0,
-            x: 55,
-            y: 0,
-        },
-        {
-            number: 1,
-            x: 115,
-            y: 0,
-        },
-        {
-            number: 2,
-            x: 175,
-            y: 0,
-        },
-        {
-            number: 3,
-            x: 230,
-            y: 55,
-            rotate: 90,
-        },
-        {
-            number: 4,
-            x: 230,
-            y: 115,
-            rotate: 90,
-        },
-        {
-            number: 5,
-            x: 230,
-            y: 175,
-            rotate: 90,
-        },
-        {
-            number: 6,
-            x: 175,
-            y: 230,
-            rotate: 180,
-        },
-        {
-            number: 7,
-            x: 115,
-            y: 230,
-            rotate: 180,
-        },
-        {
-            number: 8,
-            x: 55,
-            y: 230,
-            rotate: 180,
-        },
-        {
-            number: 9,
-            x: 0,
-            y: 175,
-            rotate: 270,
-        },
-        {
-            number: 10,
-            x: 0,
-            y: 115,
-            rotate: 270,
-        },
-        {
-            number: 11,
-            x: 0,
-            y: 55,
-            rotate: 270,
-        },
     ];
     seats = [];
     tableType = "SquareTable";
@@ -1692,8 +1731,10 @@ class SquareTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSize + this.spaceBetweenTables;
-        this.height = this.tableDefaultSize + this.spaceBetweenTables;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -1725,86 +1766,9 @@ class RectangularTable extends Table {
 
     spaceBetweenTables = 0;
 
+    seatsTopNumber = 5;
+    seatsSidesNumber = 2;
     seatsPositions = [
-        {
-            number: 0,
-            x: 55,
-            y: 0,
-        },
-        {
-            number: 1,
-            x: 115,
-            y: 0,
-        },
-        {
-            number: 2,
-            x: 175,
-            y: 0,
-        },
-        {
-            number: 3,
-            x: 225,
-            y: 0,
-        },
-        {
-            number: 4,
-            x: 275,
-            y: 0,
-        },
-        {
-            number: 5,
-            x: 330,
-            y: 55,
-            rotate: 90,
-        },
-        {
-            number: 6,
-            x: 330,
-            y: 115,
-            rotate: 90,
-        },
-        {
-            number: 7,
-            x: 275,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 8,
-            x: 225,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 9,
-            x: 175,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 10,
-            x: 115,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 11,
-            x: 55,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 12,
-            x: 0,
-            y: 115,
-            rotate: 270,
-        },
-        {
-            number: 13,
-            x: 0,
-            y: 55,
-            rotate: 270,
-        },
     ];
     seats = [];
     tableType = "RectangularTable";
@@ -1819,8 +1783,8 @@ class RectangularTable extends Table {
         this.element = document.createElement('div');
         this.element.classList.add('table');
 
-        this.width = this.width + this.spaceBetweenTables;
-        this.height = this.height + this.spaceBetweenTables;
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
 
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
@@ -1853,97 +1817,9 @@ class RectangularLTable extends Table {
 
     spaceBetweenTables = 0;
 
+    seatsTopNumber = 6;
+    seatsSidesNumber = 2;
     seatsPositions = [
-        {
-            number: 0,
-            x: 70,
-            y: 0,
-        },
-        {
-            number: 1,
-            x: 140,
-            y: 0,
-        },
-        {
-            number: 2,
-            x: 210,
-            y: 0,
-        },
-        {
-            number: 3,
-            x: 280,
-            y: 0,
-        },
-        {
-            number: 4,
-            x: 350,
-            y: 0,
-        },
-        {
-            number: 5,
-            x: 420,
-            y: 0,
-        },
-        {
-            number: 6,
-            x: 485,
-            y: 55,
-            rotate: 90,
-        },
-        {
-            number: 7,
-            x: 485,
-            y: 115,
-            rotate: 90,
-        },
-        {
-            number: 8,
-            x: 420,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 9,
-            x: 350,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 10,
-            x: 280,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 11,
-            x: 210,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 12,
-            x: 140,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 13,
-            x: 70,
-            y: 165,
-            rotate: 180,
-        },
-        {
-            number: 14,
-            x: 0,
-            y: 115,
-            rotate: 270,
-        },
-        {
-            number: 15,
-            x: 0,
-            y: 55,
-            rotate: 270,
-        },
     ];
     seats = [];
     tableType = "RectangularLTable";
@@ -1958,8 +1834,8 @@ class RectangularLTable extends Table {
         this.element = document.createElement('div');
         this.element.classList.add('table');
 
-        this.width = this.width + this.spaceBetweenTables;
-        this.height = this.height + this.spaceBetweenTables;
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
 
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
@@ -1987,71 +1863,15 @@ class RectangularLTable extends Table {
 class RoundTable extends Table {
     tableDefaultSize = 240;
 
-    spaceBetweenTables = 30;
+    spaceBetweenTables = 0;
 
+    seatsTopNumber = 10;
+    seatsSidesNumber = 0;
     seatsPositions = [
-        {
-            number: 0,
-            x: 105,
-            y: 0,
-            rotate: 0,
-        },
-        {
-            number: 1,
-            x: 175,
-            y: 25,
-            rotate: 41,
-        },
-        {
-            number: 2,
-            x: 205,
-            y: 72,
-            rotate: 62,
-        },
-        {
-            number: 3,
-            x: 207,
-            y: 134,
-            rotate: 108,
-        },
-        {
-            number: 4,
-            x: 175,
-            y: 185,
-            rotate: 139,
-        },
-        {
-            number: 5,
-            x: 110,
-            y: 210,
-            rotate: 180,
-        },
-        {
-            number: 6,
-            x: 45,
-            y: 195,
-            rotate: 215,
-        },
-        {
-            number: 7,
-            x: 5,
-            y: 140,
-            rotate: 253,
-        },
-        {
-            number: 8,
-            x: 5,
-            y: 67,
-            rotate: 290,
-        },
-        {
-            number: 9,
-            x: 45,
-            y: 20,
-            rotate: 320,
-        },
     ];
+
     seats = [];
+    isRound = true;
     tableType = "RoundTable";
 
     tableElement;
@@ -2063,14 +1883,15 @@ class RoundTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSize + this.spaceBetweenTables;
-        this.height = this.tableDefaultSize + this.spaceBetweenTables;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
         this.element.style.width = `${this.width}px`;
         this.element.style.height = `${this.height}px`;
-
     }
 
     addTableElement() {
@@ -2095,67 +1916,9 @@ class ForestMTable extends Table {
 
     snappingPointsActive=true;
 
+    seatsTopNumber = 4;
+    seatsSidesNumber = 2;
     seatsPositions = [
-        {
-            number: 0,
-            x: 90,
-            y: 155,
-        },
-        {
-            number: 1,
-            x: 45,
-            y: 155,
-        },
-        {
-            number: 2,
-            x: 0,
-            y: 105,
-        },
-        {
-            number: 3,
-            x: 0,
-            y: 55,
-        },
-        {
-            number: 4,
-            x: 55,
-            y: 0,
-        },
-        {
-            number: 5,
-            x: 100,
-            y: 0,
-        },
-        {
-            number: 6,
-            x: 145,
-            y: 0,
-        },
-        {
-            number: 7,
-            x: 185,
-            y: 0,
-        },
-        {
-            number: 8,
-            x: 220,
-            y: 55,
-        },
-        {
-            number: 9,
-            x: 220,
-            y: 105,
-        },
-        {
-            number: 10,
-            x: 180,
-            y: 155,
-        },
-        {
-            number: 11,
-            x: 135,
-            y: 155,
-        },
     ];
     seats = [];
     tableType = "ForestMTable";
@@ -2169,8 +1932,10 @@ class ForestMTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSizeWidth;
-        this.height = this.tableDefaultSizeHeight;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -2226,8 +1991,10 @@ class CoupleRoundTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSize;
-        this.height = this.tableDefaultSize;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -2284,8 +2051,10 @@ class CoupleOvalSTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSizeWidth;
-        this.height = this.tableDefaultSizeHeight;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -2391,8 +2160,10 @@ class CoupleOvalMTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSizeWidth;
-        this.height = this.tableDefaultSizeHeight;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -2510,8 +2281,10 @@ class CoupleOvalMFullTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSizeWidth;
-        this.height = this.tableDefaultSizeHeight;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -2653,8 +2426,10 @@ class CoupleOvalLTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSizeWidth;
-        this.height = this.tableDefaultSizeHeight;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -2808,8 +2583,10 @@ class CoupleOvalLFullTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSizeWidth;
-        this.height = this.tableDefaultSizeHeight;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -2864,8 +2641,10 @@ class CoupleForestSTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSizeWidth;
-        this.height = this.tableDefaultSizeHeight;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -2972,8 +2751,10 @@ class CoupleForestMTable extends Table {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-        this.width = this.tableDefaultSizeWidth;
-        this.height = this.tableDefaultSizeHeight;
+        
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
@@ -3039,7 +2820,7 @@ class Seat extends RoomObject {
     foodRestrictions = [];
 
     width = 35;
-    height = 35;
+    height = TABLE_ELEMENT_OFFSET;
 
     side;
 
@@ -3946,6 +3727,10 @@ class RoomEditor {
                 
                 object.width = object.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
                 object.height = object.tableElementSizeHeight + (TABLE_ELEMENT_OFFSET * 2)
+
+                object.seatsTopNumber = serializedObject.seatsTopNumber;
+                object.seatsSidesNumber = serializedObject.seatsSidesNumber;
+
 
                 object.tableElementUpdateSize();
                 object.updateSnappingPoints();
