@@ -965,12 +965,16 @@ class World extends RoomObject {
         const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, this.roomPlan.constraintZone.polygon);
 
         if(!(isLt && isRt && isLb && isRb)) {
-            table.isInDanger();
+            table.isInDanger(TABLE_DANGER_TYPE.OUT_CONSTRAINT_ZONE);
         }
 
     }
 
     checkTablesInConstraintZone() {
+        for (let i = 0; i < this.tables.length; i++) {
+            this.tables[i].isSafe(TABLE_DANGER_TYPE.OUT_CONSTRAINT_ZONE);
+        }
+
         for(let table of this.tables) {
             this.checkTableInConstraintZone(table);
         }
@@ -1010,7 +1014,7 @@ class World extends RoomObject {
     areTablesOverlapping() {
         // Helper function to calculate the intersection area of two rectangles
         for (let i = 0; i < this.tables.length; i++) {
-            this.tables[i].isSafe();
+            this.tables[i].isSafe(TABLE_DANGER_TYPE.OVERLAPPING);
         }
 
         // TODO ADD FLAG
@@ -1022,13 +1026,14 @@ class World extends RoomObject {
                 // Compare the two tables using their coordinates and dimensions
                 const tablesOverlapping = this.checkTableOverlapping(this.tables[i], this.tables[j]);
                 if (tablesOverlapping) {
-                    this.tables[j].isInDanger();
-                    this.tables[i].isInDanger();
+                    this.tables[j].isInDanger(TABLE_DANGER_TYPE.OVERLAPPING);
+                    this.tables[i].isInDanger(TABLE_DANGER_TYPE.OVERLAPPING);
                     //return true;
                 }
             }
         }
         
+        //TODO THIS HERE ?
         this.checkTablesInConstraintZone();
         //return false;
     }
@@ -1324,6 +1329,12 @@ class RoomPlan extends RoomObject {
 
 const TABLE_ELEMENT_OFFSET = 30;
 const SNAPPING_POINT_SIZE = 15;
+
+const TABLE_DANGER_TYPE = {
+    OVERLAPPING: "OVERLAPPING",
+    OUT_CONSTRAINT_ZONE: "OUT_CONSTRAINT_ZONE",
+};
+
 class Table extends RoomObject {
 
     code = "";
@@ -1348,6 +1359,7 @@ class Table extends RoomObject {
     tableElement = 0;
 
     inDanger = false;
+    dangerType = [];
 
     spaceBetweenTables = 0;
 
@@ -1538,14 +1550,23 @@ class Table extends RoomObject {
         return this.element === elementToCompare || this.tableElement === elementToCompare || this.tableElementNumeration === elementToCompare || this.seats.find(s => s.isElementOrChildElement(elementToCompare));
     }
 
-    isSafe() {
-        this.inDanger = false;
-        this.element.classList.remove('tableDanger');
+    isSafe(dangerType) {
+        this.dangerType = this.dangerType.filter(dt => dt != dangerType);
+        if(this.dangerType.length == 0) {
+            this.inDanger = false;
+            this.element.classList.remove('tableDanger');
+        }
     }
 
-    isInDanger() {
+    isInDanger(dangerType) {
+        
         this.inDanger = true;
         this.element.classList.add('tableDanger');
+
+        if(!this.dangerType.includes(dangerType)) {
+            this.dangerType.push(dangerType);
+        }
+        
     }
 
     setSelected() {
@@ -3765,9 +3786,27 @@ class RoomEditor {
     }
 
     valid() {
-        // ARE ALL TABLE INSIDE CONSTRAINT ZONE
-        
-        // ARE TABLES OVERLAPPING
+        const result = {
+            status: "INVALID",
+            tables: [],
+        }
+        const tablesInDanger = this.world.tables.filter(t => t.inDanger);
+        for (const tableInDanger of tablesInDanger) {
+            for(const danger of tableInDanger.dangerType) {
+                result.tables.push({
+                    code: tableInDanger.code,
+                    name: tableInDanger.name,
+                    orderPosition: tableInDanger.orderPosition,
+                    danger: danger,
+                })
+            }
+        }
+
+        if(result.tables.length == 0) {
+            result.status = "VALID";
+        }
+
+        return result;
     }
 
     setAdministrationMode(active) {
