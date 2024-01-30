@@ -845,7 +845,7 @@ class World extends RoomObject {
         this.roomPlan = roomPlan;
         this.roomPlan.world = this;
         this.roomPlan.addToContainer();
-        this.roomPlan.buildConstraintZonePolygonElement();
+        this.roomPlan.initConstraintZone();
     }
 
     addTable(table) {
@@ -959,10 +959,10 @@ class World extends RoomObject {
     }
 
     checkTableInConstraintZone(table) {
-        const isLt = this.isPointInPolygon(table.corners.lt.x, table.corners.lt.y, this.roomPlan.constraintZonePolygon);
-        const isRt = this.isPointInPolygon(table.corners.rt.x, table.corners.rt.y, this.roomPlan.constraintZonePolygon);
-        const isLb = this.isPointInPolygon(table.corners.lb.x, table.corners.lb.y, this.roomPlan.constraintZonePolygon);
-        const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, this.roomPlan.constraintZonePolygon);
+        const isLt = this.isPointInPolygon(table.corners.lt.x, table.corners.lt.y, this.roomPlan.constraintZone.polygon);
+        const isRt = this.isPointInPolygon(table.corners.rt.x, table.corners.rt.y, this.roomPlan.constraintZone.polygon);
+        const isLb = this.isPointInPolygon(table.corners.lb.x, table.corners.lb.y, this.roomPlan.constraintZone.polygon);
+        const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, this.roomPlan.constraintZone.polygon);
 
         if(!(isLt && isRt && isLb && isRb)) {
             table.isInDanger();
@@ -1205,16 +1205,65 @@ class Zone {
     allowedOrientation = null;
     color= "red";
 
-    constructor() {
+    constructor(world) {
+        this.world = world;
 
+        this.buildZonePolygonElement();
+    }
+
+    buildZonePolygonElement() {
+        const element = document.createElement("div");
+        element.style.width = `${this.width}px`;
+        element.style.height = `${this.height}px`;
+        element.style.position = "absolute";
+        this.world.element.appendChild(element);
+        this.zoneElement = element;
+
+        this.updateZonePoligonElement();
+    }
+
+    updateZonePoligonElement() {
+        if(this.zoneElement) {
+
+            if(this.polygon.length > 0)
+                this.zoneElement.style.background = "#ff00000f";
+            else
+                this.zoneElement.style.background = "none";
+
+            let coords = '';
+            for(let i = 0; i <= this.polygon.length-1; i++) {
+                const isLast = this.polygon.length-1 == i;
+                const p = this.polygon[i];
+                coords += ` ${p.x}px ${p.y}px` + (!isLast ? ',': '');
+            }
+            this.zoneElement.style["clip-path"] = `polygon(${coords})`;
+        }
+    }
+
+    clearPoints() {
+        this.polygon = [];
+        this.updateZonePoligonElement();
+    }
+
+    addZonePolygon(x, y) {
+        this.polygon.push({
+            x,
+            y,
+        });
+    }
+
+    setSize(width, height) {
+        this.zoneElement.style.width = `${width}px`;
+        this.zoneElement.style.height = `${height}px`;
     }
 }
 
 class RoomPlan extends RoomObject {
 
     editorMode = null; // "CONTRAINT_ZONE" || "ZONE"
+    zoneEditing;
 
-    constraintZonePolygon = [];
+    constraintZone;
 
     zones = [
     ]
@@ -1249,9 +1298,8 @@ class RoomPlan extends RoomObject {
             this.halfHeight = this.height / 2;
 
             //TODO ALWAYS DO THIS ? 
-            this.constrainElement.style.width = `${this.width}px`;
-            this.constrainElement.style.height = `${this.height}px`;
-
+            this.constraintZone.setSize(this.width, this.height);
+        
 
             //this.world.worldSize(this.width, this.height);
             this.world.worldOrigin(this.halfWidth, this.halfHeight);
@@ -1264,58 +1312,13 @@ class RoomPlan extends RoomObject {
         this.element.appendChild(this.elementImg);
     }
 
-    buildConstraintZonePolygonElement() {
-        const element = document.createElement("div");
-        element.style.width = `${this.width}px`;
-        element.style.height = `${this.height}px`;
-        element.style.position = "absolute";
-        this.world.element.appendChild(element);
-        this.constrainElement = element;
-
-        this.updateConstrainZonePoligonElement();
+    initConstraintZone() {
+        // TODO
+        this.constraintZone = new Zone(this.world);
     }
-
-    updateConstrainZonePoligonElement() {
-        if(this.constrainElement) {
-
-            if(this.constraintZonePolygon.length > 0)
-                this.constrainElement.style.background = "#ff00000f";
-            else
-                this.constrainElement.style.background = "none";
-
-            let coords = '';
-            for(let i = 0; i <= this.constraintZonePolygon.length-1; i++) {
-                const isLast = this.constraintZonePolygon.length-1 == i;
-                const p = this.constraintZonePolygon[i];
-                coords += ` ${p.x}px ${p.y}px` + (!isLast ? ',': '');
-            }
-            this.constrainElement.style["clip-path"] = `polygon(${coords})`;
-        }
-    }
-
-    clearConstraintPoints() {
-        this.constraintZonePolygon = [];
-        this.updateConstrainZonePoligonElement();
-    }
-
-    addConstraintZonePolygon(x, y) {
-        /*const element = document.createElement("div");
-        element.style.width = "20px";
-        element.style.height = "20px";
-        element.style.background = "violet";
-        element.style.position = "absolute";
-        element.style.transform = `translate(${x}px, ${y}px) scale(1)`;
-        this.world.element.appendChild(element);*/
-        this.constraintZonePolygon.push({
-            x,
-            y,
-            //element
-        });
-    }
-    
 
     addZone() {
-        this.zones.push(new Zone());
+        this.zones.push(new Zone(this.world));
     }
 }
 
@@ -1326,6 +1329,7 @@ class Table extends RoomObject {
     code = "";
     name = "";
     notes = "";
+    orderPosition = null;
 
     tableDefaultSize = 155;
 
@@ -3558,9 +3562,14 @@ class MouseManager {
         
         if (event.button == 1 && this.roomEditor.administrationMode) {
 
-            if(this.roomEditor.editorMode == "CONTRAINT_ZONE") {
-                this.roomEditor.world.roomPlan.addConstraintZonePolygon(pos.x, pos.y);
-                this.roomEditor.world.roomPlan.updateConstrainZonePoligonElement();            
+            if(this.roomEditor.world.roomPlan.editorMode == "CONTRAINT_ZONE") {
+                this.roomEditor.world.roomPlan.constraintZone.addZonePolygon(pos.x, pos.y);
+                this.roomEditor.world.roomPlan.constraintZone.updateZonePoligonElement();            
+            }
+
+            if(this.roomEditor.world.roomPlan.editorMode == "ZONE" && this.roomEditor.world.roomPlan.zoneEditing) {
+                this.roomEditor.world.roomPlan.zoneEditing.addZonePolygon(pos.x, pos.y);
+                this.roomEditor.world.roomPlan.zoneEditing.updateZonePoligonElement();            
             }
             
         }
@@ -3751,24 +3760,16 @@ class RoomEditor {
 
         this.guestsModal = new ManageGuestsModal();
 
-        /*const savedWorld = localStorage.getItem('savedWorld');
-        if (savedWorld) {
-            this.world = this.deserializeEditor(savedWorld);
-
-            //world.roomPlan.updateImageSrc("http://sllc-api.xpertgo.pt:5000/api/files/657c1d159ed69d0d68cf0405")
-            this.world.roomPlan.updateImageSrc("mapascale.png");
-        } else {
-            this.world = new World(this.editorContainerElement);
-            this.world.applyTransform();
-            const roomPlan = new RoomPlan('planosala.png');
-            this.world.setRoomPlan(roomPlan);
-            roomPlan.applyTransform();
-        }*/
-
+     
         this.mouseManager = new MouseManager(this.world, this.editorContainerElement, this.guestsModal);
         this.mouseManager.setRoomEditor(this);
     }
 
+    valid() {
+        // ARE ALL TABLE INSIDE CONSTRAINT ZONE
+        
+        // ARE TABLES OVERLAPPING
+    }
 
     setAdministrationMode(active) {
         this.administrationMode = active;
@@ -3790,11 +3791,19 @@ class RoomEditor {
             this.mouseManager.setWorld(this.world);
         }
 
+        const constraintZone = this.world.roomPlan.constraintZone;
+        constraintZone.clearPoints();
+        for(let cp of constraintPoints) {
+            constraintZone.addZonePolygon(cp.x, cp.y);
+        }
+        constraintZone.updateZonePoligonElement();
+/*
         this.world.roomPlan.clearConstraintPoints();
         for(let cp of constraintPoints) {
             this.world.roomPlan.addConstraintZonePolygon(cp.x, cp.y);
         }
         this.world.roomPlan.updateConstrainZonePoligonElement();
+    */
     }
 
     serializeEditor() {
@@ -3804,7 +3813,7 @@ class RoomEditor {
                 x: this.world.x,
                 y: this.world.y,
                 scale: this.world.scale,
-
+                spaceBetweenTables: this.world.roomPlan.spaceBetweenTables,
                 constraintPoints: [
                     ...this.world.roomPlan.constraintZonePolygon
                 ]
@@ -3824,6 +3833,7 @@ class RoomEditor {
                 name: table.name,
                 notes: table.notes,
                 tablePurpose: table.tablePurpose,
+                orderPosition: table.orderPosition,
 
                 width: table.tableElementSizeWidth,
                 height: table.tableElementSizeHeight,
@@ -3865,6 +3875,8 @@ class RoomEditor {
             this.world.roomPlan.updateConstrainZonePoligonElement();
         }
 
+        this.world.roomPlan.spaceBetweenTables = serializedData.roomPlan.spaceBetweenTables;
+
         // Deserialize each object in the editor
         serializedData.tables.forEach((serializedObject) => {
             const object = new TableTypes[serializedObject.tableType](this.world);
@@ -3872,10 +3884,12 @@ class RoomEditor {
             object.y = serializedObject.y;
             object.scale = serializedObject.scale;
             object.rotate = serializedObject.rotate | 0;
+            object.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables;
             object.code = serializedObject.code;
             object.tablePurpose = serializedObject.tablePurpose;
             object.name = serializedObject.name;
             object.notes = serializedObject.notes;
+            object.orderPosition = serializedObject.orderPosition;
             object.init();
             
             // ExpandedTable Only
