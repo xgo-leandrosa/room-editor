@@ -1268,6 +1268,8 @@ class RoomPlan extends RoomObject {
     editorMode = null; // "CONTRAINT_ZONE" || "ZONE"
     zoneEditing;
 
+    spaceBetweenTables=0;
+
     constraintZone;
 
     zones = [
@@ -1373,13 +1375,25 @@ class Table extends RoomObject {
 
     constructor() {
         super();
+    }
+
+    build(world) {
+        this.spaceBetweenTables = world.roomPlan.spaceBetweenTables;
+
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
 
         this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
         this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        
+        debugger;
+
+        this.halfWidth = this.width / 2;
+        this.halfHeight = this.height / 2;
+
+        this.element.style.width = `${this.width}px`;
+        this.element.style.height = `${this.height}px`;
+
         this.sizeChanged();
     }
     
@@ -1452,7 +1466,7 @@ class Table extends RoomObject {
             
                this.seatsPositions.push({
                    number: globalNumber,
-                   x: 4 + (TABLE_ELEMENT_OFFSET + this.spaceBetweenTables) + (distanceBetweenSeatsTops) + (i * distanceBetweenSeatsTops) + (i * seatSize),
+                   x: (TABLE_ELEMENT_OFFSET ) + (distanceBetweenSeatsTops) + (i * distanceBetweenSeatsTops) + (i * seatSize),
                    y: 0,
                    rotate: 0,
                });
@@ -1463,7 +1477,7 @@ class Table extends RoomObject {
                this.seatsPositions.push({
                    number: globalNumber,
                    x: this.tableElementSizeWidth + TABLE_ELEMENT_OFFSET,
-                   y:  (TABLE_ELEMENT_OFFSET + this.spaceBetweenTables) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * seatSize),
+                   y:  (TABLE_ELEMENT_OFFSET ) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * seatSize),
                    rotate: 90,
                });
                globalNumber++;
@@ -1472,7 +1486,7 @@ class Table extends RoomObject {
            for(let i = (topsNumbersSeats - 1); i >= 0; i--) {
                this.seatsPositions.push({
                    number: globalNumber,
-                   x:   (TABLE_ELEMENT_OFFSET + this.spaceBetweenTables) + (distanceBetweenSeatsTops) +  + (i * distanceBetweenSeatsTops) + (i * seatSize),
+                   x:   (TABLE_ELEMENT_OFFSET ) + (distanceBetweenSeatsTops) +  + (i * distanceBetweenSeatsTops) + (i * seatSize),
                    y: this.tableElementSizeHeight + TABLE_ELEMENT_OFFSET,
                    rotate: 180,
                });
@@ -1483,7 +1497,7 @@ class Table extends RoomObject {
                this.seatsPositions.push({
                    number: globalNumber,
                    x: 0,
-                   y:   (TABLE_ELEMENT_OFFSET + this.spaceBetweenTables) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * seatSize),
+                   y:   (TABLE_ELEMENT_OFFSET ) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * seatSize),
                    rotate: 270,
                });
                globalNumber++;
@@ -1534,8 +1548,8 @@ class Table extends RoomObject {
         this.tableElementNumeration = document.createElement("div");
         this.tableElementNumeration.classList.add('tableNumeration');
 
-        this.tableElementNumeration.style.left = `${this.halfWidth - TABLE_ELEMENT_OFFSET - 18}px`;
-        this.tableElementNumeration.style.top = `${this.halfHeight  - TABLE_ELEMENT_OFFSET - 25}px`;
+        this.tableElementNumeration.style.left = `${this.halfWidth - TABLE_ELEMENT_OFFSET  - (this.spaceBetweenTables/2) - 18}px`;
+        this.tableElementNumeration.style.top = `${this.halfHeight  - TABLE_ELEMENT_OFFSET  - (this.spaceBetweenTables/2) - 25}px`;
         //this.tableElementNumeration.style.left = "45%";
         //this.tableElementNumeration.style.top = "40%";
         this.updateTableNumerationValue();
@@ -1589,11 +1603,11 @@ class Table extends RoomObject {
 
     updateSnappingPoints() {
 
-        this.snappingPoints[0].x = TABLE_ELEMENT_OFFSET;
-        this.snappingPoints[0].y = TABLE_ELEMENT_OFFSET + ((this.tableElementSizeHeight) / 2);
+        this.snappingPoints[0].x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.snappingPoints[0].y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2) + ((this.tableElementSizeHeight) / 2);
         
-        this.snappingPoints[1].x = TABLE_ELEMENT_OFFSET + (this.tableElementSizeWidth) - SNAPPING_POINT_SIZE;
-        this.snappingPoints[1].y =  TABLE_ELEMENT_OFFSET + ((this.tableElementSizeHeight) / 2);
+        this.snappingPoints[1].x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2) + (this.tableElementSizeWidth) - SNAPPING_POINT_SIZE;
+        this.snappingPoints[1].y =  TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2) + ((this.tableElementSizeHeight) / 2);
 
         for(let sp of this.snappingPoints) {
             sp.applyTransform();
@@ -1645,21 +1659,9 @@ class ExpandedTable extends Table {
 
     snappingPointsActive=true;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     initializeSeats() {
@@ -1775,21 +1777,9 @@ class SquareTable extends Table {
     tableElementSizeWidth = 200;
     tableElementSizeHeight = 200;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -1825,21 +1815,9 @@ class RectangularTable extends Table {
     tableElementSizeWidth = 300;
     tableElementSizeHeight = 130;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -1876,21 +1854,9 @@ class RectangularLTable extends Table {
     tableElementSizeWidth = 450;
     tableElementSizeHeight = 130;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -1926,20 +1892,9 @@ class RoundTable extends Table {
     tableElementSizeWidth = 180;
     tableElementSizeHeight = 180;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
+        this.build(world);
     }
 
     addTableElement() {
@@ -1974,22 +1929,10 @@ class ForestMTable extends Table {
     tableElement;
     tableElementSizeWidth = 195;
     tableElementSizeHeight = 125;
-
-    constructor() {
+    
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -2000,8 +1943,8 @@ class ForestMTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
 
         this.tableElementTransform();
@@ -2034,21 +1977,9 @@ class CoupleRoundTable extends Table {
     tableElementSizeWidth = 180;
     tableElementSizeHeight = 180;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -2060,8 +1991,8 @@ class CoupleRoundTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "50%";
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
         this.tableElementTransform();
     }
@@ -2094,21 +2025,9 @@ class CoupleOvalSTable extends Table {
     tableElementSizeWidth = 250;
     tableElementSizeHeight = 130;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -2120,8 +2039,8 @@ class CoupleOvalSTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = 30;
-        this.tableElementPosition.y = 40;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
 
         this.tableElementTransform();
@@ -2203,21 +2122,9 @@ class CoupleOvalMTable extends Table {
     tableElementSizeWidth = 400;
     tableElementSizeHeight = 130;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -2229,8 +2136,8 @@ class CoupleOvalMTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = 30;
-        this.tableElementPosition.y = 40;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
 
         this.tableElementTransform();
@@ -2324,21 +2231,9 @@ class CoupleOvalMFullTable extends Table {
     tableElementSizeWidth = 400;
     tableElementSizeHeight = 130;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -2350,8 +2245,8 @@ class CoupleOvalMFullTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = 30;
-        this.tableElementPosition.y = 40;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
 
         this.tableElementTransform();
@@ -2469,23 +2364,10 @@ class CoupleOvalLTable extends Table {
     tableElementSizeWidth = 600;
     tableElementSizeHeight = 130;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
-
 
     addTableElement() {
         this.tableElement = document.createElement('div');
@@ -2496,8 +2378,8 @@ class CoupleOvalLTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = 30;
-        this.tableElementPosition.y = 40;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
         this.tableElementTransform();
     }
@@ -2626,21 +2508,9 @@ class CoupleOvalLFullTable extends Table {
     tableElementSizeWidth = 600;
     tableElementSizeHeight = 130;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -2652,8 +2522,8 @@ class CoupleOvalLFullTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = 30;
-        this.tableElementPosition.y = 40;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
         this.tableElementTransform();
     }
@@ -2684,21 +2554,9 @@ class CoupleForestSTable extends Table {
     tableElementSizeWidth = 205;
     tableElementSizeHeight = 110;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -2709,8 +2567,8 @@ class CoupleForestSTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
         this.tableElementTransform();
     }
@@ -2794,21 +2652,9 @@ class CoupleForestMTable extends Table {
     tableElementSizeWidth = 195;
     tableElementSizeHeight = 125;
 
-    constructor() {
+    constructor(world) {
         super();
-        this.dragable = true;
-        this.element = document.createElement('div');
-        this.element.classList.add('table');
-        
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-
-        this.halfWidth = this.width / 2;
-        this.halfHeight = this.height / 2;
-
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
-
+        this.build(world);
     }
 
     addTableElement() {
@@ -2819,8 +2665,8 @@ class CoupleForestMTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET;
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET;
+        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
+        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
 
         this.tableElementTransform();
     }
@@ -3344,6 +3190,7 @@ class MouseManager {
                 this.world.removeTable(tableCouple);
             }
             
+            newTableCouple.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
             newTableCouple.init();
             this.world.addTable(newTableCouple);
             newTableCouple.applyTransform();
@@ -3376,6 +3223,7 @@ class MouseManager {
             this.world.removeTable(tableCouple);
         }
 
+        newTableCouple.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
         newTableCouple.init();
         this.world.addTable(newTableCouple);
         newTableCouple.applyTransform();
@@ -3604,6 +3452,7 @@ class MouseManager {
                 const table1 = new TableTypes[event.toElement.dataset["tabletype"]](this.world);
                 table1.x = pos.x - table1.width;
                 table1.y = pos.y - table1.height;
+                table1.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
                 table1.init();
                 this.world.addTable(table1);
                 table1.applyTransform();
@@ -3922,7 +3771,6 @@ class RoomEditor {
             object.y = serializedObject.y;
             object.scale = serializedObject.scale;
             object.rotate = serializedObject.rotate | 0;
-            object.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
             object.code = serializedObject.code;
             object.tablePurpose = serializedObject.tablePurpose;
             object.name = serializedObject.name;
@@ -4292,7 +4140,12 @@ class ManageGuestsModal {
                 this.drawTable();
             }, 200);
         } else {
-            this.miniTable = new TableTypes[this.subjectTable.tableType]();
+            // TODO THE WORLD :o
+            this.miniTable = new TableTypes[this.subjectTable.tableType]({
+                roomPlan: {
+                    spaceBetweenTables: 0,
+                }
+            });
             this.miniTable.x = ((bounding.width - this.miniTable.width) / 2) - this.miniTable.halfWidth;
             this.miniTable.y = 60 - this.miniTable.halfHeigh;
             this.miniTable.init();
