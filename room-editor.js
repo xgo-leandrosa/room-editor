@@ -1080,7 +1080,7 @@ class World extends RoomObject {
             if(tablesSnapping)
                 break;
 
-            for(let table2 of this.tables.filter(t => t.snappingPointsActive && table1 != t && (table1.tableElementSize|table1.tableElementSizeWidth) == (t.tableElementSize|t.tableElementSizeWidth))) {
+            for(let table2 of this.tables.filter(t => t.snappingPointsActive && table1 != t && (table1.tableElementSizeHeight) == (t.tableElementSizeHeight))) {
                 if(tablesSnapping)
                     break;
 
@@ -1155,12 +1155,12 @@ class World extends RoomObject {
                 }
             }
 
-            expandedTable.x -= (tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize) + ((tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize) / 2) ;
-            expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize;
-            expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth || tableToJoin.tableElementSize;
-            expandedTable.width = expandedTable.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
+            expandedTable.x -= (tableToJoin.tableElementSizeWidth) + ((tableToJoin.tableElementSizeWidth) / 2) ;
+            expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth;
+            expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth;
+            expandedTable.width = expandedTable.tableElementSizeWidth + expandedTable.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
 
-            expandedTable.topsNumbersSeats += table1.topsNumbersSeats;
+            expandedTable.seatsTopNumber += tableToJoin.seatsTopNumber;
 
             expandedTable.sizeChanged();
             expandedTable.applyTransform();
@@ -1172,15 +1172,16 @@ class World extends RoomObject {
 
         } else {
             const pos = this.getMidpoint({ x: table1.x, y: table1.y}, { x: table2.x, y: table2.y})
-            const newExpandedTable = new ExpandedTable(this.world);
             
-            newExpandedTable.tableElementSizeHeight = table1.tableElementSizeHeight || table1.tableElementSize;
-            newExpandedTable.tableElementSizeWidth = (table1.tableElementSizeWidth || table1.tableElementSize) + (table2.tableElementSizeWidth || table2.tableElementSize);
+            const newExpandedTable = new ExpandedTable(this);
+            newExpandedTable.spaceBetweenTables = this.roomPlan.spaceBetweenTables;
+            newExpandedTable.tableElementSizeHeight = table1.tableElementSizeHeight;
+            newExpandedTable.tableElementSizeWidth = (table1.tableElementSizeWidth) + (table2.tableElementSizeWidth);
             
-            newExpandedTable.snappingPoints.find(sp => sp.side == 'right').x = newExpandedTable.tableElementSizeWidth + TABLE_ELEMENT_OFFSET;
+            newExpandedTable.snappingPoints.find(sp => sp.side == 'right').x = newExpandedTable.tableElementSizeWidth + (this.roomPlan.spaceBetweenTables/2) +  TABLE_ELEMENT_OFFSET;
             
             newExpandedTable.height = table1.height;
-            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
+            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + this.roomPlan.spaceBetweenTables +(TABLE_ELEMENT_OFFSET * 2);
 
             newExpandedTable.x = pos.x - (newExpandedTable.width / 2);
             newExpandedTable.y = pos.y;
@@ -1386,7 +1387,6 @@ class Table extends RoomObject {
 
         this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
         this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        debugger;
 
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
@@ -1406,8 +1406,8 @@ class Table extends RoomObject {
 
         // RECALCULATE TABLE NUMERATION
         if(this.tableElementNumeration) {
-            this.tableElementNumeration.style.left = `${this.halfWidth - TABLE_ELEMENT_OFFSET - 18}px`;
-            this.tableElementNumeration.style.top = `${this.halfHeight  - TABLE_ELEMENT_OFFSET - 25}px`;
+            this.tableElementNumeration.style.left = `${this.halfWidth - (this.spaceBetweenTables / 2) - TABLE_ELEMENT_OFFSET - 18}px`;
+            this.tableElementNumeration.style.top = `${this.halfHeight  - (this.spaceBetweenTables / 2) - TABLE_ELEMENT_OFFSET - 25}px`;
         }
 
         this.calculateTableAreaCorners();
@@ -3782,10 +3782,10 @@ class RoomEditor {
                 object.tableElementSizeHeight = serializedObject.height;
                 object.tableElementSizeWidth = serializedObject.width;
                 
-                object.snappingPoints.find(sp => sp.side == 'right').x = object.tableElementSizeWidth + TABLE_ELEMENT_OFFSET;
+                object.snappingPoints.find(sp => sp.side == 'right').x = object.tableElementSizeWidth + (this.spaceBetweenTables/2) + TABLE_ELEMENT_OFFSET;
                 
-                object.width = object.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
-                object.height = object.tableElementSizeHeight + (TABLE_ELEMENT_OFFSET * 2)
+                object.width = object.tableElementSizeWidth + (this.spaceBetweenTables) + (TABLE_ELEMENT_OFFSET * 2);
+                object.height = object.tableElementSizeHeight + (this.spaceBetweenTables) + (TABLE_ELEMENT_OFFSET * 2)
                 
                 object.seatsTopNumber = serializedObject.seatsTopNumber;
                 object.seatsSidesNumber = serializedObject.seatsSidesNumber;
