@@ -1781,7 +1781,6 @@ class SquareTable extends Table {
 
         this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
         this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables/2);
-
         this.tableElementTransform();
     }
 }
@@ -3870,9 +3869,9 @@ class RoomEditor {
 
         if(serializedData.roomPlan.constraintPoints) {
             for(let cp of serializedData.roomPlan.constraintPoints) {
-                this.world.roomPlan.addConstraintZonePolygon(cp.x, cp.y);
+                this.world.roomPlan.constraintZone.addZonePolygon(cp.x, cp.y);
             }
-            this.world.roomPlan.updateConstrainZonePoligonElement();
+            this.world.roomPlan.constraintZone.updateZonePoligonElement();
         }
 
         this.world.roomPlan.spaceBetweenTables = serializedData.roomPlan.spaceBetweenTables;
@@ -3884,33 +3883,35 @@ class RoomEditor {
             object.y = serializedObject.y;
             object.scale = serializedObject.scale;
             object.rotate = serializedObject.rotate | 0;
-            object.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables;
+            object.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
             object.code = serializedObject.code;
             object.tablePurpose = serializedObject.tablePurpose;
             object.name = serializedObject.name;
             object.notes = serializedObject.notes;
             object.orderPosition = serializedObject.orderPosition;
-            object.init();
             
             // ExpandedTable Only
             if(object.tableType == "ExpandedTable") {
                 object.tableElementSizeHeight = serializedObject.height;
                 object.tableElementSizeWidth = serializedObject.width;
-            
+                
                 object.snappingPoints.find(sp => sp.side == 'right').x = object.tableElementSizeWidth + TABLE_ELEMENT_OFFSET;
                 
                 object.width = object.tableElementSizeWidth + (TABLE_ELEMENT_OFFSET * 2);
                 object.height = object.tableElementSizeHeight + (TABLE_ELEMENT_OFFSET * 2)
-
+                
                 object.seatsTopNumber = serializedObject.seatsTopNumber;
                 object.seatsSidesNumber = serializedObject.seatsSidesNumber;
-
-
+                
+                
+                object.init();
                 object.tableElementUpdateSize();
                 object.updateSnappingPoints();
                 object.sizeChanged();
                 object.applyTransform();
                 object.updateSeats();
+            } else {
+                object.init();
             }
 
             for(const objSeat of serializedObject.seats) {
