@@ -3749,6 +3749,11 @@ class RoomEditor {
         activeLanguage = "en"
     ) {
         this.editorContainerElement = document.getElementById(idOfElement);
+
+        if(!this.editorContainerElement) {
+            throw Error("Element with id: " + idOfElement + " not found !");
+        }
+
         this.editorContainerElement.style.overflow = "hidden";
         this.translationSystem = new TranslationSystem();
         this.translationSystem.setActiveLanguage(activeLanguage);
