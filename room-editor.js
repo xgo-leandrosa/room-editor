@@ -665,7 +665,16 @@ const DEFAULT_TRANSLATIONS = [
         },
         tag: "CHEF_CHOICE",
         platform: "BO",
-    }
+    },
+    {
+        value: {
+            pt: "Ordem circular",
+            en: "Circular order",
+            es: "Orden circular",
+            fr: "Ordre circulaire"
+        },
+        tag: "ORDER_POSITION_LABEL"
+    },
 ];
 
 
@@ -2904,9 +2913,12 @@ class MouseManager {
     uids = {};
     uiEnable = true;
 
-    constructor(world, editorContainerElement, guestModal) {
-        this.editorContainerElement = editorContainerElement;
-        this.guestModal = guestModal;
+    constructor(world, roomEditor) {
+        this.roomEditor = roomEditor;
+        this.editorContainerElement = roomEditor.editorContainerElement;
+        this.guestModal = roomEditor.guestModal;
+        this.orderPositionModal = roomEditor.orderPositionModal;
+
         this.translationSystem = new TranslationSystem();
 
         this.initializeContextMenu();
@@ -2924,9 +2936,6 @@ class MouseManager {
 
     }
 
-    setRoomEditor(roomEditor) {
-        this.roomEditor = roomEditor;
-    }
 
     setBindings() {
         this.editorContainerElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
@@ -3187,15 +3196,15 @@ class MouseManager {
 
 
                 var $span = $(`
-                <span class="option">
+                <span class="editor-option">
                     <div style="display: inline-flex">
                         <div class="table_ui ${table?.title}"></div>
                         <span translation-key="${table.text}">${translation}</span>
                     </div>
-                    <div class="pax">
+                    <!--<div class="pax">
                         <i class="fa-regular fa-user"></i>
                         14pax
-                    </div>
+                    </div>-->
                 </span>`);
                 return $span;
             },
@@ -3208,15 +3217,15 @@ class MouseManager {
                     translation = this.translationSystem.getTranslation(table.text);
 
                 var $state = $(
-                    `<span class="option">
+                    `<span class="editor-option">
                     <div style="display: inline-flex">
                         <div class="table_ui ${table?.title}"></div>
                         <span translation-key="${table.text}">${translation}</span>
                     </div>
-                    <div class="pax">
+                    <!--<div class="pax">
                         <i class="fa-regular fa-user"></i>
                         14pax
-                    </div>
+                    </div>-->
                 </span>`
                 );
                 return $state;
@@ -3373,6 +3382,19 @@ class MouseManager {
                             })
                         );
                         break;
+                    case "ORDER_POSITION":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-sort",
+                                text: this.translationSystem.getTranslation("ORDER_POSITION_LABEL"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'ORDER_POSITION')
+                                }
+                            })
+                        );
+                        break;
                 }
             }
         }
@@ -3442,6 +3464,10 @@ class MouseManager {
         const options = [];
 
         if (this.selectedObject && this.selectedObject.tableType) {
+
+            if(this.roomEditor.mode == RoomEditorMode.ROOM_PLAN) {
+                options.push("ORDER_POSITION");
+            }
 
             if (this.selectedObject.tablePurpose == "COUPLE" && this.roomEditor.mode == RoomEditorMode.COUPLE) {
                 options.push("CHANGE_COUPLE");
@@ -3634,6 +3660,9 @@ class MouseManager {
                 this.world.removeTable(this.selectedObject);
                 this.setSelectedObject(null);
                 break;
+            case "ORDER_POSITION":
+                this.orderPositionModal.open(this.selectedObject);
+                break;
             default:
                 throw new Error("Unexpected action");
         }
@@ -3651,6 +3680,12 @@ class MouseManager {
     }
 
     worldFitScreen() {
+
+        if(this.roomEditor.editorContainerElement.getClientRects().length == 0) {
+            console.warn("Can't use this function with display none")
+            return;
+        }
+
         this.world.scale = this.roomEditor.editorContainerElement.getClientRects()[0].width / this.world.roomPlan.width - 0.001;
         this.world.x = -(this.world.roomPlan.halfWidth * (1 - this.world.scale));
         this.world.y = -(this.world.roomPlan.halfHeight * (1 - this.world.scale));
@@ -3719,10 +3754,10 @@ class RoomEditor {
         this.translationSystem.setActiveLanguage(activeLanguage);
 
         this.guestsModal = new ManageGuestsModal();
+        this.orderPositionModal = new OrderPositionModal();
 
      
-        this.mouseManager = new MouseManager(this.world, this.editorContainerElement, this.guestsModal);
-        this.mouseManager.setRoomEditor(this);
+        this.mouseManager = new MouseManager(this.world, this);
     }
 
     valid() {
@@ -3926,7 +3961,7 @@ class RoomEditor {
             object.name = serializedObject.name;
             object.notes = serializedObject.notes;
             object.orderPosition = serializedObject.orderPosition;
-            object.active = true;
+            object.active = (serializedObject.active === true || serializedObject.active === false) ? serializedObject.active : true;
             
             
             // ExpandedTable Only
@@ -3964,8 +3999,10 @@ class RoomEditor {
             }
 
 
-            if(serializedObject.active === false) {
+            if(object.active === false) {
                 object.disable();
+            } else {
+                object.enable();
             }
 
             // Add the deserialized object to the world
@@ -3999,6 +4036,120 @@ class RoomEditor {
 
     activeCoupleTables(tablesTypes) {
         this.mouseManager.setActiveCouplesTables(tablesTypes);
+    }
+}
+
+class OrderPositionModal {
+    modalElement;
+    modalBodyElement;
+
+    constructor() {
+        this.translationSystem = new TranslationSystem();
+        this.modalElement = document.createElement("div");
+        this.modalElement.classList.add("editor-modal-wrap");
+        this.modalElement.id = "myModal";
+        const editorModalElement = document.createElement("div");
+        editorModalElement.classList.add("editor-modal")
+        editorModalElement.style.width = "25%";
+        editorModalElement.style['minWidth'] = "470px";
+
+        this.modalElement.appendChild(editorModalElement);
+
+        const closeElementButton = document.createElement("i");
+        closeElementButton.id = "iconClose";
+        closeElementButton.classList.add("fa-solid");
+        closeElementButton.classList.add("fa-x");
+        closeElementButton.classList.add("editor-modal-close");
+        closeElementButton.onclick = () => {
+            this.close();
+        }
+        editorModalElement.appendChild(closeElementButton);
+
+        const modalHeaderElement = document.createElement("div");
+        modalHeaderElement.classList.add("editor-modal-header");
+        modalHeaderElement.innerHTML = '<div class="editor-modal-title" translation-key="ORDER_POSITION_LABEL">Ordem circular</div>';
+        editorModalElement.appendChild(modalHeaderElement);
+
+        this.modalBodyElement = document.createElement("div");
+        this.modalBodyElement.classList.add("editor-modal-body");
+        editorModalElement.appendChild(this.modalBodyElement);
+
+        // Add modal footer
+        const modalFooterElement = document.createElement("div");
+        modalFooterElement.classList.add("editor-modal-footer");
+
+        const btnCancelElement = document.createElement("button");
+        btnCancelElement.id = "btnClose";
+        btnCancelElement.type = "button";
+        btnCancelElement.classList.add("editor-btn");
+        btnCancelElement.classList.add("editor-btn-default");
+        btnCancelElement.setAttribute('translation-key', "CANCEL");
+        btnCancelElement.textContent = "Cancelar";
+        btnCancelElement.onclick = () => {
+            this.close();
+        };
+        modalFooterElement.appendChild(btnCancelElement);
+
+        const btnSaveElement = document.createElement("button");
+        btnSaveElement.type = "submit";
+        btnSaveElement.classList.add("editor-btn");
+        btnSaveElement.classList.add("editor-btn-primary");
+        btnSaveElement.textContent = "Gravar";
+        btnSaveElement.onclick = () => {
+            this.save();
+        };
+        modalFooterElement.appendChild(btnSaveElement);
+
+        editorModalElement.appendChild(modalFooterElement);
+
+        document.body.appendChild(this.modalElement);
+    }
+
+    open(table) {
+        this.createModalBody(table);
+        this.modalElement.style.display = "block";
+        this.translationSystem.reviewPage();
+    }
+
+    close() {
+        this.modalElement.style.display = "none";
+    }
+
+    createModalBody(table) {
+        this.subjectTable = table;
+        this.modalBodyElement.innerHTML = '';
+        this.formElements = {};
+
+        // Create the first row with buttons
+        const row1 = document.createElement("div");
+        row1.classList.add("editor-row");
+
+
+        const col1 = document.createElement("div");
+        col1.classList.add("editor-col");
+        
+        const label = document.createElement("div");
+        const labelSpan = document.createElement("span");
+        labelSpan.innerText = "Ordem";
+        const labelSpanDots = document.createElement("span");
+        labelSpanDots.innerText = ":";
+        label.appendChild(labelSpan);
+        label.appendChild(labelSpanDots);
+
+        const input = document.createElement("input");
+        input.type = "number";
+        input.id = "orderPositionInput";
+
+        col1.appendChild(label);
+        col1.appendChild(input);
+
+        const col2 = document.createElement("div");
+        col2.classList.add("editor-col");
+
+        row1.appendChild(col1);
+        row1.appendChild(col2);
+
+        this.modalBodyElement.appendChild(row1);
     }
 }
 
@@ -4143,8 +4294,6 @@ class ManageGuestsModal {
 
         const formElement = document.createElement("form");
         formElement.name = "editor-table-form";
-        formElement.action = "/action.php";
-        formElement.method = "post";
         formElement.onsubmit = (event) => this.submitForm(event);
         formElement.classList.add("editor-form");
 
