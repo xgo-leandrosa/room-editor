@@ -3667,6 +3667,11 @@ class RoomEditor {
         return result;
     }
 
+    setAdministrationMode(active) {
+        this.setMode(ROOM_PLAN.ROOM_PLAN);
+        console.warn("function deprecated use the setMode function instead");
+    }
+
     setMode(mode) {
         if(!RoomEditorMode[mode]) {
             throw new Error("Invalid Editor Mode");
