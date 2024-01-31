@@ -3668,7 +3668,7 @@ class RoomEditor {
     }
 
     setAdministrationMode(active) {
-        this.setMode(ROOM_PLAN.ROOM_PLAN);
+        this.setMode(RoomEditorMode.ROOM_PLAN);
         console.warn("function deprecated use the setMode function instead");
     }
 
