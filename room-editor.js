@@ -2879,6 +2879,9 @@ class MouseManager {
     activeGuestTables = [];
     activeCouplesTables = [];
 
+    uids = {};
+    uiEnable = true;
+
     constructor(world, editorContainerElement, guestModal) {
         this.editorContainerElement = editorContainerElement;
         this.guestModal = guestModal;
@@ -2914,13 +2917,15 @@ class MouseManager {
     setWorld(world) {
         this.world = world;
 
-        this.pointerDiv = document.createElement("div");
-        this.pointerDiv.style.width = "10px";
-        this.pointerDiv.style.height = "10px";
-        this.pointerDiv.style.background = "#c7c7c7";
-        this.pointerDiv.style['border-radius'] = '50%';
-        this.pointerDiv.style['border'] = '1px solid #979797';
-        this.world.element.appendChild(this.pointerDiv);
+        if(!this.pointerDiv) {
+            this.pointerDiv = document.createElement("div");
+            this.pointerDiv.style.width = "10px";
+            this.pointerDiv.style.height = "10px";
+            this.pointerDiv.style.background = "#c7c7c7";
+            this.pointerDiv.style['border-radius'] = '50%';
+            this.pointerDiv.style['border'] = '1px solid #979797';
+            this.world.element.appendChild(this.pointerDiv);
+        }
     }
 
 
@@ -2979,9 +2984,9 @@ class MouseManager {
 
 
     initializeUi() {
-        const ui1 = document.createElement('div');
-        ui1.classList.add("editor-row");
-        ui1.classList.add("ui-row");
+        this.uids['ui1'] = document.createElement('div');
+        this.uids['ui1'].classList.add("editor-row");
+        this.uids['ui1'].classList.add("ui-row");
         const mainContainer = document.createElement('div');
         mainContainer.style.display = 'inline-flex';
       
@@ -3092,15 +3097,15 @@ class MouseManager {
         
         mainContainer.appendChild(coupleInput);
     
-        ui1.appendChild(mainContainer);
+        this.uids['ui1'].appendChild(mainContainer);
         
-        this.editorContainerElement.appendChild(ui1);
+        this.editorContainerElement.appendChild(this.uids['ui1']);
 
-        const ui3 = document.createElement('div');
-        ui3.classList.add("editor-row");
-        ui3.classList.add("ui-row");
-        ui3.classList.add("room-editor-row-stats");
-        ui3.innerHTML = `
+        this.uids['ui3'] = document.createElement('div');
+        this.uids['ui3'].classList.add("editor-row");
+        this.uids['ui3'].classList.add("ui-row");
+        this.uids['ui3'].classList.add("room-editor-row-stats");
+        this.uids['ui3'].innerHTML = `
             <div class="room-editor-stats">
                 <span translation-key="ADULT_AGE">Maior de 8 anos:</span>
                 <span id="editorTotalAdult" class="room-editor-stat-value">0</span>
@@ -3127,14 +3132,27 @@ class MouseManager {
             </div>
         `;
 
-        this.editorContainerElement.appendChild(ui1);
-        this.editorContainerElement.appendChild(ui3);
+        this.editorContainerElement.appendChild(this.uids['ui3']);
 
 
 
         $(document).ready(() => {
             this.initializeCoupleTableSelect();    
         });
+    }
+
+    enableUI() {
+        this.uiEnable = true;
+        for(let ui of Object.keys(this.uids)) {
+            delete this.uids[ui].style.display;
+        }
+    }
+    
+    disableUI() {
+        this.uiEnable = false;
+        for(let ui of Object.keys(this.uids)) {
+            this.uids[ui].style.display = 'none';
+        }
     }
 
     initializeCoupleTableSelect() {
@@ -3387,12 +3405,18 @@ class MouseManager {
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
         //console.log("World Position:", { x, y })
-        //this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
     }
 
     handleContextMenu(event) {
+
+        if(this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
+            event.preventDefault();
+            return;
+        }
+
         const options = [];
 
         if (this.selectedObject && this.selectedObject.tableType) {
@@ -3401,7 +3425,9 @@ class MouseManager {
                 options.push("CHANGE_COUPLE");
             }
 
-            options.push("MANAGE_GUESTS");
+            if(this.roomEditor.mode != RoomEditorMode.ROOM_PLAN) {
+                options.push("MANAGE_GUESTS");
+            }
 
             if (this.selectedObject.tablePurpose != "COUPLE") {
                 options.push("ROTATE");
@@ -3429,6 +3455,10 @@ class MouseManager {
     }
 
     handleMouseDown(event) {
+
+        if(this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
+            return;
+        }
 
         if (event.button === 0) {
             this.dragging = true;
@@ -3487,6 +3517,11 @@ class MouseManager {
     }
 
     handleMouseMove(event) {
+
+        if(this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
+            return;
+        }
+
         //document.getElementById("mousePosition").innerHTML = `X: ${event.clientX}px Y:${event.clientY} px`;
 
         if (!this.dragging || event.buttons !== 1) {
@@ -3512,6 +3547,10 @@ class MouseManager {
     }
 
     handleMouseUp(event) {
+        if(this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
+            return;
+        }
+
         if (event.button === 0) {
             this.dragging = false;
 
@@ -3523,6 +3562,11 @@ class MouseManager {
     }
 
     handleMouseWheel(event) {
+
+        if(this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
+            return;
+        }
+
         const scaleDelta = event.deltaY > 0 ? -1 : 1;
         const zoom = Math.exp(scaleDelta * this.zoomIntensity);
         const pos1 = this.getWorldPosition(event);
@@ -3583,6 +3627,13 @@ class MouseManager {
     callChangeCoupleEvent() {
         this.changeCoupleEvent();
     }
+
+    worldFitScreen() {
+        this.world.scale = this.roomEditor.editorContainerElement.getClientRects()[0].width / this.world.roomPlan.width - 0.001;
+        this.world.x = -(this.world.roomPlan.halfWidth * (1 - this.world.scale));
+        this.world.y = -(this.world.roomPlan.halfHeight * (1 - this.world.scale));
+        this.world.applyTransform();
+    }
 }
 
 class TranslationSystem {
@@ -3625,6 +3676,7 @@ const RoomEditorMode = {
     COUPLE: 'COUPLE',
     ADMINISTRATOR: 'ADMINISTRATOR',
     ROOM_PLAN: 'ROOM_PLAN',
+    READ_ONLY: 'READ_ONLY',
 }
 
 class RoomEditor {
@@ -3686,6 +3738,17 @@ class RoomEditor {
         }
 
         this.mode = mode;
+
+        if(this.mode == RoomEditorMode.READ_ONLY) {
+            // SET ZOOM FIT ON SCREEN
+            this.mouseManager.worldFitScreen();
+            // HIDE UI
+            this.mouseManager.disableUI();
+
+            this.mouseManager.setSelectedObject(null);
+        } else {
+            this.mouseManager.enableUI();
+        }
     }
 
     setRoomPlan(roomPlanImg, constraintPoints = []) {
