@@ -800,6 +800,8 @@ class RoomObject {
 
 const SNAPPING_POINT_ACTIVE_DISTANCE=20;
 const SNAPPING_POINT_BLOW_DISTANCE=230;
+const SNAPPING_POINT_INITIAL_SCALE=0.1;
+const SNAPPING_POINT_FINAL_SCALE=2;
 
 class World extends RoomObject {
     roomPlan;
@@ -1060,7 +1062,8 @@ class World extends RoomObject {
       
         if (distance < distanceThreshold) {
             // Quadratic scaling function: scale = 1 + (distance / distanceThreshold)^2
-            return 1 + 0.5 * (1 - Math.pow(distance / distanceThreshold, 2));
+            
+            return SNAPPING_POINT_INITIAL_SCALE + (SNAPPING_POINT_FINAL_SCALE - SNAPPING_POINT_INITIAL_SCALE) * (1 - Math.pow(distance / distanceThreshold, 2));
         } else {
             return 0;
         }
@@ -1384,7 +1387,7 @@ class Table extends RoomObject {
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
-
+        
         this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
         this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
 
@@ -1410,7 +1413,7 @@ class Table extends RoomObject {
             this.tableElementNumeration.style.top = `${this.halfHeight  - (this.spaceBetweenTables / 2) - TABLE_ELEMENT_OFFSET - 25}px`;
         }
 
-        this.calculateTableAreaCorners();
+        this.calculateTableAreaCorners();       
     }
 
     init() {
@@ -3428,7 +3431,7 @@ class MouseManager {
         const pos = this.getWorldPosition(event);
 
         
-        if (event.button == 1 && this.roomEditor.administrationMode) {
+        if (event.button == 1 && this.roomEditor.mode == RoomEditorMode.ROOM_PLAN) {
 
             if(this.roomEditor.world.roomPlan.editorMode == "CONTRAINT_ZONE") {
                 this.roomEditor.world.roomPlan.constraintZone.addZonePolygon(pos.x, pos.y);
@@ -3610,13 +3613,19 @@ class TranslationSystem {
     }
 }
 
+const RoomEditorMode = {
+    COUPLE: 'COUPLE',
+    ADMINISTRATOR: 'ADMINISTRATOR',
+    ROOM_PLAN: 'ROOM_PLAN',
+}
+
 class RoomEditor {
     editorContainerElement = null;
     world = null;
     mouseManager = null;
     translationSystem;
     
-    administrationMode = false;
+    mode = 'COUPLE';
 
     constructor(
         idOfElement,
@@ -3658,8 +3667,12 @@ class RoomEditor {
         return result;
     }
 
-    setAdministrationMode(active) {
-        this.administrationMode = active;
+    setMode(mode) {
+        if(!RoomEditorMode[mode]) {
+            throw new Error("Invalid Editor Mode");
+        }
+
+        this.mode = mode;
     }
 
     setRoomPlan(roomPlanImg, constraintPoints = []) {
@@ -3702,7 +3715,7 @@ class RoomEditor {
                 scale: this.world.scale,
                 spaceBetweenTables: this.world.roomPlan.spaceBetweenTables,
                 constraintPoints: [
-                    ...this.world.roomPlan.constraintZonePolygon
+                    ...this.world.roomPlan.constraintZone.polygon
                 ]
             },
             tables: [],
