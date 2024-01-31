@@ -785,10 +785,12 @@ class RoomObject {
             };
         }
 
-        this.corners.coordsConterClockwise = this.sortCoordinatesCounterclockwise([{...this.corners.lt},
+        this.corners.coordsConterClockwise = this.sortCoordinatesCounterclockwise([
+            {...this.corners.lt},
             {...this.corners.rt},
-                {...this.corners.lb},
-                    {...this.corners.rb}]);
+            {...this.corners.lb},
+            {...this.corners.rb}
+        ]);
     }
 
     applyTransform() {
@@ -802,7 +804,7 @@ const SNAPPING_POINT_ACTIVE_DISTANCE=20;
 const SNAPPING_POINT_BLOW_DISTANCE=230;
 const SNAPPING_POINT_INITIAL_SCALE=0.1;
 const SNAPPING_POINT_FINAL_SCALE=2;
-
+const DEBUG_POINTS=false;
 class World extends RoomObject {
     roomPlan;
 
@@ -973,24 +975,26 @@ class World extends RoomObject {
     }
 
     checkTablesInConstraintZone() {
-        for (let i = 0; i < this.tables.length; i++) {
-            this.tables[i].isSafe(TABLE_DANGER_TYPE.OUT_CONSTRAINT_ZONE);
+        const filteredTables = this.tables.filter(t => t.active == true);
+        for (let i = 0; i < filteredTables.length; i++) {
+            filteredTables[i].isSafe(TABLE_DANGER_TYPE.OUT_CONSTRAINT_ZONE);
         }
 
-        for(let table of this.tables) {
+        for(let table of filteredTables) {
             this.checkTableInConstraintZone(table);
         }
     }
     
     checkTableOverlapping(table1, table2) {
         
-        // TODO ADD FLAG
-        //this.setDebugPoints(table1, "red");
-        //this.setDebugPoints(table2, "blue");
+        if(DEBUG_POINTS) {
+            this.setDebugPoints(table1, "red");
+            this.setDebugPoints(table2, "blue");
+        }
 
         if(
             this.isPointInPolygon(table1.corners.lt.x, table1.corners.lt.y, table2.corners.coordsConterClockwise)
-        ) {
+            ) {
             return true;
         }
         if(
@@ -1015,21 +1019,25 @@ class World extends RoomObject {
 
     areTablesOverlapping() {
         // Helper function to calculate the intersection area of two rectangles
-        for (let i = 0; i < this.tables.length; i++) {
-            this.tables[i].isSafe(TABLE_DANGER_TYPE.OVERLAPPING);
+        const filteredTables = this.tables.filter(t => t.active == true);
+        
+        for (let i = 0; i < filteredTables.length; i++) {
+            filteredTables[i].isSafe(TABLE_DANGER_TYPE.OVERLAPPING);
         }
 
-        // TODO ADD FLAG
-        //this.clearDebugPoints();
+        if(DEBUG_POINTS) {
+            this.clearDebugPoints();
+        }
 
         // Check if any pair of tables overlap
-        for (let i = 0; i < this.tables.length; i++) {
-            for (let j = i + 1; j < this.tables.length; j++) {
+        for (let i = 0; i < filteredTables.length; i++) {
+            const filteredTablesWihoutTableI = filteredTables.filter(t => t !== filteredTables[i]);
+            for (let j = 0; j < filteredTablesWihoutTableI.length; j++) {
                 // Compare the two tables using their coordinates and dimensions
-                const tablesOverlapping = this.checkTableOverlapping(this.tables[i], this.tables[j]);
+                const tablesOverlapping = this.checkTableOverlapping(filteredTables[i], filteredTablesWihoutTableI[j]);
                 if (tablesOverlapping) {
-                    this.tables[j].isInDanger(TABLE_DANGER_TYPE.OVERLAPPING);
-                    this.tables[i].isInDanger(TABLE_DANGER_TYPE.OVERLAPPING);
+                    filteredTablesWihoutTableI[j].isInDanger(TABLE_DANGER_TYPE.OVERLAPPING);
+                    filteredTables[i].isInDanger(TABLE_DANGER_TYPE.OVERLAPPING);
                     //return true;
                 }
             }
@@ -1041,9 +1049,10 @@ class World extends RoomObject {
     }
 
     updateTablesCode() {
-        for (let i = 0; i < this.tables.length; i++) {
-            this.tables[i].code = i;
-            this.tables[i].updateTableNumerationValue();
+        const filteredTables = this.tables.filter(t => t.active == true);
+        for (let i = 0; i < filteredTables.length; i++) {
+            filteredTables[i].code = i;
+            filteredTables[i].updateTableNumerationValue();
         }
     }
 
@@ -1071,7 +1080,9 @@ class World extends RoomObject {
       
     checkSnappingPoints() {
 
-        for(let table of this.tables.filter(t => t.snappingPointsActive)) {
+        const filteredTables = this.tables.filter(t => t.active == true && t.snappingPointsActive);
+
+        for(let table of filteredTables) {
             for(let sp of table.snappingPoints) {
                 sp.scale = 0;
                 sp.applyTransform();
@@ -1079,11 +1090,11 @@ class World extends RoomObject {
         }
 
         let  tablesSnapping = null;
-        for(let table1 of this.tables.filter(t => t.snappingPointsActive)) {
+        for(let table1 of filteredTables) {
             if(tablesSnapping)
                 break;
 
-            for(let table2 of this.tables.filter(t => t.snappingPointsActive && table1 != t && (table1.tableElementSizeHeight) == (t.tableElementSizeHeight))) {
+            for(let table2 of filteredTables.filter(t => table1 != t && (table1.tableElementSizeHeight) == (t.tableElementSizeHeight))) {
                 if(tablesSnapping)
                     break;
 
@@ -1347,6 +1358,7 @@ class Table extends RoomObject {
     name = "";
     notes = "";
     orderPosition = null;
+    active=true;
 
     tableDefaultSize = 155;
 
@@ -1429,6 +1441,16 @@ class Table extends RoomObject {
         this.updateSeatsNumerations();
         this.addTableNumeration();
 
+    }
+
+    enable() {
+        delete this.element.style.display;
+        this.active = true;
+    }
+
+    disable() {
+        this.element.style.display = 'none';
+        this.active = false;
     }
 
     calculateSeatPositions() {
@@ -3421,7 +3443,7 @@ class MouseManager {
 
         if (this.selectedObject && this.selectedObject.tableType) {
 
-            if (this.selectedObject.tablePurpose == "COUPLE") {
+            if (this.selectedObject.tablePurpose == "COUPLE" && this.roomEditor.mode == RoomEditorMode.COUPLE) {
                 options.push("CHANGE_COUPLE");
             }
 
@@ -3751,6 +3773,43 @@ class RoomEditor {
         }
     }
 
+    enableTableByOrderPosition(orderPosition) {
+        const table = this.world.tables.find(t => t.orderPosition == orderPosition);
+        if(table) {
+            table.enable();
+        } else {
+            console.warn("Table not found!")
+        }
+    }
+
+    disableTableByOrderPosition(orderPosition) {
+        const table = this.world.tables.find(t => t.orderPosition == orderPosition);
+        if(table) {
+            table.disable();
+        } else {
+            console.warn("Table not found!")
+        }
+    }
+
+    enableTableByCode(code) {
+        const table = this.world.tables.find(t => t.code == code);
+        if(table) {
+            table.enable();
+        } else {
+            console.warn("Table not found!")
+        }
+    }
+
+    disableTableByCode(code) {
+        const table = this.world.tables.find(t => t.code == code);
+        if(table) {
+            table.disable();
+        } else {
+            console.warn("Table not found!")
+        }
+    }
+
+
     setRoomPlan(roomPlanImg, constraintPoints = []) {
         if(!this.world) {
             this.world = new World(this.editorContainerElement);
@@ -3810,6 +3869,7 @@ class RoomEditor {
                 notes: table.notes,
                 tablePurpose: table.tablePurpose,
                 orderPosition: table.orderPosition,
+                active: table.active,
 
                 width: table.tableElementSizeWidth,
                 height: table.tableElementSizeHeight,
@@ -3820,6 +3880,7 @@ class RoomEditor {
                     guestName: s.guestName,
                     guestAge: s.guestAge,
                     foodRestrictions: s.foodRestrictions,
+                    couple: s.couple,
                 }))
                 // Add other properties specific to your object
             };
@@ -3865,6 +3926,8 @@ class RoomEditor {
             object.name = serializedObject.name;
             object.notes = serializedObject.notes;
             object.orderPosition = serializedObject.orderPosition;
+            object.active = true;
+            
             
             // ExpandedTable Only
             if(object.tableType == "ExpandedTable") {
@@ -3900,6 +3963,10 @@ class RoomEditor {
                 object.updateSeats();
             }
 
+
+            if(serializedObject.active === false) {
+                object.disable();
+            }
 
             // Add the deserialized object to the world
             this.world.addTable(object);
