@@ -2967,6 +2967,14 @@ class MouseManager {
             this.initializeCoupleTableSelect();    
             this.translationSystem.reviewPage();
         }
+
+
+        if(this.world) {
+            const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
+            if(tableCouple) {;
+                $("#coupleTableSelect").val(tableCouple.tableType);
+            }
+        }
     }
 
 
@@ -3076,11 +3084,11 @@ class MouseManager {
         coupleInputLabel.innerHTML += ":";
         coupleInput.appendChild(coupleInputLabel);
 
-        const coupleInputSelect = document.createElement("label");
-        coupleInputSelect.id = "coupleTableSelect";
-        coupleInputSelect.classList.add("coupleTableSelect");
-        coupleInputSelect.classList.add("ui");
-        coupleInput.appendChild(coupleInputSelect);
+        this.coupleInputSelect = document.createElement("select");
+        this.coupleInputSelect.id = "coupleTableSelect";
+        this.coupleInputSelect.classList.add("coupleTableSelect");
+        this.coupleInputSelect.classList.add("ui");
+        coupleInput.appendChild(this.coupleInputSelect);
         
         mainContainer.appendChild(coupleInput);
     
@@ -3846,6 +3854,11 @@ class RoomEditor {
             notesRequired: m?.notesRequired,
             chefChoice: m?.chefChoice
         }));
+
+        const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
+        if(tableCouple && $("#coupleTableSelect") && this.mouseManager.activeCoupleTables) {
+            $("#coupleTableSelect").val(tableCouple.tableType);
+        }
 
         return this.world;
     }
