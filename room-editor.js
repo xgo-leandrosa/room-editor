@@ -1453,7 +1453,7 @@ class Table extends RoomObject {
     }
 
     enable() {
-        delete this.element.style.display;
+        this.element.style.display = 'block';
         this.active = true;
     }
 
@@ -2911,12 +2911,13 @@ class MouseManager {
     activeCouplesTables = [];
 
     uids = {};
+    statsElements = {};
     uiEnable = true;
 
     constructor(world, roomEditor) {
         this.roomEditor = roomEditor;
         this.editorContainerElement = roomEditor.editorContainerElement;
-        this.guestModal = roomEditor.guestModal;
+        this.guestModal = roomEditor.guestsModal;
         this.orderPositionModal = roomEditor.orderPositionModal;
 
         this.translationSystem = new TranslationSystem();
@@ -3136,7 +3137,105 @@ class MouseManager {
         this.uids['ui3'].classList.add("editor-row");
         this.uids['ui3'].classList.add("ui-row");
         this.uids['ui3'].classList.add("room-editor-row-stats");
-        this.uids['ui3'].innerHTML = `
+
+        const statAdultAgeDiv = document.createElement("div");
+        statAdultAgeDiv.classList.add("room-editor-stats");
+        const statAdultAgeSpan1 = document.createElement("span");
+        const statAdultAgeSpan11 = document.createElement("span");
+        const statAdultAgeSpan12 = document.createElement("span");
+        statAdultAgeSpan11.setAttribute('translation-key', 'ADULT_AGE');
+        statAdultAgeSpan12.innerText = ":";
+        statAdultAgeSpan1.appendChild(statAdultAgeSpan11);
+        statAdultAgeSpan1.appendChild(statAdultAgeSpan12);
+        const statAdultAgeSpan2 = document.createElement("span");
+        statAdultAgeSpan2.classList.add("room-editor-stat-value");
+        statAdultAgeSpan2.innerText = "0";
+        this.statsElements['ADULT_AGE'] = statAdultAgeSpan2;
+        statAdultAgeDiv.appendChild(statAdultAgeSpan1);
+        statAdultAgeDiv.appendChild(statAdultAgeSpan2);
+        this.uids['ui3'].appendChild(statAdultAgeDiv);
+        const statFromChildAgeDiv = document.createElement("div");
+        statFromChildAgeDiv.classList.add("room-editor-stats");
+        const statFromChildAgeSpan1 = document.createElement("span");
+        const statFromChildAgeSpan11 = document.createElement("span");
+        const statFromChildAgeSpan12 = document.createElement("span");
+        statFromChildAgeSpan11.setAttribute('translation-key', 'FROM_CHILD_AGE');
+        statFromChildAgeSpan12.innerText = ":";
+        statFromChildAgeSpan1.appendChild(statFromChildAgeSpan11);
+        statFromChildAgeSpan1.appendChild(statFromChildAgeSpan12);
+        const statFromChildAgeSpan2 = document.createElement("span");
+        statFromChildAgeSpan2.classList.add("room-editor-stat-value");
+        statFromChildAgeSpan2.innerText = "0";
+        this.statsElements['FROM_CHILD_AGE'] = statFromChildAgeSpan2;
+        statFromChildAgeDiv.appendChild(statFromChildAgeSpan1);
+        statFromChildAgeDiv.appendChild(statFromChildAgeSpan2);
+        this.uids['ui3'].appendChild(statFromChildAgeDiv);
+        const statFromNewbornAgeDiv = document.createElement("div");
+        statFromNewbornAgeDiv.classList.add("room-editor-stats");
+        const statFromNewbornAgeSpan1 = document.createElement("span");
+        const statFromNewbornAgeSpan11 = document.createElement("span");
+        const statFromNewbornAgeSpan12 = document.createElement("span");
+        statFromNewbornAgeSpan11.setAttribute('translation-key', 'FROM_NEWBORN_CHILD_AGE');
+        statFromNewbornAgeSpan12.innerText = ":";
+        statFromNewbornAgeSpan1.appendChild(statFromNewbornAgeSpan11);
+        statFromNewbornAgeSpan1.appendChild(statFromNewbornAgeSpan12);
+        const statFromNewbornAgeSpan2 = document.createElement("span");
+        statFromNewbornAgeSpan2.classList.add("room-editor-stat-value");
+        statFromNewbornAgeSpan2.innerText = "0";
+        this.statsElements['FROM_NEWBORN_CHILD_AGE'] = statFromNewbornAgeSpan2;
+        statFromNewbornAgeDiv.appendChild(statFromNewbornAgeSpan1);
+        statFromNewbornAgeDiv.appendChild(statFromNewbornAgeSpan2);
+        this.uids['ui3'].appendChild(statFromNewbornAgeDiv);
+        const statTotalTablesDiv = document.createElement("div");
+        statTotalTablesDiv.classList.add("room-editor-stats");
+        const statTotalTablesSpan1 = document.createElement("span");
+        const statTotalTablesSpan11 = document.createElement("span");
+        const statTotalTablesSpan12 = document.createElement("span");
+        statTotalTablesSpan11.setAttribute('translation-key', 'ROOM_PLAN_TOTAL_TABLES');
+        statTotalTablesSpan12.innerText = ":";
+        statTotalTablesSpan1.appendChild(statTotalTablesSpan11);
+        statTotalTablesSpan1.appendChild(statTotalTablesSpan12);
+        const statTotalTablesSpan2 = document.createElement("span");
+        statTotalTablesSpan2.classList.add("room-editor-stat-value");
+        statTotalTablesSpan2.innerText = "0";
+        this.statsElements['ROOM_PLAN_TOTAL_TABLES'] = statTotalTablesSpan2;
+        statTotalTablesDiv.appendChild(statTotalTablesSpan1);
+        statTotalTablesDiv.appendChild(statTotalTablesSpan2);
+        this.uids['ui3'].appendChild(statTotalTablesDiv);
+        const statAvgPaxTablesDiv = document.createElement("div");
+        statAvgPaxTablesDiv.classList.add("room-editor-stats");
+        const statAvgPaxTablesSpan1 = document.createElement("span");
+        const statAvgPaxTablesSpan11 = document.createElement("span");
+        const statAvgPaxTablesSpan12 = document.createElement("span");
+        statAvgPaxTablesSpan11.setAttribute('translation-key', 'AVG_PAX_TABLES');
+        statAvgPaxTablesSpan12.innerText = ":";
+        statAvgPaxTablesSpan1.appendChild(statAvgPaxTablesSpan11);
+        statAvgPaxTablesSpan1.appendChild(statAvgPaxTablesSpan12);
+        const statAvgPaxTablesSpan2 = document.createElement("span");
+        statAvgPaxTablesSpan2.classList.add("room-editor-stat-value");
+        statAvgPaxTablesSpan2.innerText = "0";
+        this.statsElements['AVG_PAX_TABLES'] = statAvgPaxTablesSpan2;
+        statAvgPaxTablesDiv.appendChild(statAvgPaxTablesSpan1);
+        statAvgPaxTablesDiv.appendChild(statAvgPaxTablesSpan2);
+        this.uids['ui3'].appendChild(statAvgPaxTablesDiv);
+        const statTotalPaxDiv = document.createElement("div");
+        statTotalPaxDiv.classList.add("room-editor-stats");
+        const statTotalPaxSpan1 = document.createElement("span");
+        const statTotalPaxSpan11 = document.createElement("span");
+        const statTotalPaxSpan12 = document.createElement("span");
+        statTotalPaxSpan11.setAttribute('translation-key', 'ROOM_PLAN_TOTAL_PAX');
+        statTotalPaxSpan12.innerText = ":";
+        statTotalPaxSpan1.appendChild(statTotalPaxSpan11);
+        statTotalPaxSpan1.appendChild(statTotalPaxSpan12);
+        const statTotalPaxSpan2 = document.createElement("span");
+        statTotalPaxSpan2.classList.add("room-editor-stat-value");
+        statTotalPaxSpan2.innerText = "0";
+        this.statsElements['ROOM_PLAN_TOTAL_PAX'] = statTotalPaxSpan2;
+        statTotalPaxDiv.appendChild(statTotalPaxSpan1);
+        statTotalPaxDiv.appendChild(statTotalPaxSpan2);
+        this.uids['ui3'].appendChild(statTotalPaxDiv);
+
+        /*this.uids['ui3'].innerHTML = `
             <div class="room-editor-stats">
                 <span translation-key="ADULT_AGE">Maior de 8 anos:</span>
                 <span id="editorTotalAdult" class="room-editor-stat-value">0</span>
@@ -3161,7 +3260,7 @@ class MouseManager {
                 <span translation-key="ROOM_PLAN_TOTAL_PAX">Total PAX</span>
                 <span id="editorPax" class="room-editor-stat-value editor-stats-pax">0</span>
             </div>
-        `;
+        `;*/
 
         this.editorContainerElement.appendChild(this.uids['ui3']);
 
@@ -3172,10 +3271,27 @@ class MouseManager {
         });
     }
 
+    updateStats() {
+        const allGuests = this.world.tables.filter(t => t.active == true).map(t => t.seats).flat().filter(s => s.guestName);
+        
+        const ADULT_AGE = allGuests.filter(s => s.guestAge == 'ADULT').length;
+        const FROM_CHILD_AGE = allGuests.filter(s => s.guestAge == 'CHILD').length;
+        const FROM_NEWBORN_CHILD_AGE = allGuests.filter(s => s.guestAge == 'BABY' || s.guestAge == 'NEWBORN').length;
+        const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.active == true).length;
+        const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE;
+        const AVG_PAX_TABLES = Math.round(ROOM_PLAN_TOTAL_PAX / ROOM_PLAN_TOTAL_TABLES);
+        this.statsElements['ADULT_AGE'].innerText = ADULT_AGE;
+        this.statsElements['FROM_CHILD_AGE'].innerText = FROM_CHILD_AGE;
+        this.statsElements['FROM_NEWBORN_CHILD_AGE'].innerText = FROM_NEWBORN_CHILD_AGE;
+        this.statsElements['ROOM_PLAN_TOTAL_TABLES'].innerText = ROOM_PLAN_TOTAL_TABLES;
+        this.statsElements['AVG_PAX_TABLES'].innerText = AVG_PAX_TABLES;
+        this.statsElements['ROOM_PLAN_TOTAL_PAX'].innerText = ROOM_PLAN_TOTAL_PAX;
+    }
+
     enableUI() {
         this.uiEnable = true;
         for(let ui of Object.keys(this.uids)) {
-            delete this.uids[ui].style.display;
+            this.uids[ui].style.display = 'flex';
         }
     }
     
@@ -3290,6 +3406,7 @@ class MouseManager {
 
         newTableCouple.updateSeats();
         this.setSelectedObject(newTableCouple);
+        this.updateStats();
     }
 
     initializeContextMenu() {
@@ -3465,11 +3582,11 @@ class MouseManager {
 
         if (this.selectedObject && this.selectedObject.tableType) {
 
-            if(this.roomEditor.mode == RoomEditorMode.ROOM_PLAN) {
+            if(this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && this.selectedObject.tablePurpose != "COUPLE") {
                 options.push("ORDER_POSITION");
             }
 
-            if (this.selectedObject.tablePurpose == "COUPLE" && this.roomEditor.mode == RoomEditorMode.COUPLE) {
+            if (this.selectedObject.tablePurpose == "COUPLE" && this.roomEditor.mode != RoomEditorMode.ROOM_PLAN) {
                 options.push("CHANGE_COUPLE");
             }
 
@@ -3548,6 +3665,7 @@ class MouseManager {
                 
                 table1.updateSeats();
                 this.setSelectedObject(table1);
+                this.updateStats();
             }
 
             return;
@@ -3559,7 +3677,6 @@ class MouseManager {
                 this.setSelectedObject(null);
             }
         }
-
 
         event.preventDefault();
     }
@@ -3655,10 +3772,14 @@ class MouseManager {
                 break;
             case "MANAGE_GUESTS":
                 this.guestModal.open(this.selectedObject);
+                this.guestModal.onAfterSave = () => {
+                    this.updateStats();
+                }
                 break;
             case "DELETE":
                 this.world.removeTable(this.selectedObject);
                 this.setSelectedObject(null);
+                this.updateStats();
                 break;
             case "ORDER_POSITION":
                 this.orderPositionModal.open(this.selectedObject);
@@ -4008,11 +4129,11 @@ class RoomEditor {
                 object.disable();
             } else {
                 object.enable();
+                object.applyTransform();
             }
 
             // Add the deserialized object to the world
             this.world.addTable(object);
-            object.applyTransform();
         });
 
         this.world.updateTablesCode();
@@ -4171,6 +4292,8 @@ class ManageGuestsModal {
     foodRestrictions = [];
 
     globalView = 0;
+
+    onAfterSave;
 
     constructor() {
         this.translationSystem = new TranslationSystem();
@@ -4722,6 +4845,11 @@ class ManageGuestsModal {
             }
 
             this.subjectTable.updateSeats();
+
+            if(this.onAfterSave) {
+                this.onAfterSave();
+            }
+
             this.close();
         }
 
