@@ -3824,6 +3824,7 @@ class TranslationSystem {
         }
         TranslationSystem._instance = this;
 
+        this.setData(DEFAULT_TRANSLATIONS);
         this.setActiveLanguage(this.activeLanguage);
     }
 
@@ -3832,8 +3833,19 @@ class TranslationSystem {
         this.reviewPage();
     }
 
+    data = [];
+
+    setData(data) {
+        this.data = data;
+        this.reviewPage();
+    }
+
+    getData() {
+        return this.data;
+    }
+
     getTranslation(key) {
-        const translations = DEFAULT_TRANSLATIONS.find(t => t.tag == key);
+        const translations = this.getData().find(t => t.tag == key);
 
         if (translations) {
             return translations.value[this.activeLanguage];
@@ -4162,6 +4174,11 @@ class RoomEditor {
 
     activeCoupleTables(tablesTypes) {
         this.mouseManager.setActiveCouplesTables(tablesTypes);
+    }
+
+
+    setTranslations(data) {
+        this.translationSystem.setData(data);
     }
 }
 
