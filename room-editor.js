@@ -11,6 +11,16 @@ const DEFAULT_TRANSLATIONS = [
     },
     {
         value: {
+            pt: "Fechar",
+            en: "Close",
+            es: "Cerrar",
+            fr: "Fermer"
+        },
+        tag: "CLOSE",
+        platform: "BO"
+    },
+    {
+        value: {
             pt: "Guardar",
             en: "Save",
             es: "Guardar",
@@ -39,6 +49,36 @@ const DEFAULT_TRANSLATIONS = [
         },
         platform: "BO",
         tag: "ORDER"
+    },
+    {
+        value: {
+            pt: "Ordem atribuída!",
+            en: "Order assigned!",
+            es: "¡Orden asignada!",
+            fr: "Commande attribuée!"
+        },
+        platform: "BO",
+        tag: "ORDER_ASSIGNED"
+    },
+    {
+        value: {
+            pt: "Indique um valor superior a 1.",
+            en: "Enter a value greater than 1.",
+            es: "Introduzca un valor mayor que 1!",
+            fr: "Entrez une valeur supérieure à 1!"
+        },
+        platform: "BO",
+        tag: "ORDER_BIGGER_THAN1"
+    },
+    {
+        value: {
+            pt: "Obrigatório",
+            en: "Required",
+            es: "Requerido",
+            fr: "Obligatoire"
+        },
+        platform: "BO",
+        tag: "INPUT_ERROR_REQUIRED"
     },
     {
         value: {
@@ -1275,7 +1315,7 @@ class Zone {
         if (this.zoneElement) {
 
             if (this.polygon.length > 0)
-                this.zoneElement.style.background = "#ffc63129";
+                this.zoneElement.style.background = "#f0f0f073";
             else
                 this.zoneElement.style.background = "none";
 
@@ -1450,10 +1490,10 @@ class Table extends RoomObject {
         this.element.style.height = `${this.height}px`;
 
         // RECALCULATE TABLE NUMERATION
-        if (this.tableElementNumeration) {
-            this.tableElementNumeration.style.left = `${this.halfWidth - (this.spaceBetweenTables / 2) - TABLE_ELEMENT_OFFSET - 18}px`;
-            this.tableElementNumeration.style.top = `${this.halfHeight - (this.spaceBetweenTables / 2) - TABLE_ELEMENT_OFFSET - 25}px`;
-        }
+        // if (this.tableElementNumeration) {
+        //     this.tableElementNumeration.style.left = `${this.halfWidth - (this.spaceBetweenTables / 2) - TABLE_ELEMENT_OFFSET - 18}px`;
+        //     this.tableElementNumeration.style.top = `${this.halfHeight - (this.spaceBetweenTables / 2) - TABLE_ELEMENT_OFFSET - 25}px`;
+        // }
 
         this.calculateTableAreaCorners();
     }
@@ -1601,12 +1641,12 @@ class Table extends RoomObject {
     updateTablePurpose(tablePurpose) {
         this.tablePurpose = tablePurpose;
         this.tableElement.style.backgroundColor = this.tablePurpose == 'COUPLE'
-            ? '#E3D5B0'
+            ? '#D1BB80'
             : this.tablePurpose == 'STAFF'
-                ? 'red'
+                ? '#95B1B0'
                 : this.tablePurpose == 'CHILD'
-                    ? '#ADCFFF'
-                    : '#D6D6D6';
+                    ? '#AEE4F5'
+                    : '#E3E3E3';
     }
 
     addTableNumeration() {
@@ -1667,12 +1707,12 @@ class Table extends RoomObject {
 
     setSelected() {
         this.element.classList.add('tableSelected');
-        this.tableElement.classList.add('table-draw--selected');
+        // this.tableElement.classList.add('table-draw--selected');
     }
 
     unsetSelected() {
         this.element.classList.remove('tableSelected');
-        this.tableElement.classList.remove('table-draw--selected');
+        // this.tableElement.classList.remove('table-draw--selected');
     }
 
     tableElementTransform() {
@@ -2909,32 +2949,13 @@ class Seat extends RoomObject {
 
         this.tooltipElementRow2Content.innerHTML = this.guestAgeTranslation();
 
-        this.tooltipElementRow3 = document.createElement("div");
-        this.tooltipElementRow3.classList.add("editor-row");
-        this.tooltipElementRow3Icon = document.createElement("div");
-        this.tooltipElementRow3Icon.classList.add("table_ui");
-        this.tooltipElementRow3Icon.classList.add("food-icon");
-
-        this.tooltipElementRow3Content = document.createElement("div");
-        this.tooltipElementRow3.appendChild(this.tooltipElementRow3Icon)
-        this.tooltipElementRow3.appendChild(this.tooltipElementRow3Content)
-
-        this.tooltipElementRow3Content.innerHTML = this.guestFoodRestrictions()
-
         this.tooltipElement.appendChild(this.tooltipElementRow1);
         this.tooltipElement.appendChild(this.tooltipElementRow2);
-        this.tooltipElement.appendChild(this.tooltipElementRow3);
 
         this.tippyInstance = tippy(this.element, {
             theme: 'light',
             content: this.tooltipElement
         });
-    }
-
-    guestFoodRestrictions() {
-        // TODO: list guest food restrictions
-        return this.foodRestrictions.join(', ');
-        // return this.foodRestrictions.map(m => m?.acronym['pt']).join(', ');
     }
 
     guestAgeTranslation() {
@@ -2976,7 +2997,6 @@ class Seat extends RoomObject {
         }
 
         this.tooltipElementRow2Content.innerHTML = this.guestAgeTranslation();
-        this.tooltipElementRow3Content.innerHTML = this.guestFoodRestrictions();
     }
 
     addSeatNumeration() {
@@ -3003,6 +3023,7 @@ class MouseManager {
     selectedObject = null;
     editorContainerElement = null;
     guestModal;
+    orderPositionModal;
     roomEditor;
     translationSystem;
 
@@ -3120,7 +3141,8 @@ class MouseManager {
         this.uids['ui1'].classList.add("editor-row");
         this.uids['ui1'].classList.add("ui-row");
         const mainContainer = document.createElement('div');
-        mainContainer.style.display = 'inline-flex';
+        mainContainer.style.display = 'flex';
+        mainContainer.style.flexWrap = 'wrap';
 
         // Create the first editorRoom-input div
         const editorRoomInput1 = document.createElement('div');
@@ -3128,6 +3150,7 @@ class MouseManager {
 
         const undoButton = document.createElement('button');
         undoButton.classList.add('editor-btn', 'editor-btn-primary', "ui");
+        undoButton.style.marginBottom = '0px';
 
         const undoIcon = document.createElement('i');
         undoIcon.classList.add('fas', 'fa-undo', "ui");
@@ -3159,6 +3182,7 @@ class MouseManager {
             const radioDiv = document.createElement('div');
             radioDiv.classList.add('editor-radio');
             radioDiv.classList.add('ui');
+            radioDiv.id = `radiotablePurpose${value.toUpperCase()}`;
 
             const radioInput = document.createElement('input');
             radioInput.type = 'radio';
@@ -3400,6 +3424,11 @@ class MouseManager {
         const coupleInput = document.getElementById('editorCoupleInput');
         if (coupleInput) {
             coupleInput.style.display = this.roomEditor.mode !== RoomEditorMode.ROOM_PLAN ? 'none' : 'flex';
+        }
+
+        const staffRadioInput = document.getElementById('radiotablePurposeSTAFF');
+        if (staffRadioInput) {
+            staffRadioInput.style.display = this.roomEditor.mode == RoomEditorMode.COUPLE ? 'none' : 'flex';
         }
     }
 
@@ -3682,10 +3711,10 @@ class MouseManager {
 
     handleContextMenu(event) {
 
-        if (this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
-            event.preventDefault();
-            return;
-        }
+        // if (this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
+        //     event.preventDefault();
+        //     return;
+        // }
 
         const options = [];
 
@@ -3695,7 +3724,7 @@ class MouseManager {
                 options.push("ORDER_POSITION");
             }
 
-            if (this.selectedObject.tablePurpose == "COUPLE" && this.roomEditor.mode != RoomEditorMode.ROOM_PLAN) {
+            if (this.selectedObject.tablePurpose == "COUPLE" && this.roomEditor.mode != RoomEditorMode.ROOM_PLAN && this.roomEditor.mode != RoomEditorMode.READ_ONLY) {
                 options.push("CHANGE_COUPLE");
             }
 
@@ -3703,7 +3732,7 @@ class MouseManager {
                 options.push("MANAGE_GUESTS");
             }
 
-            if (this.selectedObject.tablePurpose != "COUPLE") {
+            if (this.selectedObject.tablePurpose != "COUPLE" && this.roomEditor.mode != RoomEditorMode.READ_ONLY) {
                 options.push("ROTATE");
                 options.push("DELETE");
             }
@@ -3713,7 +3742,6 @@ class MouseManager {
 
         this.activeContextMenu(event);
     }
-
 
     setSelectedObject(obj) {
         if (this.selectedObject) {
@@ -3730,9 +3758,9 @@ class MouseManager {
 
     handleMouseDown(event) {
 
-        if (this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
-            return;
-        }
+        // if (this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
+        //     return;
+        // }
 
         if (event.button === 0) {
             this.dragging = true;
@@ -3880,7 +3908,7 @@ class MouseManager {
                 this.callChangeCoupleEvent();
                 break;
             case "MANAGE_GUESTS":
-                this.guestModal.open(this.selectedObject);
+                this.guestModal.open(this.selectedObject, this.roomEditor);
                 this.guestModal.onAfterSave = () => {
                     this.updateStats();
                 }
@@ -4407,11 +4435,11 @@ class OrderPositionModal {
             : null;
         if (orderPosition == '' || parseInt(orderPosition) <= 1 || foundOrder) {
             const errorMsg = foundOrder
-                ? 'Order assigned'
+                ? 'ORDER_ASSIGNED'
                 : parseInt(orderPosition) <= 1
-                    ? "Order bigger that 1"
-                    : "Required field";
-            document.getElementById("orderPositionInput").setCustomValidity(errorMsg);
+                    ? "ORDER_BIGGER_THAN1"
+                    : "INPUT_ERROR_REQUIRED";
+            document.getElementById("orderPositionInput").setCustomValidity(this.translationSystem.getTranslation(errorMsg));
             document.getElementById("orderPositionInput").reportValidity();
             return false;
         } else {
@@ -4476,6 +4504,7 @@ class OrderPositionModal {
 class ManageGuestsModal {
     modalElement;
     modalBodyElement;
+    roomEditor;
 
     subjectTable = null;
 
@@ -4524,7 +4553,7 @@ class ManageGuestsModal {
         modalFooterElement.classList.add("editor-modal-footer");
 
         const btnCancelElement = document.createElement("button");
-        btnCancelElement.id = "btnClose";
+        btnCancelElement.id = "btnCloseGuest";
         btnCancelElement.type = "button";
         btnCancelElement.classList.add("editor-btn");
         btnCancelElement.classList.add("editor-btn-default");
@@ -4536,6 +4565,7 @@ class ManageGuestsModal {
         modalFooterElement.appendChild(btnCancelElement);
 
         const btnSaveElement = document.createElement("button");
+        btnSaveElement.id = "btnSubmitGuest"
         btnSaveElement.type = "submit";
         btnSaveElement.classList.add("editor-btn");
         btnSaveElement.classList.add("editor-btn-primary");
@@ -4635,6 +4665,7 @@ class ManageGuestsModal {
         tableNameInput.id = "tableName";
         tableNameInput.name = "tableName";
         tableNameInput.value = table.name || "";
+        tableNameInput.disabled = this.roomEditor?.mode == RoomEditorMode.READ_ONLY ? true : false;
 
         this.formElements.name = tableNameInput;
         formLine.appendChild(tableNameInput);
@@ -4754,6 +4785,7 @@ class ManageGuestsModal {
         notesTextarea.cols = "50";
         notesTextarea.maxLength = "200";
         notesTextarea.textContent = table.notes || "";
+        notesTextarea.disabled = this.roomEditor?.mode == RoomEditorMode.READ_ONLY ? true : false;
         this.formElements.notes = notesTextarea;
         row3.appendChild(notesTextarea);
 
@@ -4824,6 +4856,7 @@ class ManageGuestsModal {
             guestNameInput.id = `guestName-${seat.number}`;
             guestNameInput.name = `guestName-${seat.number}`;
             guestNameInput.value = seat.guestName || '';
+            guestNameInput.disabled = this.roomEditor?.mode == RoomEditorMode.READ_ONLY ? true : false;
             guestNameInput.onblur = () => {
                 if (this.miniTable) {
                     this.miniTable.seats[seat.number].guestName = guestNameInput.value;
@@ -4851,12 +4884,16 @@ class ManageGuestsModal {
             this.checkChefChoice();
             const guestRestrictionInput = document.createElement("div");
             guestRestrictionInput.classList.add("editor-input");
-            guestRestrictionInput.classList.add("editor-form-select-multiple")
-            guestRestrictionInput.classList.add(`editor-form-select-restriction-${seat.number}`)
+            guestRestrictionInput.classList.add("editor-form-select-multiple");
+            guestRestrictionInput.classList.add(`editor-form-select-restriction-${seat.number}`);
+            guestRestrictionInput.classList.add(`editor-form-select-multiple-disabled`);
             guestRestrictionInput.attributes.multiple = true;
             guestRestrictionInput.name = `foodRestrictions-${seat.number}`;
             guestRestrictionInput.id = `foodRestrictions${seat.number}`;
-            guestRestrictionInput.onclick = () => this.createRestrictionModal(guestRestrictionDiv, guestRestrictionInput, seat);
+            guestRestrictionInput.onclick = () => {
+                if (this.roomEditor?.mode == RoomEditorMode.READ_ONLY) return;
+                this.createRestrictionModal(guestRestrictionDiv, guestRestrictionInput, seat);
+            }
             this.setSelectedResctrictions(seat, guestRestrictionInput);
             // this.formElements.seats[seat.number].foodRestrictions = guestRestrictionInput;
             guestRestrictionDiv.appendChild(guestRestrictionInput);
@@ -4866,7 +4903,7 @@ class ManageGuestsModal {
             seatDiv.appendChild(formLineDiv);
         }
         for (let seat of table.seats) {
-            this.initializeSeatInputs(seat);
+            this.initializeSeatInputs(seat, this.roomEditor?.mode);
         }
 
         this.updateTotals();
@@ -4958,7 +4995,7 @@ class ManageGuestsModal {
         element.style.display = "none";
     }
 
-    initializeSeatInputs(seat) {
+    initializeSeatInputs(seat, mode) {
         this.formElements.seats[seat.number].guestAge = $(`.editor-select-age-${seat.number}`).select2({
             minimumResultsForSearch: -1,
             data: [
@@ -4967,10 +5004,12 @@ class ManageGuestsModal {
                 { id: 'BABY', text: this.translationSystem.getTranslation("BABY_AGE") },
                 { id: 'NEWBORN', text: this.translationSystem.getTranslation("NEWBORN_AGE") },
             ],
-            val: seat?.guestAge || null
+            val: seat?.guestAge || null,
+            disabled: mode == RoomEditorMode.READ_ONLY ? true : false
         });
         if (seat?.guestAge) $(`.editor-select-age-${seat.number}`).val(seat.guestAge).trigger('change');
         $(`.editor-select-age-${seat.number}`).on("select2:select", () => { this.updateTotals(); });
+        $(`.editor-select-age-${seat.number}`).prop("disabled", mode == RoomEditorMode.READ_ONLY ? true : false);
 
         // this.formElements.seats[seat.number].foodRestrictions = $(`.editor-form-select-restriction-${seat.number}`).select2({
         //     placeholder: '',
@@ -5016,10 +5055,23 @@ class ManageGuestsModal {
         // if (seat?.foodRestrictions?.length > 0) $(`.editor-form-select-restriction-${seat.code}`).val(seat.foodRestrictions).trigger('change');
     }
 
-    open(table) {
+    open(table, roomEditor) {
+        this.roomEditor = roomEditor;
+
         this.createModalBody(table);
         this.modalElement.style.display = "block";
         this.translationSystem.reviewPage();
+
+        const btnSubmit = document.getElementById('btnSubmitGuest');
+        if (btnSubmit) {
+            btnSubmit.style.display = roomEditor?.mode == RoomEditorMode.READ_ONLY ? 'none' : 'inline-flex';
+        }
+
+        const btnClose = document.getElementById('btnCloseGuest');
+        if (btnClose) {
+            btnClose.setAttribute('translation-key', "CLOSE");
+            btnClose.innerText = 'Fechar'
+        }
     }
 
     close() {
