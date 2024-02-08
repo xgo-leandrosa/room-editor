@@ -1723,12 +1723,12 @@ class Table extends RoomObject {
 
     setSelected() {
         this.element.classList.add('tableSelected');
-        this.tableElement.classList.add('table-draw--selected');
+        // this.tableElement.classList.add('table-draw--selected');
     }
 
     unsetSelected() {
         this.element.classList.remove('tableSelected');
-        this.tableElement.classList.remove('table-draw--selected');
+        // this.tableElement.classList.remove('table-draw--selected');
     }
 
     tableElementTransform() {
@@ -2965,32 +2965,13 @@ class Seat extends RoomObject {
 
         this.tooltipElementRow2Content.innerHTML = this.guestAgeTranslation();
 
-        this.tooltipElementRow3 = document.createElement("div");
-        this.tooltipElementRow3.classList.add("editor-row");
-        this.tooltipElementRow3Icon = document.createElement("div");
-        this.tooltipElementRow3Icon.classList.add("table_ui");
-        this.tooltipElementRow3Icon.classList.add("food-icon");
-
-        this.tooltipElementRow3Content = document.createElement("div");
-        this.tooltipElementRow3.appendChild(this.tooltipElementRow3Icon)
-        this.tooltipElementRow3.appendChild(this.tooltipElementRow3Content)
-
-        this.tooltipElementRow3Content.innerHTML = this.guestFoodRestrictions()
-
         this.tooltipElement.appendChild(this.tooltipElementRow1);
         this.tooltipElement.appendChild(this.tooltipElementRow2);
-        this.tooltipElement.appendChild(this.tooltipElementRow3);
 
         this.tippyInstance = tippy(this.element, {
             theme: 'light',
             content: this.tooltipElement
         });
-    }
-
-    guestFoodRestrictions() {
-        // TODO: list guest food restrictions
-        return this.foodRestrictions.join(', ');
-        // return this.foodRestrictions.map(m => m?.acronym['pt']).join(', ');
     }
 
     guestAgeTranslation() {
@@ -3032,7 +3013,6 @@ class Seat extends RoomObject {
         }
 
         this.tooltipElementRow2Content.innerHTML = this.guestAgeTranslation();
-        this.tooltipElementRow3Content.innerHTML = this.guestFoodRestrictions();
     }
 
     addSeatNumeration() {
