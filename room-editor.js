@@ -1723,12 +1723,12 @@ class Table extends RoomObject {
 
     setSelected() {
         this.element.classList.add('tableSelected');
-        // this.tableElement.classList.add('table-draw--selected');
+        this.tableElement.classList.add('table-draw--selected');
     }
 
     unsetSelected() {
         this.element.classList.remove('tableSelected');
-        // this.tableElement.classList.remove('table-draw--selected');
+        this.tableElement.classList.remove('table-draw--selected');
     }
 
     tableElementTransform() {
