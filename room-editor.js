@@ -924,7 +924,7 @@ class World extends RoomObject {
     addTable(table) {
         table.world = this;
         table.addToContainer();
-        this.tables.push(table)
+        this.tables.push(table);
         this.updateTablesNumber();
     }
 
@@ -1419,11 +1419,13 @@ const SNAPPING_POINT_SIZE = 15;
 const TABLE_DANGER_TYPE = {
     OVERLAPPING: "OVERLAPPING",
     OUT_CONSTRAINT_ZONE: "OUT_CONSTRAINT_ZONE",
+    MISSING_ORDER: 'MISSING_ORDER',
+    ORDER_OUT_OF_RANGE: 'ORDER_OUT_OF_RANGE'
 };
 
 class Table extends RoomObject {
 
-    code = "";
+    code = 0;
     number = 0;
     name = "";
     notes = "";
@@ -1675,8 +1677,8 @@ class Table extends RoomObject {
     }
 
     updateTableOrderValue() {
-        // TODO: check it's ROOM_PLAN mode
-        this.spanTableCircularOrder.style.display = true && this.orderPosition != null && this.orderPosition != undefined
+        // TODO only show on ROOM_PLAN mode
+        this.spanTableCircularOrder.style.display = this.orderPosition != null && this.orderPosition != undefined
             ? 'block'
             : 'none';
         this.spanTableCircularOrder.innerHTML = `<i class="fa-solid fa-circle-notch"></i>${(this.orderPosition + 1)}`;
@@ -2116,6 +2118,7 @@ class CoupleRoundTable extends Table {
     seats = [];
     tableType = "CoupleRoundTable";
     tablePurpose = "COUPLE";
+    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 180;
@@ -2951,7 +2954,7 @@ class Seat extends RoomObject {
 
         this.tooltipElementRow1.appendChild(this.tooltipElementRow1Content)
 
-        this.tooltipElementRow1Content.innerHTML = this.guestName || new TranslationSystem().getTranslation("NO_GUESTS"); // TODO FALTA A TRADUO
+        this.tooltipElementRow1Content.innerHTML = this.guestName || new TranslationSystem().getTranslation("NO_GUESTS");
 
         this.tooltipElementRow2 = document.createElement("div");
         this.tooltipElementRow2.classList.add("editor-row");
@@ -3547,10 +3550,12 @@ class MouseManager {
 
         const pos = this.getWorldPositionCenterScreen();
         if (!tableCouple) {
+            newTableCouple.code = this.world.tables?.length > 0 ? this.world.tables?.length : 1;
             newTableCouple.x = pos.x;
             newTableCouple.y = pos.y;
 
         } else {
+            newTableCouple.code = 0;
             newTableCouple.x = tableCouple.x;
             newTableCouple.y = tableCouple.y;
             newTableCouple.rotate = tableCouple.rotate;
@@ -3815,6 +3820,7 @@ class MouseManager {
 
             if (event.toElement.dataset["tabletype"]) {
                 const table1 = new TableTypes[event.toElement.dataset["tabletype"]](this.world);
+                table1.code = this.world?.tables?.length > 0 ? this.world?.tables?.length : 1;
                 table1.x = pos.x - table1.width;
                 table1.y = pos.y - table1.height;
                 table1.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
@@ -4067,9 +4073,23 @@ class RoomEditor {
         }
 
         const tablesInDanger = this.mode == RoomEditorMode.ROOM_PLAN
-            ? this.world.tables.filter(t => t.inDanger || (t?.orderPosition ?? '' === '') || t?.orderPosition < 0)
+            ? this.world.tables.filter(t => t.inDanger || t.orderPosition == null || t.orderPosition == undefined || t.orderPosition < 0 || t.orderPosition > this.world.tables?.length)
             : this.world.tables.filter(t => t.inDanger);
+
         for (const tableInDanger of tablesInDanger) {
+            if (!tableInDanger.inDanger) {
+                if (tableInDanger.orderPosition == null || tableInDanger.orderPosition == undefined) {
+                    if (!tableInDanger.dangerType.includes(TABLE_DANGER_TYPE.MISSING_ORDER)) {
+                        tableInDanger.dangerType.push(TABLE_DANGER_TYPE.MISSING_ORDER);
+                    }
+                }
+                if (tableInDanger.orderPosition < 0 || tableInDanger.orderPosition > this.world.tables?.length) {
+                    if (!tableInDanger.dangerType.includes(TABLE_DANGER_TYPE.ORDER_OUT_OF_RANGE)) {
+                        tableInDanger.dangerType.push(TABLE_DANGER_TYPE.ORDER_OUT_OF_RANGE);
+                    }
+                }
+            }
+
             for (const danger of tableInDanger.dangerType) {
                 result.tables.push({
                     code: tableInDanger.code,
