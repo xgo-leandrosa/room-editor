@@ -551,7 +551,7 @@ ul {
 .editor-modal-wrap {
     display: none;
     position: fixed;
-    z-index: 999;
+    z-index: 1005;
     left: 0;
     top: 0;
     width: 100%;
