@@ -1682,8 +1682,24 @@ class Table extends RoomObject {
         this.spanTableCircularOrder.innerHTML = `<i class="fa-solid fa-circle-notch"></i>${(this.orderPosition + 1)}`;
     }
 
+    getElementAndParents(element) {
+        const elementsArray = [];
+        elementsArray.push(element);
+
+        let count = 0;
+        while (element.parentNode && count < 3) {
+            element = element.parentNode;
+            elementsArray.push(element);
+            count++;
+        }
+
+        return elementsArray;
+    }
+
     isElementOrChildElement(elementToCompare) {
-        return this.element === elementToCompare || this.tableElement === elementToCompare || this.tableElementNumeration === elementToCompare || this.seats.find(s => s.isElementOrChildElement(elementToCompare));
+        const elementsToCompare = this.getElementAndParents(elementToCompare);
+        return elementsToCompare.some(item => (item === this.element) || (item === this.tableElement) || (item === this.tableElementNumeration));
+        // return this.element === elementToCompare || this.tableElement === elementToCompare || this.tableElementNumeration === elementToCompare || this.seats.find(s => s.isElementOrChildElement(elementToCompare));
     }
 
     isSafe(dangerType) {
@@ -1707,12 +1723,12 @@ class Table extends RoomObject {
 
     setSelected() {
         this.element.classList.add('tableSelected');
-        // this.tableElement.classList.add('table-draw--selected');
+        this.tableElement.classList.add('table-draw--selected');
     }
 
     unsetSelected() {
         this.element.classList.remove('tableSelected');
-        // this.tableElement.classList.remove('table-draw--selected');
+        this.tableElement.classList.remove('table-draw--selected');
     }
 
     tableElementTransform() {
@@ -2930,7 +2946,7 @@ class Seat extends RoomObject {
 
         this.miniSeat = document.createElement("div");
         this.miniSeat.classList.add("miniSeat");
-        this.miniSeat.innerHTML = this.number;
+        this.miniSeat.innerHTML = this.number + 1;
         this.tooltipElementRow1Icon.appendChild(this.miniSeat);
 
         this.tooltipElementRow1.appendChild(this.tooltipElementRow1Content)
@@ -3266,6 +3282,7 @@ class MouseManager {
         const statAdultAgeDiv = document.createElement("div");
         statAdultAgeDiv.classList.add("room-editor-stats");
         const statAdultAgeSpan1 = document.createElement("span");
+        statAdultAgeSpan1.classList.add('stats-label');
         const statAdultAgeSpan11 = document.createElement("span");
         const statAdultAgeSpan12 = document.createElement("span");
         statAdultAgeSpan11.setAttribute('translation-key', 'ADULT_AGE');
@@ -3282,6 +3299,7 @@ class MouseManager {
         const statFromChildAgeDiv = document.createElement("div");
         statFromChildAgeDiv.classList.add("room-editor-stats");
         const statFromChildAgeSpan1 = document.createElement("span");
+        statFromChildAgeSpan1.classList.add('stats-label');
         const statFromChildAgeSpan11 = document.createElement("span");
         const statFromChildAgeSpan12 = document.createElement("span");
         statFromChildAgeSpan11.setAttribute('translation-key', 'FROM_CHILD_AGE');
@@ -3298,6 +3316,7 @@ class MouseManager {
         const statFromNewbornAgeDiv = document.createElement("div");
         statFromNewbornAgeDiv.classList.add("room-editor-stats");
         const statFromNewbornAgeSpan1 = document.createElement("span");
+        statFromNewbornAgeSpan1.classList.add('stats-label');
         const statFromNewbornAgeSpan11 = document.createElement("span");
         const statFromNewbornAgeSpan12 = document.createElement("span");
         statFromNewbornAgeSpan11.setAttribute('translation-key', 'FROM_NEWBORN_CHILD_AGE');
@@ -3314,6 +3333,7 @@ class MouseManager {
         const statTotalTablesDiv = document.createElement("div");
         statTotalTablesDiv.classList.add("room-editor-stats");
         const statTotalTablesSpan1 = document.createElement("span");
+        statTotalTablesSpan1.classList.add('stats-label');
         const statTotalTablesSpan11 = document.createElement("span");
         const statTotalTablesSpan12 = document.createElement("span");
         statTotalTablesSpan11.setAttribute('translation-key', 'ROOM_PLAN_TOTAL_TABLES');
@@ -3330,6 +3350,7 @@ class MouseManager {
         const statAvgPaxTablesDiv = document.createElement("div");
         statAvgPaxTablesDiv.classList.add("room-editor-stats");
         const statAvgPaxTablesSpan1 = document.createElement("span");
+        statAvgPaxTablesSpan1.classList.add('stats-label');
         const statAvgPaxTablesSpan11 = document.createElement("span");
         const statAvgPaxTablesSpan12 = document.createElement("span");
         statAvgPaxTablesSpan11.setAttribute('translation-key', 'AVG_PAX_TABLES');
@@ -3346,6 +3367,7 @@ class MouseManager {
         const statTotalPaxDiv = document.createElement("div");
         statTotalPaxDiv.classList.add("room-editor-stats");
         const statTotalPaxSpan1 = document.createElement("span");
+        statTotalPaxSpan1.classList.add('stats-label');
         const statTotalPaxSpan11 = document.createElement("span");
         const statTotalPaxSpan12 = document.createElement("span");
         statTotalPaxSpan11.setAttribute('translation-key', 'ROOM_PLAN_TOTAL_PAX');
@@ -4640,6 +4662,7 @@ class ManageGuestsModal {
         // Create the second row with form and editor stats
         const row2 = document.createElement("div");
         row2.classList.add("editor-row");
+        row2.classList.add("editor-row-stretch");
         row2.style.marginTop = "10px";
 
         const col1 = document.createElement("div");
@@ -4756,7 +4779,6 @@ class ManageGuestsModal {
         col2.appendChild(groupBtn);
 
         const drawTable = document.createElement("div");
-        drawTable.classList.add("editor-row");
         drawTable.classList.add("editor-col-draw");
         drawTable.id = "table-draw";
         this.tableDrawElement = drawTable;
@@ -4886,7 +4908,9 @@ class ManageGuestsModal {
             guestRestrictionInput.classList.add("editor-input");
             guestRestrictionInput.classList.add("editor-form-select-multiple");
             guestRestrictionInput.classList.add(`editor-form-select-restriction-${seat.number}`);
-            guestRestrictionInput.classList.add(`editor-form-select-multiple-disabled`);
+            if (this.roomEditor?.mode == RoomEditorMode.READ_ONLY) {
+                guestRestrictionInput.classList.add(`editor-form-select-multiple-disabled`);
+            } else guestRestrictionInput.classList.remove(`editor-form-select-multiple-disabled`);
             guestRestrictionInput.attributes.multiple = true;
             guestRestrictionInput.name = `foodRestrictions-${seat.number}`;
             guestRestrictionInput.id = `foodRestrictions${seat.number}`;
