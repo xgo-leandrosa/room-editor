@@ -735,6 +735,87 @@ const DEFAULT_TRANSLATIONS = [
         },
         tag: "ORDER_POSITION_LABEL"
     },
+    {
+        value: {
+            pt: "Gerir Zona",
+            en: "Manage zone",
+            es: "Administrar zona",
+            fr: "Gérer la zone"
+        },
+        tag: "MNG_ZONE"
+    },
+    {
+        value: {
+            pt: "Apenas staff",
+            en: "Staff only",
+            es: "Sólo personal",
+            fr: "Personnel seulement"
+        },
+        tag: "STAFF_ONLY"
+    },
+    {
+        value: {
+            pt: "Uniões permitidas",
+            en: "Allowed unions",
+            es: "Uniones permitidas",
+            fr: "Unions autorisées"
+        },
+        tag: "ALLOWED_UNIONS"
+    },
+    {
+        value: {
+            pt: "Mesas de convidados autorizadas",
+            en: "Authorized guest tables",
+            es: "Mesas de invitados autorizadas",
+            fr: "Tables d'hôtes autorisées"
+        },
+        tag: "ALLOWED_GUEST_TABLES"
+    },
+    {
+        value: {
+            pt: "Orientação das mesas",
+            en: "Tables orientation",
+            es: "Orientación de las mesas",
+            fr: "Orientation du tableau"
+        },
+        tag: "TABLES_ROTATE"
+    },
+    {
+        value: {
+            pt: "Vertical",
+            en: "Vertical",
+            es: "Vertical",
+            fr: "Vertical"
+        },
+        tag: "VERTICAL_ROTATE"
+    },
+    {
+        value: {
+            pt: "Horizontal",
+            en: "Horizontal",
+            es: "Horizontal",
+            fr: "Horizontal"
+        },
+        tag: "HORIZONTAL_ROTATE"
+    },
+    {
+        value: {
+            pt: "Horizontal e vertical",
+            en: "Horizontal and vertical",
+            es: "Horizontal y vertical",
+            fr: "Horizontal et vertical"
+        },
+        tag: "BOTH_ROTATE"
+    },
+    {
+        value: {
+            pt: "Nome",
+            en: "Name",
+            es: "Nombre",
+            fr: "Nom"
+        },
+        tag: "ZONE_NAME"
+    },
 ];
 
 
@@ -2862,7 +2943,7 @@ const TableTypes = {
     CoupleForestMTable,
 }
 
-TableTypesIcon = {
+const TableTypesIcon = {
     "RoundTable": "round-table",
     "SquareTable": "square-table",
     "RectangularTable": "rectangular-table",
@@ -3043,6 +3124,7 @@ class MouseManager {
     editorContainerElement = null;
     guestModal;
     orderPositionModal;
+    zoneModal;
     roomEditor;
     translationSystem;
 
@@ -3058,6 +3140,7 @@ class MouseManager {
         this.editorContainerElement = roomEditor.editorContainerElement;
         this.guestModal = roomEditor.guestsModal;
         this.orderPositionModal = roomEditor.orderPositionModal;
+        this.zoneModal = roomEditor.zoneModal;
 
         this.translationSystem = new TranslationSystem();
 
@@ -3510,6 +3593,9 @@ class MouseManager {
             },
         });
 
+        // const tableCouple = this.world?.tables?.find(t => t.tablePurpose == "COUPLE");
+        // if (tableCouple) $(`#coupleTableSelect`).val(tableCouple.tableType).trigger('change');
+
         $('#coupleTableSelect').on("select2:select", (event) => {
             const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
 
@@ -3550,7 +3636,7 @@ class MouseManager {
 
         const pos = this.getWorldPositionCenterScreen();
         if (!tableCouple) {
-            newTableCouple.code = this.world.tables?.length > 0 ? this.world.tables?.length : 1;
+            newTableCouple.code = 0;
             newTableCouple.x = pos.x;
             newTableCouple.y = pos.y;
 
@@ -4061,6 +4147,7 @@ class RoomEditor {
 
         this.guestsModal = new ManageGuestsModal();
         this.orderPositionModal = new OrderPositionModal();
+        this.zoneModal = new ZoneModal();
 
 
         this.mouseManager = new MouseManager(this.world, this);
@@ -4526,7 +4613,7 @@ class OrderPositionModal {
         input.type = "number";
         input.id = "orderPositionInput";
         input.name = "orderPosition";
-        input.value = (table.orderPosition + 1) || "";
+        input.value = table?.orderPosition != null && table?.orderPosition != undefined ? (table.orderPosition + 1) : "";
 
         this.formElements.orderPosition = input;
         formElement.appendChild(label);
@@ -4540,6 +4627,379 @@ class OrderPositionModal {
         row.appendChild(col2);
 
         this.modalBodyElement.appendChild(row);
+    }
+}
+
+class ZoneModal {
+    modalElement;
+    modalBodyElement;
+    subjectZone = {};
+    formElements = {};
+    translationSystem;
+    onAfterSave;
+
+    objectTypes = [
+        'RoundTable',
+        'SquareTable',
+        'RectangularTable',
+        'RectangularLTable',
+        'ForestMTable',
+    ];
+
+    constructor() {
+        this.translationSystem = new TranslationSystem();
+        this.modalElement = document.createElement("div");
+        this.modalElement.classList.add("editor-modal-wrap");
+        this.modalElement.id = "zoneModal";
+        this.modalElement.style.display = 'block';
+        const editorModalElement = document.createElement("div");
+        editorModalElement.classList.add("editor-modal")
+        editorModalElement.style.width = "25%";
+        editorModalElement.style['minWidth'] = "470px";
+
+        this.modalElement.appendChild(editorModalElement);
+
+        const closeElementButton = document.createElement("i");
+        closeElementButton.id = "iconClose";
+        closeElementButton.classList.add("fa-solid");
+        closeElementButton.classList.add("fa-x");
+        closeElementButton.classList.add("editor-modal-close");
+        closeElementButton.onclick = () => {
+            this.close();
+        }
+        editorModalElement.appendChild(closeElementButton);
+
+        const modalHeaderElement = document.createElement("div");
+        modalHeaderElement.classList.add("editor-modal-header");
+        modalHeaderElement.innerHTML = '<div class="editor-modal-title" translation-key="MNG_ZONE">Gerir zona</div>';
+        editorModalElement.appendChild(modalHeaderElement);
+
+        this.modalBodyElement = document.createElement("div");
+        this.modalBodyElement.classList.add("editor-modal-body");
+        editorModalElement.appendChild(this.modalBodyElement);
+
+        // Add modal footer
+        const modalFooterElement = document.createElement("div");
+        modalFooterElement.classList.add("editor-modal-footer");
+
+        const btnCancelElement = document.createElement("button");
+        btnCancelElement.id = "btnClose";
+        btnCancelElement.type = "button";
+        btnCancelElement.classList.add("editor-btn");
+        btnCancelElement.classList.add("editor-btn-default");
+        btnCancelElement.setAttribute('translation-key', "CANCEL");
+        btnCancelElement.textContent = "Cancelar";
+        btnCancelElement.onclick = () => {
+            this.close();
+        };
+        modalFooterElement.appendChild(btnCancelElement);
+
+        const btnSaveElement = document.createElement("button");
+        btnSaveElement.type = "submit";
+        btnSaveElement.classList.add("editor-btn");
+        btnSaveElement.classList.add("editor-btn-primary");
+        btnSaveElement.setAttribute('translation-key', "SAVE");
+        btnSaveElement.textContent = "Guardar";
+        btnSaveElement.onclick = () => {
+            this.save();
+        };
+        modalFooterElement.appendChild(btnSaveElement);
+
+        editorModalElement.appendChild(modalFooterElement);
+
+        document.body.appendChild(this.modalElement);
+    }
+
+    open(zone) {
+        this.createModalBody(zone);
+        this.modalElement.style.display = "block";
+        this.translationSystem.reviewPage();
+    }
+
+    close() {
+        this.modalElement.style.display = "none";
+    }
+
+    save() {
+        // Add logic to handle saving data
+        console.log("Saving data...");
+        if (this.validateForm()) {
+
+            this.subjectZone.name = this.formElements.name.value;
+            this.subjectZone.allowedOrientation = this.formElements.allowedOrientation.select2('data')[0].id;
+            this.subjectZone.coupleAllowed = this.formElements.coupleAllowed.checked;
+            this.subjectZone.staffOnly = this.formElements.staffOnly.checked;
+            this.subjectZone.allowExpanded = this.formElements.allowExpanded.checked;
+            this.subjectZone.allowedTables = this.formElements.allowedTables.select2('data')?.length > 0
+                ? this.formElements.allowedTables.select2('data').map(m => m?.id)
+                : [];
+
+            console.warn('reuslt', this.subjectZone);
+
+            if (this.onAfterSave) {
+                this.onAfterSave();
+            }
+
+            this.close();
+        }
+    }
+
+    validateForm() {
+        let isValid = false;
+        const zoneName = this.formElements.name.value;
+        document.getElementById("zoneName").setCustomValidity("");
+
+        if (zoneName == '') {
+            document.getElementById("zoneName").setCustomValidity(this.translationSystem.getTranslation('INPUT_ERROR_REQUIRED'))
+            document.getElementById("zoneName").reportValidity();
+            return false;
+        } else {
+            document.getElementById("zoneName").setCustomValidity("");
+            isValid = true;
+        }
+
+        // console.warn('rotate', this.formElements.allowedOrientation.select2('data'));
+        // console.warn('select', this.formElements.allowedOrientation);
+        // const rotate = this.formElements.allowedOrientation.select2('data')?.[0]
+        //     ? this.formElements.allowedOrientation.select2('data')[0].id
+        //     : '';
+        // document.getElementById("rotateTableSelect").setCustomValidity("");
+
+        // if (rotate == '') {
+        //     document.getElementById("rotateTableSelect").setCustomValidity(this.translationSystem.getTranslation('INPUT_ERROR_REQUIRED'))
+        //     document.getElementById("rotateTableSelect").reportValidity();
+        //     return false;
+        // } else {
+        //     document.getElementById("rotateTableSelect").setCustomValidity("");
+        //     isValid = true;
+        // }
+
+
+        return isValid;
+    }
+
+    createModalBody(zone) {
+        this.subjectZone = zone;
+        this.modalBodyElement.innerHTML = '';
+        this.formElements = {};
+
+        const formElement = document.createElement("form");
+        formElement.name = "editor-zone-form";
+        formElement.onsubmit = (event) => this.save(event);
+        formElement.classList.add("editor-form");
+        formElement.style.background = 'unset';
+        formElement.style.border = 'unset';
+
+        // Create the first row with buttons
+        const row = document.createElement("div");
+        row.classList.add("editor-row");
+
+        const col1 = document.createElement("div");
+        col1.classList.add("editor-col");
+
+        const labelName = document.createElement("div");
+        const labelNameSpan = document.createElement("span");
+        labelNameSpan.setAttribute('translation-key', "ZONE_NAME");
+        labelNameSpan.innerText = "Nome";
+        const labelNameSpanDots = document.createElement("span");
+        labelNameSpanDots.innerText = ":";
+        labelName.appendChild(labelNameSpan);
+        labelName.appendChild(labelNameSpanDots);
+
+        const inputName = document.createElement("input");
+        inputName.classList.add('editor-input');
+        inputName.style.marginLeft = '0px';
+        inputName.type = "text";
+        inputName.id = "zoneName";
+        inputName.name = "name";
+        inputName.value = zone.name || "";
+
+        this.formElements.name = inputName;
+        col1.appendChild(labelName);
+        col1.appendChild(inputName);
+
+        row.appendChild(col1);
+
+        const col2 = document.createElement("div");
+        col2.classList.add("editor-col");
+
+        const labelRotate = document.createElement("div");
+        const labelRotateSpan = document.createElement("span");
+        labelRotateSpan.setAttribute('translation-key', "TABLES_ROTATE");
+        labelRotateSpan.innerText = "Orientação das mesas";
+        const labelRotateSpanDots = document.createElement("span");
+        labelRotateSpanDots.innerText = ":";
+        labelRotate.appendChild(labelRotateSpan);
+        labelRotate.appendChild(labelRotateSpanDots);
+
+        const inputRotate = document.createElement("div");
+        inputRotate.classList.add("editorRoom-input", 'ui');
+        inputRotate.style.width = '100%';
+
+        const selectRotate = document.createElement("select");
+        selectRotate.id = "rotateTableSelect";
+        selectRotate.classList.add("rotateTableSelect");
+        selectRotate.classList.add("ui");
+        inputRotate.appendChild(selectRotate);
+
+        col2.appendChild(labelRotate);
+        col2.appendChild(inputRotate);
+
+        row.appendChild(col1);
+        row.appendChild(col2);
+
+        const row2 = document.createElement("div");
+        row2.classList.add("editor-row");
+        row2.style.flexWrap = 'wrap';
+        row2.style.justifyContent = 'space-between';
+        row2.style.margin = '15px 0';
+
+        const labelCouple = document.createElement("div");
+        const labelCoupleSpan = document.createElement("span");
+        labelCoupleSpan.setAttribute('translation-key', "COUPLE_TABLES");
+        labelCoupleSpan.innerText = "Mesa do casal";
+        const labelCoupleSpanDots = document.createElement("span");
+        labelCoupleSpanDots.innerText = ":";
+        labelCouple.appendChild(labelCoupleSpan);
+        labelCouple.appendChild(labelCoupleSpanDots);
+
+        const inputCouple = document.createElement("input");
+        inputCouple.style.marginLeft = '8px';
+        inputCouple.type = "checkbox";
+        inputCouple.id = "coupleAllowed";
+        inputCouple.name = "coupleAllowed";
+        inputCouple.checked = zone.coupleAllowed || false;
+
+        this.formElements.coupleAllowed = inputCouple;
+        labelCouple.appendChild(inputCouple);
+        row2.appendChild(labelCouple);
+
+        const labelStaff = document.createElement("div");
+        const labelStaffSpan = document.createElement("span");
+        labelStaffSpan.setAttribute('translation-key', "STAFF_ONLY");
+        labelStaffSpan.innerText = "Apenas mesas de staff";
+        const labelStaffSpanDots = document.createElement("span");
+        labelStaffSpanDots.innerText = ":";
+        labelStaff.appendChild(labelStaffSpan);
+        labelStaff.appendChild(labelStaffSpanDots);
+
+        const inputStaff = document.createElement("input");
+        inputStaff.style.marginLeft = '8px';
+        inputStaff.type = "checkbox";
+        inputStaff.id = "staffOnly";
+        inputStaff.name = "staffOnly";
+        inputStaff.checked = zone.staffOnly || false;
+
+        this.formElements.staffOnly = inputStaff;
+        labelStaff.appendChild(inputStaff);
+        row2.appendChild(labelStaff);
+
+        const labelUnion = document.createElement("div");
+        const labelUnionSpan = document.createElement("span");
+        labelUnionSpan.setAttribute('translation-key', "ALLOWED_UNIONS");
+        labelUnionSpan.innerText = "Uniões autorizadas";
+        const labelUnionSpanDots = document.createElement("span");
+        labelUnionSpanDots.innerText = ":";
+        labelUnion.appendChild(labelUnionSpan);
+        labelUnion.appendChild(labelUnionSpanDots);
+
+        const inputUnion = document.createElement("input");
+        inputUnion.style.marginLeft = '8px';
+        inputUnion.type = "checkbox";
+        inputUnion.id = "allowExpanded ";
+        inputUnion.name = "allowExpanded ";
+        inputUnion.checked = zone.allowExpanded || false;
+
+        this.formElements.allowExpanded = inputUnion;
+        labelUnion.appendChild(inputUnion);
+        row2.appendChild(labelUnion);
+
+        // Create the first row with buttons
+        const row3 = document.createElement("div");
+        row3.classList.add("editor-row");
+        row3.style.flexDirection = 'column';
+        row3.style.alignItems = 'stretch'
+
+        const labelAllowedGuestTables = document.createElement("div");
+        const labelAllowedGuestTablesSpan = document.createElement("span");
+        labelAllowedGuestTablesSpan.setAttribute('translation-key', "ALLOWED_GUEST_TABLES");
+        labelAllowedGuestTablesSpan.innerText = "Mesas de convidados autorizadas";
+        const labelSpanDots = document.createElement("span");
+        labelSpanDots.innerText = ":";
+        labelAllowedGuestTables.appendChild(labelAllowedGuestTablesSpan);
+        labelAllowedGuestTables.appendChild(labelSpanDots);
+
+        const inputAllowedGuestTables = document.createElement("div");
+        inputAllowedGuestTables.classList.add("editorRoom-input", 'ui');
+
+        const selectAllowedGuestTables = document.createElement("select");
+        selectAllowedGuestTables.id = "allowedTablesSelect";
+        selectAllowedGuestTables.classList.add("ui");
+        inputAllowedGuestTables.appendChild(selectAllowedGuestTables);
+
+        row3.appendChild(labelAllowedGuestTables);
+        row3.appendChild(inputAllowedGuestTables);
+
+        formElement.appendChild(row);
+        formElement.appendChild(row2);
+        formElement.appendChild(row3);
+        this.modalBodyElement.appendChild(formElement);
+
+        this.initializeSelects();
+    }
+
+    initializeSelects() {
+        this.formElements.allowedOrientation = $(`#rotateTableSelect`).select2({
+            minimumResultsForSearch: -1,
+            data: [
+                { id: 'HORIZONTAL', text: this.translationSystem.getTranslation("HORIZONTAL_ROTATE") },
+                { id: 'VERTICAL', text: this.translationSystem.getTranslation("VERTICAL_ROTATE") },
+                { id: 'BOTH', text: this.translationSystem.getTranslation("BOTH_ROTATE") },
+            ],
+            val: this.subjectZone?.allowedOrientation || null,
+        });
+        console.warn('rotate', this.subjectZone?.allowedOrientation);
+        $(`#rotateTableSelect`).val(this.subjectZone?.allowedOrientation || 'BOTH').trigger('change');
+
+        this.formElements.allowedTables = $(`#allowedTablesSelect`).select2({
+            multiple: true,
+            closeOnSelect: false,
+            allowClear: false,
+            data: this.objectTypes || [],
+            templateResult: (type) => {
+                let translation = type.text;
+                if (this.translationSystem)
+                    translation = this.translationSystem.getTranslation(type.text);
+
+                var $span = $(`
+                <span class="editor-option">
+                    <div style="display: inline-flex; align-items: center; padding: 0 4px">
+                        <div class="table_ui ${TableTypesIcon[type.text]}"></div>
+                        <span translation-key="${type.text}">${translation}</span>
+                    </div>
+                </span>`);
+                return $span;
+            },
+            templateSelection: (type) => {
+                if (!type?.text) {
+                    return '';
+                }
+                let translation = type.text;
+                if (this.translationSystem)
+                    translation = this.translationSystem.getTranslation(type.text);
+
+                var $state = $(
+                    `<span class="editor-option">
+                    <div style="display: inline-flex; align-items: center; padding: 0 4px">
+                        <div class="table_ui ${TableTypesIcon[type.text]}"></div>
+                        <span translation-key="${type.text}">${translation}</span>
+                    </div>
+                </span>`
+                );
+                return $state;
+            },
+        });
+        if (this.subjectZone?.allowedTables.length > 0) $(`#allowedTablesSelect`).val(this.subjectZone.allowedTables).trigger('change');
     }
 }
 
@@ -4564,7 +5024,7 @@ class ManageGuestsModal {
         this.translationSystem = new TranslationSystem();
         this.modalElement = document.createElement("div");
         this.modalElement.classList.add("editor-modal-wrap");
-        this.modalElement.id = "myModal";
+        this.modalElement.id = "guestModal";
 
         const editorModalElement = document.createElement("div");
         editorModalElement.classList.add("editor-modal")
@@ -5162,7 +5622,7 @@ class ManageGuestsModal {
         document.getElementById("tableName").setCustomValidity("");
 
         // if (tableName == '') {
-        //     document.getElementById("tableName").setCustomValidity("Invalid field.")
+        //     document.getElementById("tableName").setCustomValidity(this.translationSystem.getTranslation('INPUT_ERROR_REQUIRED'))
         //     document.getElementById("tableName").reportValidity();
         //     return false;
         // } else {
@@ -5181,7 +5641,7 @@ class ManageGuestsModal {
 
         const tableNotes = this.formElements.notes.value;
         if (restrictions?.length > 0 && tableNotes?.trim() == '') {
-            document.getElementById("notes").setCustomValidity("Invalid field.")
+            document.getElementById("notes").setCustomValidity(this.translationSystem.getTranslation('INPUT_ERROR_REQUIRED'))
             document.getElementById("notes").reportValidity();
             return false;
         } else {
@@ -5223,7 +5683,6 @@ class ManageGuestsModal {
 
         if (document.getElementById('totalStroller')) {
             if (totalNewborn > 0) {
-
                 document.getElementById('totalStroller').classList.remove('hide');
                 document.getElementById('totalStroller').innerHTML = `${totalNewborn} <span translation-key="BABY_CAR">carrinho</span>`;
                 this.translationSystem.reviewPage();
