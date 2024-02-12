@@ -4495,7 +4495,7 @@ class RoomEditor {
         }));
 
         const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
-        if (tableCouple && $("#coupleTableSelect") && this.mouseManager.activeCoupleTables) {
+        if (tableCouple && $("#coupleTableSelect") && this.mouseManager.activeCouplesTables) {
             $("#coupleTableSelect").val(tableCouple.tableType);
         }
 
