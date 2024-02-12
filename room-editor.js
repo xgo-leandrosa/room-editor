@@ -1762,7 +1762,7 @@ class Table extends RoomObject {
         this.spanTableCircularOrder.style.display = this.orderPosition != null && this.orderPosition != undefined
             ? 'block'
             : 'none';
-        this.spanTableCircularOrder.innerHTML = `<i class="fa-solid fa-circle-notch"></i>${(this.orderPosition + 1)}`;
+        this.spanTableCircularOrder.innerHTML = `<i class="fa-solid fa-repeat"></i>${(this.orderPosition + 1)}`;
     }
 
     getElementAndParents(element) {
@@ -4651,7 +4651,6 @@ class ZoneModal {
         this.modalElement = document.createElement("div");
         this.modalElement.classList.add("editor-modal-wrap");
         this.modalElement.id = "zoneModal";
-        this.modalElement.style.display = 'block';
         const editorModalElement = document.createElement("div");
         editorModalElement.classList.add("editor-modal")
         editorModalElement.style.width = "25%";
