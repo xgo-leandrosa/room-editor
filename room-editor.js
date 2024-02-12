@@ -4080,7 +4080,7 @@ class MouseManager {
                 this.world.roomPlan.deleteZone(this.selectedZone);
                 break;
             case "CREATE_NEW_ZONE":
-                this.selectedZone = roomEditor.world.roomPlan.createZone();
+                this.selectedZone = this.world.roomPlan.createZone();
                 this.selectedZone.setSize(this.world.roomPlan.width,this.world.roomPlan.height);
                 this.world.roomPlan.addZone(this.selectedZone);
                 this.editorMode = "ZONE";
