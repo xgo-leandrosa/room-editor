@@ -1301,12 +1301,14 @@ class Zone {
     }
 
     buildZonePolygonElement() {
-        const element = document.createElement("div");
-        element.style.width = `${this.width}px`;
-        element.style.height = `${this.height}px`;
-        element.style.position = "absolute";
-        this.world.element.appendChild(element);
-        this.zoneElement = element;
+        if(!this.zoneElement) {
+            const element = document.createElement("div");
+            element.style.width = `${this.width}px`;
+            element.style.height = `${this.height}px`;
+            element.style.position = "absolute";
+            this.world.element.appendChild(element);
+            this.zoneElement = element;
+        }
 
         this.updateZonePoligonElement();
     }
@@ -1339,11 +1341,17 @@ class Zone {
             x,
             y,
         });
+
+        this.updateZonePoligonElement();
     }
 
     setSize(width, height) {
         this.zoneElement.style.width = `${width}px`;
         this.zoneElement.style.height = `${height}px`;
+    }
+
+    destroy() {
+        this.world.element.removeChild(this.zoneElement);
     }
 }
 
@@ -1406,10 +1414,27 @@ class RoomPlan extends RoomObject {
     initConstraintZone() {
         // TODO
         this.constraintZone = new Zone(this.world);
+        this.constraintZone.zoneElement.setAttribute("constraintZone", true);
+        this.constraintZone.zoneElement.classList.add("constraintZone");
     }
 
-    addZone() {
-        this.zones.push(new Zone(this.world));
+    createZone() {
+        return new Zone(this.world);
+    }
+
+    addZone(zone) {
+        if(!zone) {
+            return;
+        }
+        zone.zoneElement.setAttribute("zone", true);
+        zone.zoneElement.classList.add("zone");
+
+        return this.zones.push(zone);
+    }
+
+    deleteZone(zone) {
+        zone.destroy();
+        this.zones = this.zones.filter(z => z !== zone);
     }
 }
 
@@ -3676,6 +3701,85 @@ class MouseManager {
                             })
                         );
                         break;
+
+                    case "DELETE_ZONE":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-sort",
+                                text: "Eliminar Zona",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'DELETE_ZONE')
+                                }
+                            })
+                        );
+                        break;
+                    case "CREATE_NEW_ZONE":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-sort",
+                                text: "Criar Zona",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'CREATE_NEW_ZONE')
+                                }
+                            })
+                        );
+                        break;
+                    case "ADD_CONSTRAINT_POINTS":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-sort",
+                                text: "Adcionar pontos constri.",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'ADD_CONSTRAINT_POINTS')
+                                }
+                            })
+                        );
+                        break;
+                    case "CLEAR_CONSTRAINT_POINTS":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-sort",
+                                text: "Limpar pontos contri.",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'CLEAR_CONSTRAINT_POINTS')
+                                }
+                            })
+                        );
+                        break;
+                    case "ADD_POINTS":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-sort",
+                                text: "Adiconar Pontos zona",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'ADD_POINTS')
+                                }
+                            })
+                        );
+                        break;
+                    case "CLEAR_POINTS":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-sort",
+                                text: "Limpar porntos zona",
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'CLEAR_POINTS')
+                                }
+                            })
+                        );
+                        break;
                 }
             }
         }
@@ -3731,7 +3835,9 @@ class MouseManager {
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
         //console.log("World Position:", { x, y })
-        this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        
+        //TODO
+        //this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
         return { x, y };
     }
@@ -3765,6 +3871,19 @@ class MouseManager {
             }
 
         }
+
+        if(this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("constraintZone") == 'true') {
+            options.push("CREATE_NEW_ZONE");
+            options.push("ADD_CONSTRAINT_POINTS");
+            options.push("CLEAR_CONSTRAINT_POINTS");
+        }
+        if(this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("zone") == 'true') {
+            this.selectedZone = this.world.roomPlan.zones.find(z => z.zoneElement === event.target);
+            options.push("DELETE_ZONE");
+            options.push("ADD_POINTS");
+            options.push("CLEAR_POINTS");
+        }
+
         this.contextMenuActiveOptions(options);
 
         this.activeContextMenu(event);
@@ -3800,16 +3919,19 @@ class MouseManager {
 
         if (event.button == 1 && this.roomEditor.mode == RoomEditorMode.ROOM_PLAN) {
 
-            if (this.roomEditor.world.roomPlan.editorMode == "CONTRAINT_ZONE") {
+            if (this.editorMode == "CONTRAINT_ZONE") {
                 this.roomEditor.world.roomPlan.constraintZone.addZonePolygon(pos.x, pos.y);
                 this.roomEditor.world.roomPlan.constraintZone.updateZonePoligonElement();
             }
 
-            if (this.roomEditor.world.roomPlan.editorMode == "ZONE" && this.roomEditor.world.roomPlan.zoneEditing) {
-                this.roomEditor.world.roomPlan.zoneEditing.addZonePolygon(pos.x, pos.y);
-                this.roomEditor.world.roomPlan.zoneEditing.updateZonePoligonElement();
+            if (this.editorMode == "ZONE" && this.selectedZone) {
+                this.selectedZone.addZonePolygon(pos.x, pos.y);
+                this.selectedZone.updateZonePoligonElement();
             }
 
+        } else {
+            this.editorMode = null;
+            this.selectedZone = null;
         }
 
         if (event.button == 2 || this.contextMenuVisible == true) {
@@ -3952,6 +4074,30 @@ class MouseManager {
                     this.selectedObject.updateTableOrderValue();
                 }
                 break;
+
+
+            case "DELETE_ZONE":
+                this.world.roomPlan.deleteZone(this.selectedZone);
+                break;
+            case "CREATE_NEW_ZONE":
+                this.selectedZone = roomEditor.world.roomPlan.createZone();
+                this.selectedZone.setSize(this.world.roomPlan.width,this.world.roomPlan.height);
+                this.world.roomPlan.addZone(this.selectedZone);
+                this.editorMode = "ZONE";
+                break;
+                case  "ADD_CONSTRAINT_POINTS":
+                this.editorMode = "CONTRAINT_ZONE";
+                break;
+            case  "CLEAR_CONSTRAINT_POINTS":
+                this.world.roomPlan.constraintZone.clearPoints();
+                break;
+            case  "ADD_POINTS":
+                this.editorMode = "ZONE";
+                break;
+            case  "CLEAR_POINTS":
+                this.selectedZone.clearPoints();
+                break;
+
             default:
                 throw new Error("Unexpected action");
         }
