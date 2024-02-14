@@ -1166,6 +1166,30 @@ class World extends RoomObject {
         return (bAx * bCy - bAy * bCx);
     }
 
+    checkTablesZonesRules() {
+
+        for(const zone of this.roomPlan.zones) {
+
+            zone.tables = [];
+            for(const table of this.tables) {
+                const isLt = this.isPointInPolygon(table.corners.lt.x, table.corners.lt.y, zone.polygon);
+                const isRt = this.isPointInPolygon(table.corners.rt.x, table.corners.rt.y, zone.polygon);
+                const isLb = this.isPointInPolygon(table.corners.lb.x, table.corners.lb.y, zone.polygon);
+                const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, zone.polygon);
+    
+                if ((isLt || isRt || isLb || isRb)) {
+
+                    zone.tables.push(table);
+                }
+            }
+        }
+
+        for(const zone of this.roomPlan.zones) {
+            zone.validateTables();
+        }
+
+    }
+
     checkTableInConstraintZone(table) {
         const isLt = this.isPointInPolygon(table.corners.lt.x, table.corners.lt.y, this.roomPlan.constraintZone.polygon);
         const isRt = this.isPointInPolygon(table.corners.rt.x, table.corners.rt.y, this.roomPlan.constraintZone.polygon);
@@ -1249,6 +1273,7 @@ class World extends RoomObject {
 
         //TODO THIS HERE ?
         this.checkTablesInConstraintZone();
+        this.checkTablesZonesRules();
         //return false;
     }
 
@@ -1434,6 +1459,10 @@ class Zone {
     color = "#f0f0f073";
     bright = 1;
 
+
+    // IS UPDATED WITH THE TABLES PRESENT IN THE ZONE ON RUNTIME
+    tables = [];
+
     constructor(world) {
         this.world = world;
 
@@ -1494,6 +1523,65 @@ class Zone {
     destroy() {
         this.world.element.removeChild(this.zoneElement);
     }
+
+    validateTables() {
+        for(const table of this.tables) {
+            table.isSafe(TABLE_DANGER_TYPE.INVALID_ZONE);
+
+
+            // STAFF ONLY
+            if(this.staffOnly && table.tablePurpose != 'STAFF') {
+                table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                console.log("if(this.staffOnly && table.tablePurpose != 'STAFF') {")
+                continue;
+            }
+
+            // CHECK ORIENTATION
+            if(this.allowedOrientation) {
+                if(this.allowedOrientation == 'HORIZONTAL'&& (table.rotate != 0 &&  table.rotate != 180)) {
+                    table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                    console.log("if(this.allowedOrientation == 'HORIZONTAL'&& (table.rotate != 0 &&  table.rotate != 180)) {")
+                    continue;
+                }
+
+                if(this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 &&  table.rotate != 270)) {
+                    table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                    console.log("if(this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 &&  table.rotate != 270)) {")
+                    continue;
+                }
+
+                //if(this.allowedOrientation == 'BOTH') {
+                
+                //}
+            }
+             
+            
+            // COUPLE ALLOWED
+            if(table.tablePurpose == 'COUPLE') {
+                if(!this.coupleAllowed) {
+                    table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                    console.log("if(!this.coupleAllowed && table.tablePurpose == 'COUPLE') {")
+                    continue;
+                }
+            } else {
+
+                    // ALLOW EXPANDED
+                    if(table.tableType == 'ExpandedTable' && !this.allowExpanded) {
+                        table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                        console.log("if(table.tableType == 'EXPANDED_TABLE' && !this.allowExpanded) {")
+                        continue;
+                    }
+    
+                    // CHECK TYPE
+                    if(!this.allowedTables.includes(table.tableType)) {
+                        table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                        console.log("if(!this.allowedTables.includes(table.tableType)) {")
+                        continue;
+                    }
+
+            }
+        }
+    }
 }
 
 class RoomPlan extends RoomObject {
@@ -1540,6 +1628,10 @@ class RoomPlan extends RoomObject {
             //TODO ALWAYS DO THIS ? 
             this.constraintZone.setSize(this.width, this.height);
 
+            for(const zone of this.zones) {
+                zone.setSize(this.width, this.height);
+            }
+
 
             // this.world.worldSize(this.width, this.height);
             this.world.worldOrigin(this.halfWidth, this.halfHeight);
@@ -1584,6 +1676,7 @@ const SNAPPING_POINT_SIZE = 15;
 
 const TABLE_DANGER_TYPE = {
     OVERLAPPING: "OVERLAPPING",
+    INVALID_ZONE: "INVALID_ZONE",
     OUT_CONSTRAINT_ZONE: "OUT_CONSTRAINT_ZONE",
     MISSING_ORDER: 'MISSING_ORDER',
     ORDER_OUT_OF_RANGE: 'ORDER_OUT_OF_RANGE'
@@ -4249,7 +4342,7 @@ class MouseManager {
             case "MNG_ZONE":
                 this.zoneModal.open(this.selectedZone);
                 this.zoneModal.onAfterSave = () => {
-                    // TODO something about tables, maybe??
+                    this.world.areTablesOverlapping();
                 }
                 break;
             case "ADD_CONSTRAINT_POINTS":
@@ -4394,12 +4487,12 @@ class RoomEditor {
             if (!tableInDanger.inDanger) {
                 if (tableInDanger.orderPosition == null || tableInDanger.orderPosition == undefined) {
                     if (!tableInDanger.dangerType.includes(TABLE_DANGER_TYPE.MISSING_ORDER)) {
-                        tableInDanger.dangerType.push(TABLE_DANGER_TYPE.MISSING_ORDER);
+                        tableInDanger.isInDanger(TABLE_DANGER_TYPE.MISSING_ORDER);
                     }
                 }
                 if (tableInDanger.orderPosition < 0 || tableInDanger.orderPosition > this.world.tables?.length) {
                     if (!tableInDanger.dangerType.includes(TABLE_DANGER_TYPE.ORDER_OUT_OF_RANGE)) {
-                        tableInDanger.dangerType.push(TABLE_DANGER_TYPE.ORDER_OUT_OF_RANGE);
+                        tableInDanger.isInDanger(TABLE_DANGER_TYPE.ORDER_OUT_OF_RANGE);
                     }
                 }
             }
@@ -4524,7 +4617,16 @@ class RoomEditor {
                 spaceBetweenTables: this.world.roomPlan.spaceBetweenTables,
                 constraintPoints: [
                     ...this.world.roomPlan.constraintZone.polygon
-                ]
+                ],
+                zones: this.world.roomPlan.zones.map(z => ({
+                    name: z.name,
+                    polygon: z.polygon,
+                    allowedTables: z.allowedTables,
+                    allowedOrientation: z.allowedOrientation,
+                    coupleAllowed: z.coupleAllowed,
+                    staffOnly: z.staffOnly,
+                    allowExpanded: z.allowExpanded,
+                }))
             },
             tables: [],
         };
@@ -4583,7 +4685,25 @@ class RoomEditor {
             for (let cp of serializedData.roomPlan.constraintPoints) {
                 this.world.roomPlan.constraintZone.addZonePolygon(cp.x, cp.y);
             }
+
             this.world.roomPlan.constraintZone.updateZonePoligonElement();
+        }
+
+        if (serializedData.roomPlan.zones) { 
+            for (let zone of serializedData.roomPlan.zones) {
+                const z = this.world.roomPlan.createZone();
+                z.name = zone.name;
+                z.polygon = zone.polygon;
+                z.allowedTables = zone.allowedTables;
+                z.allowedOrientation = zone.allowedOrientation;
+                z.coupleAllowed = zone.coupleAllowed;
+                z.staffOnly = zone.staffOnly;
+                z.allowExpanded = zone.allowExpanded;
+                this.world.roomPlan.addZone(z);
+                z.setSize(this.world.roomPlan.width, this.world.roomPlan.height);
+                z.bright = 0.85;
+                z.updateZonePoligonElement();
+            }
         }
 
         this.world.roomPlan.spaceBetweenTables = serializedData.roomPlan.spaceBetweenTables;
