@@ -1459,6 +1459,8 @@ class Zone {
     color = "#f0f0f073";
     bright = 1;
 
+    zindex=0;
+
 
     // IS UPDATED WITH THE TABLES PRESENT IN THE ZONE ON RUNTIME
     tables = [];
@@ -1488,8 +1490,9 @@ class Zone {
             if (this.polygon.length > 0) {
                 this.zoneElement.style.background = this.color;
                 this.zoneElement.style.filter = `brightness(${this.bright})`;
-            } else
+            } else {
                 this.zoneElement.style.background = "none";
+            }
 
             let coords = '';
             for (let i = 0; i <= this.polygon.length - 1; i++) {
@@ -1498,6 +1501,12 @@ class Zone {
                 coords += ` ${p.x}px ${p.y}px` + (!isLast ? ',' : '');
             }
             this.zoneElement.style["clip-path"] = `polygon(${coords})`;
+
+            if(this.zindex) {
+                this.zoneElement.style['z-index'] = 15 + this.zindex;
+            } else {
+                this.zoneElement.style['z-index'] = null;
+            }
         }
     }
 
@@ -3980,6 +3989,32 @@ class MouseManager {
                             })
                         );
                         break;
+                    case "ZONE_FRONT":
+                         elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-pen-ruler",
+                                text: this.translationSystem.getTranslation("ZONE_FRONT"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'ZONE_FRONT')
+                                }
+                            })
+                        );
+                        break;
+                    case "ZONE_BACK":
+                         elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-pen-ruler",
+                                text: this.translationSystem.getTranslation("ZONE_BACK"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'ZONE_BACK')
+                                }
+                            })
+                        );
+                        break;
                     case "ADD_CONSTRAINT_POINTS":
                         elements[0].appendChild(
                             this.contextMenuCreateElement({
@@ -4133,6 +4168,8 @@ class MouseManager {
             this.selectedZone = this.world.roomPlan.zones.find(z => z.zoneElement === event.target);
             options.push("DELETE_ZONE");
             options.push("MNG_ZONE");
+            options.push("ZONE_FRONT");
+            options.push("ZONE_BACK");
             options.push("ADD_POINTS");
             options.push("CLEAR_POINTS");
         }
@@ -4181,7 +4218,8 @@ class MouseManager {
                 this.selectedZone.addZonePolygon(pos.x, pos.y);
                 this.selectedZone.updateZonePoligonElement();
             }
-
+            event.preventDefault();
+            return;
         } else {
             this.editorMode = null;
             this.selectedZone = null;
@@ -4343,6 +4381,18 @@ class MouseManager {
                 this.zoneModal.open(this.selectedZone);
                 this.zoneModal.onAfterSave = () => {
                     this.world.areTablesOverlapping();
+                }
+                break;
+            case "ZONE_FRONT":
+                if(this.selectedZone) {
+                    this.selectedZone.zindex++;
+                    this.selectedZone.updateZonePoligonElement();
+                }
+                break;
+            case "ZONE_BACK":
+                if(this.selectedZone) {
+                    this.selectedZone.zindex--;
+                    this.selectedZone.updateZonePoligonElement();
                 }
                 break;
             case "ADD_CONSTRAINT_POINTS":
@@ -4626,6 +4676,7 @@ class RoomEditor {
                     coupleAllowed: z.coupleAllowed,
                     staffOnly: z.staffOnly,
                     allowExpanded: z.allowExpanded,
+                    zindex: z.zindex,
                 }))
             },
             tables: [],
@@ -4699,6 +4750,7 @@ class RoomEditor {
                 z.coupleAllowed = zone.coupleAllowed;
                 z.staffOnly = zone.staffOnly;
                 z.allowExpanded = zone.allowExpanded;
+                z.zindex = zone.zindex || 0;
                 this.world.roomPlan.addZone(z);
                 z.setSize(this.world.roomPlan.width, this.world.roomPlan.height);
                 z.bright = 0.85;
