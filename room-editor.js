@@ -1678,6 +1678,13 @@ class RoomPlan extends RoomObject {
         zone.destroy();
         this.zones = this.zones.filter(z => z !== zone);
     }
+
+    deleteZones() {
+        for(const zone of this.zones) {
+            zone.destroy();
+        }
+        this.zones = [];
+    }
 }
 
 const TABLE_ELEMENT_OFFSET = 30;
@@ -4740,6 +4747,7 @@ class RoomEditor {
             this.world.roomPlan.constraintZone.updateZonePoligonElement();
         }
 
+        this.world.roomPlan.deleteZones();
         if (serializedData.roomPlan.zones) { 
             for (let zone of serializedData.roomPlan.zones) {
                 const z = this.world.roomPlan.createZone();
