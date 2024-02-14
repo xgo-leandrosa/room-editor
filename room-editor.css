@@ -1,6 +1,16 @@
+.constraintZone {
+    z-index: 10;
+}
+
+.zone {
+    z-index: 15;
+}
+
 .table {
     position: absolute;
     background-color: rgba(235, 238, 99, 0);
+
+    z-index: 20;
 }
 
 .table::selection {
@@ -165,6 +175,7 @@
 
 .roomPlan {
     position: absolute;
+    z-index: 1;
 }
 
 #toolbox {
