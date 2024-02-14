@@ -816,6 +816,60 @@ const DEFAULT_TRANSLATIONS = [
         },
         tag: "ZONE_NAME"
     },
+    {
+        value: {
+            pt: "Eliminar zona",
+            en: "Delete zone",
+            es: "Eliminar zona",
+            fr: "Supprimer une zone"
+        },
+        tag: "DELETE_ZONE"
+    },
+    {
+        value: {
+            pt: "Criar zona",
+            en: "Create zone",
+            es: "Crear zona",
+            fr: "Créer une zone"
+        },
+        tag: "CREATE_ZONE"
+    },
+    {
+        value: {
+            pt: "Adicionar pontos constrição",
+            en: "Add constriction points",
+            es: "Agregar puntos de constricción",
+            fr: "Ajouter des points de constriction"
+        },
+        tag: "CREATE_CONSTRAINT_POINTS"
+    },
+    {
+        value: {
+            pt: "Eliminar pontos constrição",
+            en: "Eliminate constriction points",
+            es: "Eliminar puntos de constricción",
+            fr: "Élimine les points de constriction"
+        },
+        tag: "DELETE_CONSTRAINT_POINTS"
+    },
+    {
+        value: {
+            pt: "Adicionar pontos zona",
+            en: "Add zone points",
+            es: "Ajouter des points de zone",
+            fr: "Agregar puntos de zona"
+        },
+        tag: "CREATE_ZONE_POINTS"
+    },
+    {
+        value: {
+            pt: "Eliminar pontos zona",
+            en: "Delete zone points",
+            es: "Eliminar puntos de zona",
+            fr: "Supprimer des points de zone"
+        },
+        tag: "DELETE_ZONE_POINTS"
+    },
 ];
 
 
@@ -1373,7 +1427,11 @@ class Zone {
     polygon = [];
     allowedTables = [];
     allowedOrientation = null;
-    color = "red";
+    coupleAllowed = false;
+    staffOnly = false;
+    allowExpanded = false;
+    color = "#f0f0f073";
+    bright = 1;
 
     constructor(world) {
         this.world = world;
@@ -1382,7 +1440,7 @@ class Zone {
     }
 
     buildZonePolygonElement() {
-        if(!this.zoneElement) {
+        if (!this.zoneElement) {
             const element = document.createElement("div");
             element.style.width = `${this.width}px`;
             element.style.height = `${this.height}px`;
@@ -1397,9 +1455,10 @@ class Zone {
     updateZonePoligonElement() {
         if (this.zoneElement) {
 
-            if (this.polygon.length > 0)
-                this.zoneElement.style.background = "#f0f0f073";
-            else
+            if (this.polygon.length > 0) {
+                this.zoneElement.style.background = this.color;
+                this.zoneElement.style.filter = `brightness(${this.bright})`;
+            } else
                 this.zoneElement.style.background = "none";
 
             let coords = '';
@@ -1504,7 +1563,7 @@ class RoomPlan extends RoomObject {
     }
 
     addZone(zone) {
-        if(!zone) {
+        if (!zone) {
             return;
         }
         zone.zoneElement.setAttribute("zone", true);
@@ -1787,7 +1846,7 @@ class Table extends RoomObject {
         this.spanTableCircularOrder.style.display = this.orderPosition != null && this.orderPosition != undefined
             ? 'block'
             : 'none';
-        this.spanTableCircularOrder.innerHTML = `<i class="fa-solid fa-repeat"></i>${(this.orderPosition + 1)}`;
+        this.spanTableCircularOrder.innerHTML = `<i class="fa-solid fa-rotate"></i>${(this.orderPosition + 1)}`;
     }
 
     getElementAndParents(element) {
@@ -3793,8 +3852,8 @@ class MouseManager {
                             this.contextMenuCreateElement({
                                 class: "sort",
                                 id: "ui-context-sort",
-                                icon: "fa-sort",
-                                text: "Eliminar Zona",
+                                icon: "fa-eraser",
+                                text: this.translationSystem.getTranslation("DELETE_ZONE"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'DELETE_ZONE')
                                 }
@@ -3806,10 +3865,23 @@ class MouseManager {
                             this.contextMenuCreateElement({
                                 class: "sort",
                                 id: "ui-context-sort",
-                                icon: "fa-sort",
-                                text: "Criar Zona",
+                                icon: "fa-draw-polygon",
+                                text: this.translationSystem.getTranslation("CREATE_ZONE"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'CREATE_NEW_ZONE')
+                                }
+                            })
+                        );
+                        break;
+                    case "MNG_ZONE":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "sort",
+                                id: "ui-context-sort",
+                                icon: "fa-pen-ruler",
+                                text: this.translationSystem.getTranslation("MNG_ZONE"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'MNG_ZONE')
                                 }
                             })
                         );
@@ -3819,8 +3891,8 @@ class MouseManager {
                             this.contextMenuCreateElement({
                                 class: "sort",
                                 id: "ui-context-sort",
-                                icon: "fa-sort",
-                                text: "Adcionar pontos constri.",
+                                icon: "fa-draw-polygon",
+                                text: this.translationSystem.getTranslation("CREATE_CONSTRAINT_POINTS"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'ADD_CONSTRAINT_POINTS')
                                 }
@@ -3832,8 +3904,8 @@ class MouseManager {
                             this.contextMenuCreateElement({
                                 class: "sort",
                                 id: "ui-context-sort",
-                                icon: "fa-sort",
-                                text: "Limpar pontos contri.",
+                                icon: "fa-eraser",
+                                text: this.translationSystem.getTranslation("DELETE_CONSTRAINT_POINTS"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'CLEAR_CONSTRAINT_POINTS')
                                 }
@@ -3845,8 +3917,8 @@ class MouseManager {
                             this.contextMenuCreateElement({
                                 class: "sort",
                                 id: "ui-context-sort",
-                                icon: "fa-sort",
-                                text: "Adiconar Pontos zona",
+                                icon: "fa-draw-polygon",
+                                text: this.translationSystem.getTranslation("CREATE_ZONE_POINTS"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'ADD_POINTS')
                                 }
@@ -3858,8 +3930,8 @@ class MouseManager {
                             this.contextMenuCreateElement({
                                 class: "sort",
                                 id: "ui-context-sort",
-                                icon: "fa-sort",
-                                text: "Limpar porntos zona",
+                                icon: "fa-eraser",
+                                text: this.translationSystem.getTranslation("DELETE_ZONE_POINTS"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'CLEAR_POINTS')
                                 }
@@ -3921,7 +3993,7 @@ class MouseManager {
         //document.getElementById("mouseWorlPosition").innerHTML = `X: ${x}px Y: ${y}px`;
 
         //console.log("World Position:", { x, y })
-        
+
         //TODO
         //this.pointerDiv.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
@@ -3958,14 +4030,15 @@ class MouseManager {
 
         }
 
-        if(this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("constraintZone") == 'true') {
+        if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("constraintZone") == 'true') {
             options.push("CREATE_NEW_ZONE");
             options.push("ADD_CONSTRAINT_POINTS");
             options.push("CLEAR_CONSTRAINT_POINTS");
         }
-        if(this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("zone") == 'true') {
+        if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("zone") == 'true') {
             this.selectedZone = this.world.roomPlan.zones.find(z => z.zoneElement === event.target);
             options.push("DELETE_ZONE");
+            options.push("MNG_ZONE");
             options.push("ADD_POINTS");
             options.push("CLEAR_POINTS");
         }
@@ -4157,7 +4230,7 @@ class MouseManager {
             case "ORDER_POSITION":
                 this.orderPositionModal.open(this.selectedObject, this.world.tables);
                 this.orderPositionModal.onAfterSave = () => {
-                    this.selectedObject.updateTableOrderValue();
+                    this.selectedObject.updateTableOrderValue(this.world.roomEditor.mode);
                 }
                 break;
 
@@ -4167,20 +4240,27 @@ class MouseManager {
                 break;
             case "CREATE_NEW_ZONE":
                 this.selectedZone = this.world.roomPlan.createZone();
-                this.selectedZone.setSize(this.world.roomPlan.width,this.world.roomPlan.height);
+                this.selectedZone.setSize(this.world.roomPlan.width, this.world.roomPlan.height);
+                this.selectedZone.bright = 0.85;
                 this.world.roomPlan.addZone(this.selectedZone);
                 this.editorMode = "ZONE";
                 break;
-                case  "ADD_CONSTRAINT_POINTS":
+            case "MNG_ZONE":
+                this.zoneModal.open(this.selectedZone);
+                this.zoneModal.onAfterSave = () => {
+                    // TODO something about tables, maybe??
+                }
+                break;
+            case "ADD_CONSTRAINT_POINTS":
                 this.editorMode = "CONTRAINT_ZONE";
                 break;
-            case  "CLEAR_CONSTRAINT_POINTS":
+            case "CLEAR_CONSTRAINT_POINTS":
                 this.world.roomPlan.constraintZone.clearPoints();
                 break;
-            case  "ADD_POINTS":
+            case "ADD_POINTS":
                 this.editorMode = "ZONE";
                 break;
-            case  "CLEAR_POINTS":
+            case "CLEAR_POINTS":
                 this.selectedZone.clearPoints();
                 break;
 
@@ -4879,8 +4959,6 @@ class ZoneModal {
                 ? this.formElements.allowedTables.select2('data').map(m => m?.id)
                 : [];
 
-            console.warn('reuslt', this.subjectZone);
-
             if (this.onAfterSave) {
                 this.onAfterSave();
             }
@@ -4903,8 +4981,6 @@ class ZoneModal {
             isValid = true;
         }
 
-        // console.warn('rotate', this.formElements.allowedOrientation.select2('data'));
-        // console.warn('select', this.formElements.allowedOrientation);
         // const rotate = this.formElements.allowedOrientation.select2('data')?.[0]
         //     ? this.formElements.allowedOrientation.select2('data')[0].id
         //     : '';
@@ -5014,6 +5090,10 @@ class ZoneModal {
         inputCouple.id = "coupleAllowed";
         inputCouple.name = "coupleAllowed";
         inputCouple.checked = zone.coupleAllowed || false;
+        // inputCouple.onchange = (e) => {
+        //     this.formElements.staffOnly.checked = false;
+        // }
+
 
         this.formElements.coupleAllowed = inputCouple;
         labelCouple.appendChild(inputCouple);
@@ -5103,7 +5183,6 @@ class ZoneModal {
             ],
             val: this.subjectZone?.allowedOrientation || null,
         });
-        console.warn('rotate', this.subjectZone?.allowedOrientation);
         $(`#rotateTableSelect`).val(this.subjectZone?.allowedOrientation || 'BOTH').trigger('change');
 
         this.formElements.allowedTables = $(`#allowedTablesSelect`).select2({
