@@ -61,7 +61,7 @@
 
 .table-draw--selected {
     /* background-color: #B6D7A8 !important; */
-    filter: brightness(0.95);
+    filter: brightness(0.90);
 }
 
 .tableNumeration {
@@ -325,6 +325,10 @@ ul {
     font-size: 16px;
     white-space: nowrap;
     color: rgba(0, 0, 0, 0.65) !important;
+}
+
+.editor-label::after {
+    content: ': ';
 }
 
 .tables_ui {
@@ -721,7 +725,12 @@ ul {
     margin-left: 8px;
 }
 
-#zoneModal .select2, 
+#guestModal .select2 {
+    width: 100px;
+    min-width: 100px;
+}
+
+#zoneModal .select2,
 #zoneModal .select2-selection {
     width: 100% !important;
     min-height: 32px;
@@ -733,7 +742,7 @@ ul {
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
- background-color: #fef9f9 !important;
+    background-color: #fef9f9 !important;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {

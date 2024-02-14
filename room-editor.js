@@ -2269,15 +2269,15 @@ class CoupleRoundTable extends Table {
         {
             number: 0,
             x: 75,
-            y: 5,
-            rotate: 345,
+            y: 7,
+            rotate: 343,
             couple: true,
         },
         {
             number: 1,
             x: 140,
-            y: 5,
-            rotate: 15,
+            y: 7,
+            rotate: 19,
             couple: true,
         },
     ];
@@ -4231,7 +4231,7 @@ class MouseManager {
             case "ORDER_POSITION":
                 this.orderPositionModal.open(this.selectedObject, this.world.tables);
                 this.orderPositionModal.onAfterSave = () => {
-                    this.selectedObject.updateTableOrderValue(this.world.roomEditor.mode);
+                    this.selectedObject.updateTableOrderValue();
                 }
                 break;
 
@@ -5322,6 +5322,11 @@ class ManageGuestsModal {
 
     createModalBody(table) {
         this.subjectTable = table;
+        const tablePurposeTag = this.subjectTable?.tablePurpose == 'CHILD'
+            ? 'ROOM_PLAN_CHILD'
+            : this.subjectTable?.tablePurpose == 'STAFF'
+                ? 'ROOM_PLAN_STAFF'
+                : 'ROOM_PLAN_GUESTS';
         this.modalBodyElement.innerHTML = '';
         this.formElements = {};
 
@@ -5336,6 +5341,10 @@ class ManageGuestsModal {
             <div class="editor-table round-table"></div>
             <span translation-key="${this.subjectTable.tableType}">${this.subjectTable.tableType}</span>
             <i class="fa-regular fa-user editor-table-user" style="margin: 0 2px 0 10px"></i>${this.subjectTable.seats?.length}
+            <div style="display: ${this.subjectTable?.tablePurpose != 'GUEST' ? 'block' : 'none'}; margin-left: 10px">
+            <span class="editor-label" translation-key="TYPE_TABLES">Mesas para</span>
+            <span translation-key="${tablePurposeTag}">Convidados</span>
+            </div>
         `;
         row1.appendChild(info);
 
@@ -5557,6 +5566,7 @@ class ManageGuestsModal {
             }
 
             this.miniTable.updateSeats();
+            this.miniTable.updateTablePurpose(this.subjectTable.tablePurpose);
 
         }
 
@@ -5729,18 +5739,30 @@ class ManageGuestsModal {
     initializeSeatInputs(seat, mode) {
         this.formElements.seats[seat.number].guestAge = $(`.editor-select-age-${seat.number}`).select2({
             minimumResultsForSearch: -1,
+            placeholder: ' ',
+            allowClear: true,
             data: [
-                { id: 'ADULT', text: this.translationSystem.getTranslation("ABOVE_8_YEARS") },
+                // { id: 'ADULT', text: this.translationSystem.getTranslation("ABOVE_8_YEARS")},
                 { id: 'CHILD', text: this.translationSystem.getTranslation("CHILD_AGE") },
                 { id: 'BABY', text: this.translationSystem.getTranslation("BABY_AGE") },
                 { id: 'NEWBORN', text: this.translationSystem.getTranslation("NEWBORN_AGE") },
             ],
+            templateResult: (table) => {
+                let textTranslation = table.text;
+                if (table?.text != 'ADULT')
+                    textTranslation = this.translationSystem.getTranslation(table.text);
+
+                return textTranslation;
+            },
             val: seat?.guestAge || null,
             disabled: mode == RoomEditorMode.READ_ONLY ? true : false
         });
         if (seat?.guestAge) $(`.editor-select-age-${seat.number}`).val(seat.guestAge).trigger('change');
         $(`.editor-select-age-${seat.number}`).on("select2:select", () => { this.updateTotals(); });
         $(`.editor-select-age-${seat.number}`).prop("disabled", mode == RoomEditorMode.READ_ONLY ? true : false);
+        $(`.editor-select-age-${seat.number}`).on("select2:unselect", (e) => {
+            $(`.editor-select-age-${seat.number}`).val('ADULT').trigger('select2:select');
+        });
 
         // this.formElements.seats[seat.number].foodRestrictions = $(`.editor-form-select-restriction-${seat.number}`).select2({
         //     placeholder: '',
@@ -5820,7 +5842,7 @@ class ManageGuestsModal {
 
             for (const [i, seat] of this.subjectTable.seats.entries()) {
                 seat.guestName = this.formElements.seats[i].guestName.value;
-                seat.guestAge = this.formElements.seats[i].guestAge.select2('data')[0].id;
+                seat.guestAge = this.formElements.seats[i].guestAge.select2('data')?.[0]?.id || 'ADULT';
                 seat.foodRestrictions = this.formElements.seats[i].foodRestrictions;
                 const restrictions = this.foodRestrictions.filter(f => seat.foodRestrictions.includes(f?.id));
                 seat.foodRestrictionsLabel = restrictions.join(', ');
@@ -5885,26 +5907,26 @@ class ManageGuestsModal {
 
         let totalAdult = 0;
         if (document.getElementById('totalAdult')) {
-            totalAdult = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'ADULT').length;
+            totalAdult = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] ? s.guestAge.select2('data')[0]?.id == 'ADULT': true).length;
             document.getElementById('totalAdult').innerHTML = totalAdult;
         }
 
         let totalChild = 0;
         if (document.getElementById('totalChild')) {
-            totalChild = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'CHILD').length;
+            totalChild = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] && s.guestAge.select2('data')[0]?.id == 'CHILD').length;
 
             document.getElementById('totalChild').innerHTML = totalChild;
         }
 
         let totalBaby = 0;
         if (document.getElementById('totalBaby')) {
-            totalBaby = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'BABY').length;
+            totalBaby = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] && s.guestAge.select2('data')[0]?.id == 'BABY').length;
             document.getElementById('totalBaby').innerHTML = totalBaby;
         }
 
         let totalNewborn = 0;
         if (document.getElementById('totalNewborn')) {
-            totalNewborn = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'NEWBORN').length;
+            totalNewborn = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] && s.guestAge.select2('data')[0]?.id == 'NEWBORN').length;
             document.getElementById('totalNewborn').innerHTML = totalNewborn;
         }
 
