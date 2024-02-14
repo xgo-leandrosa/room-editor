@@ -1430,6 +1430,7 @@ class Zone {
     coupleAllowed = false;
     staffOnly = false;
     allowExpanded = false;
+    freeZone = false;
     color = "#f0f0f073";
     bright = 1;
 
@@ -5090,10 +5091,9 @@ class ZoneModal {
         inputCouple.id = "coupleAllowed";
         inputCouple.name = "coupleAllowed";
         inputCouple.checked = zone.coupleAllowed || false;
-        // inputCouple.onchange = (e) => {
-        //     this.formElements.staffOnly.checked = false;
-        // }
-
+        inputCouple.onchange = (e) => {
+            this.formElements.staffOnly.checked = false;
+        }
 
         this.formElements.coupleAllowed = inputCouple;
         labelCouple.appendChild(inputCouple);
@@ -5114,6 +5114,9 @@ class ZoneModal {
         inputStaff.id = "staffOnly";
         inputStaff.name = "staffOnly";
         inputStaff.checked = zone.staffOnly || false;
+        inputStaff.onchange = (e) => {
+            this.formElements.coupleAllowed.checked = false;
+        }
 
         this.formElements.staffOnly = inputStaff;
         labelStaff.appendChild(inputStaff);
