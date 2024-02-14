@@ -1628,6 +1628,10 @@ class RoomPlan extends RoomObject {
             //TODO ALWAYS DO THIS ? 
             this.constraintZone.setSize(this.width, this.height);
 
+            for(const zone of this.zones) {
+                zone.setSize(this.width, this.height);
+            }
+
 
             // this.world.worldSize(this.width, this.height);
             this.world.worldOrigin(this.halfWidth, this.halfHeight);
@@ -4613,7 +4617,16 @@ class RoomEditor {
                 spaceBetweenTables: this.world.roomPlan.spaceBetweenTables,
                 constraintPoints: [
                     ...this.world.roomPlan.constraintZone.polygon
-                ]
+                ],
+                zones: this.world.roomPlan.zones.map(z => ({
+                    name: z.name,
+                    polygon: z.polygon,
+                    allowedTables: z.allowedTables,
+                    allowedOrientation: z.allowedOrientation,
+                    coupleAllowed: z.coupleAllowed,
+                    staffOnly: z.staffOnly,
+                    allowExpanded: z.allowExpanded,
+                }))
             },
             tables: [],
         };
@@ -4672,7 +4685,25 @@ class RoomEditor {
             for (let cp of serializedData.roomPlan.constraintPoints) {
                 this.world.roomPlan.constraintZone.addZonePolygon(cp.x, cp.y);
             }
+
             this.world.roomPlan.constraintZone.updateZonePoligonElement();
+        }
+
+        if (serializedData.roomPlan.zones) { 
+            for (let zone of serializedData.roomPlan.zones) {
+                const z = this.world.roomPlan.createZone();
+                z.name = zone.name;
+                z.polygon = zone.polygon;
+                z.allowedTables = zone.allowedTables;
+                z.allowedOrientation = zone.allowedOrientation;
+                z.coupleAllowed = zone.coupleAllowed;
+                z.staffOnly = zone.staffOnly;
+                z.allowExpanded = zone.allowExpanded;
+                this.world.roomPlan.addZone(z);
+                z.setSize(this.world.roomPlan.width, this.world.roomPlan.height);
+                z.bright = 0.85;
+                z.updateZonePoligonElement();
+            }
         }
 
         this.world.roomPlan.spaceBetweenTables = serializedData.roomPlan.spaceBetweenTables;
