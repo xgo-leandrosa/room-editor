@@ -1168,15 +1168,15 @@ class World extends RoomObject {
 
     checkTablesZonesRules() {
 
-        for(const zone of this.roomPlan.zones) {
+        for (const zone of this.roomPlan.zones) {
 
             zone.tables = [];
-            for(const table of this.tables) {
+            for (const table of this.tables) {
                 const isLt = this.isPointInPolygon(table.corners.lt.x, table.corners.lt.y, zone.polygon);
                 const isRt = this.isPointInPolygon(table.corners.rt.x, table.corners.rt.y, zone.polygon);
                 const isLb = this.isPointInPolygon(table.corners.lb.x, table.corners.lb.y, zone.polygon);
                 const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, zone.polygon);
-    
+
                 if ((isLt || isRt || isLb || isRb)) {
 
                     zone.tables.push(table);
@@ -1184,7 +1184,7 @@ class World extends RoomObject {
             }
         }
 
-        for(const zone of this.roomPlan.zones) {
+        for (const zone of this.roomPlan.zones) {
             zone.validateTables();
         }
 
@@ -1402,6 +1402,11 @@ class World extends RoomObject {
             expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth;
             expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth;
             expandedTable.width = expandedTable.tableElementSizeWidth + expandedTable.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+            expandedTable.orderPosition = table1.orderPosition > table2.orderPosition
+                ? table2.orderPosition
+                : table1.orderPosition;
+            expandedTable.parentTableType = table1.tableType;
+            expandedTable.value++;
 
             expandedTable.seatsTopNumber += tableToJoin.seatsTopNumber;
 
@@ -1411,7 +1416,9 @@ class World extends RoomObject {
             expandedTable.updateSnappingPoints();
 
             expandedTable.updateSeats();
+
             this.removeTable(tableToJoin);
+            this.fixTablesCircularOrder(table1.orderPosition, table2.orderPosition);
 
         } else {
             const pos = this.getMidpoint({ x: table1.x, y: table1.y }, { x: table2.x, y: table2.y })
@@ -1431,6 +1438,11 @@ class World extends RoomObject {
 
             newExpandedTable.seatsTopNumber = table1.seatsTopNumber * 2;
             newExpandedTable.seatsSidesNumber = table1.seatsSidesNumber;
+            newExpandedTable.orderPosition = table1.orderPosition > table2.orderPosition
+                ? table2.orderPosition
+                : table1.orderPosition;
+            newExpandedTable.parentTableType = table1.tableType;
+            newExpandedTable.value++;
 
             newExpandedTable.sizeChanged();
             newExpandedTable.init();
@@ -1440,6 +1452,46 @@ class World extends RoomObject {
             /*this.setSelectedObject(table1);*/
             this.removeTable(table1);
             this.removeTable(table2);
+
+            this.fixTablesCircularOrder(table1.orderPosition, table2.orderPosition);
+        }
+    }
+
+    fixTablesCircularOrder(orderPos1, orderPos2) {
+        const orderPositionToFix = orderPos1 < orderPos2
+            ? orderPos2
+            : orderPos1;
+        const tablesToCorrectOrder = this.tables.filter(f => f?.orderPosition > orderPositionToFix);
+        if (tablesToCorrectOrder?.length > 0) {
+            for (let index = 0; index < tablesToCorrectOrder.length; index++) {
+                const table = tablesToCorrectOrder[index];
+                table.orderPosition = table.orderPosition - 1;
+                table.updateTableOrderValue();
+            }
+        }
+    }
+
+    setHighlightZones(table) {
+        if (table) {
+            if (this.roomPlan.zones?.length > 0) {
+                for (let index = 0; index < this.roomPlan.zones.length; index++) {
+                    const zone = this.roomPlan.zones[index];
+
+                    if (zone.isNotAllowed(table)) {
+                        if (zone?.coupleAllowed) zone.svgElement.classList.add('zone-center-selected');
+                        else zone.svgElement.classList.add('zone-selected');
+                    } else zone.svgElement.classList.remove('zone-selected', 'zone-center-selected');
+
+                }
+            }
+        } else {
+            if (this.roomPlan.zones?.length > 0) {
+                for (let index = 0; index < this.roomPlan.zones.length; index++) {
+                    const zone = this.roomPlan.zones[index];
+                    zone.svgElement.classList.remove('zone-selected', 'zone-center-selected');
+
+                }
+            }
         }
     }
 }
@@ -1447,6 +1499,8 @@ class World extends RoomObject {
 class Zone {
 
     zoneElement;
+    svgElement;
+    polyElement;
 
     name = "Nova Zona";
     polygon = [];
@@ -1498,7 +1552,78 @@ class Zone {
                 coords += ` ${p.x}px ${p.y}px` + (!isLast ? ',' : '');
             }
             this.zoneElement.style["clip-path"] = `polygon(${coords})`;
+
+            if (this.zoneElement.getAttribute("zone") == 'true') {
+                this.zoneElement.style.background = 'unset';
+                this.zoneElement.style.filter = 'unset';
+
+                const points = this.polygon.map(m => `${m.x} ${m.y}`);
+                if (points?.length > 0) {
+                    this.svgElement = this.createSVG(this.zoneElement);
+                    this.polyElement = this.drawPoly(points.join(', '));
+                    this.svgElement.appendChild(this.polyElement);
+                    this.zoneElement.appendChild(this.svgElement);
+                }
+
+                this.setCoupleZone();
+            }
+
         }
+    }
+
+    setCoupleZone() {
+        if (this.zoneElement.getAttribute("zone") == 'true') {
+            if (this.coupleAllowed && this.allowedTables?.length == 0) this.svgElement.classList.add('zone-center');
+            else this.svgElement.classList.remove('zone-center');
+        }
+    }
+
+    createSVG(canvas) {
+        let width = canvas.getBoundingClientRect().width;
+        let height = canvas.offsetHeight;
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        svg.setAttribute('version', '1.1');
+        svg.setAttribute('height', '100%');
+        svg.setAttribute('width', '100%');
+        canvas.appendChild(svg);
+        return svg;
+    }
+
+    drawPoly(points) {
+
+        var poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        poly.setAttribute("poly", 'true');
+        poly.setAttribute("points", points);
+        poly.setAttribute("stroke", '#a9a9a9');
+        poly.setAttribute("stroke-dasharray", '10');
+        poly.setAttribute("stroke-width", '5');
+        poly.setAttribute('fill', '#fff');
+        poly.setAttribute('fill-opacity', '0');
+
+        //svg.appendChild(poly); //where svg is referring to your sag element
+
+        return poly;
+    }
+
+    isNotAllowed(table) {
+        if ((this.staffOnly && table?.tablePurpose != 'STAFF') || (!this.staffOnly && table?.tablePurpose == 'STAFF')) return true;
+        if (this.allowedOrientation && ((this.allowedOrientation == 'HORIZONTAL' && (table.rotate != 0 && table.rotate != 180)) ||
+            (this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 && table.rotate != 270)))) {
+            return true;
+        }
+        if (table.tablePurpose == 'COUPLE') {
+            if (!this.coupleAllowed) return true;
+        } else {
+            if (this.allowExpanded == false && table?.tableType == 'ExpandedTable') return true;
+
+            const typeToCompare = table?.tableType == 'ExpandedTable'
+                ? table?.parentTableType
+                : table?.tableType;
+            if (!this.allowedTables.includes(typeToCompare)) return true;
+        }
+
+        return false;
     }
 
     clearPoints() {
@@ -1525,59 +1650,62 @@ class Zone {
     }
 
     validateTables() {
-        for(const table of this.tables) {
+        for (const table of this.tables) {
             table.isSafe(TABLE_DANGER_TYPE.INVALID_ZONE);
 
 
             // STAFF ONLY
-            if(this.staffOnly && table.tablePurpose != 'STAFF') {
+            if (this.staffOnly && table.tablePurpose != 'STAFF') {
                 table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                 console.log("if(this.staffOnly && table.tablePurpose != 'STAFF') {")
                 continue;
             }
 
             // CHECK ORIENTATION
-            if(this.allowedOrientation) {
-                if(this.allowedOrientation == 'HORIZONTAL'&& (table.rotate != 0 &&  table.rotate != 180)) {
+            if (this.allowedOrientation) {
+                if (this.allowedOrientation == 'HORIZONTAL' && (table.rotate != 0 && table.rotate != 180)) {
                     table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                     console.log("if(this.allowedOrientation == 'HORIZONTAL'&& (table.rotate != 0 &&  table.rotate != 180)) {")
                     continue;
                 }
 
-                if(this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 &&  table.rotate != 270)) {
+                if (this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 && table.rotate != 270)) {
                     table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                     console.log("if(this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 &&  table.rotate != 270)) {")
                     continue;
                 }
 
                 //if(this.allowedOrientation == 'BOTH') {
-                
+
                 //}
             }
-             
-            
+
+
             // COUPLE ALLOWED
-            if(table.tablePurpose == 'COUPLE') {
-                if(!this.coupleAllowed) {
+            if (table.tablePurpose == 'COUPLE') {
+                if (!this.coupleAllowed) {
                     table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                     console.log("if(!this.coupleAllowed && table.tablePurpose == 'COUPLE') {")
                     continue;
                 }
             } else {
 
-                    // ALLOW EXPANDED
-                    if(table.tableType == 'ExpandedTable' && !this.allowExpanded) {
-                        table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
-                        console.log("if(table.tableType == 'EXPANDED_TABLE' && !this.allowExpanded) {")
-                        continue;
-                    }
-    
-                    // CHECK TYPE
-                    if(!this.allowedTables.includes(table.tableType)) {
-                        table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
-                        console.log("if(!this.allowedTables.includes(table.tableType)) {")
-                        continue;
-                    }
+                // ALLOW EXPANDED
+                if (table.tableType == 'ExpandedTable' && !this.allowExpanded) {
+                    table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                    console.log("if(table.tableType == 'EXPANDED_TABLE' && !this.allowExpanded) {")
+                    continue;
+                }
+
+                // CHECK TYPE
+                const typeToCompare = table?.tableType == 'ExpandedTable'
+                    ? table?.parentTableType
+                    : table?.tableType;
+                if (!this.allowedTables.includes(typeToCompare)) {
+                    table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                    console.log("if(!this.allowedTables.includes(table.tableType)) {")
+                    continue;
+                }
 
             }
         }
@@ -1628,7 +1756,7 @@ class RoomPlan extends RoomObject {
             //TODO ALWAYS DO THIS ? 
             this.constraintZone.setSize(this.width, this.height);
 
-            for(const zone of this.zones) {
+            for (const zone of this.zones) {
                 zone.setSize(this.width, this.height);
             }
 
@@ -2051,6 +2179,8 @@ class ExpandedTable extends Table {
 
     seats = [];
     tableType = "ExpandedTable";
+    parentTableType = null;
+    value = 1;
 
     tableElement;
     tableElementSizeWidth = 300;
@@ -4042,6 +4172,8 @@ class MouseManager {
             if (this.selectedObject.tablePurpose != "COUPLE") {
                 // this.selectedObject.tablePurpose = type;
                 this.selectedObject.updateTablePurpose(type);
+                this.roomEditor.world.setHighlightZones(this.selectedObject);
+                this.roomEditor.world.checkTablesZonesRules();
             }
         }
     }
@@ -4129,8 +4261,9 @@ class MouseManager {
             options.push("ADD_CONSTRAINT_POINTS");
             options.push("CLEAR_CONSTRAINT_POINTS");
         }
-        if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("zone") == 'true') {
-            this.selectedZone = this.world.roomPlan.zones.find(z => z.zoneElement === event.target);
+        if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && (event.target.getAttribute("zone") == 'true' || event.target.getAttribute("poly") == 'true')) {
+            const isPoly = event.target.getAttribute("poly") == 'true';
+            this.selectedZone = this.world.roomPlan.zones.find(z => isPoly ? z.polyElement === event.target : z.zoneElement === event.target);
             options.push("DELETE_ZONE");
             options.push("MNG_ZONE");
             options.push("ADD_POINTS");
@@ -4206,6 +4339,8 @@ class MouseManager {
                 table1.updateSeats();
                 this.setSelectedObject(table1);
                 this.updateStats();
+
+                this.world.highlightZones(table1);
             }
 
             return;
@@ -4213,8 +4348,10 @@ class MouseManager {
             const isWorldObject = this.world.tables.find(t => t.isElementOrChildElement(event.toElement));
             if (isWorldObject && isWorldObject.dragable) {
                 this.setSelectedObject(isWorldObject);
+                this.world.setHighlightZones(isWorldObject);
             } else {
                 this.setSelectedObject(null);
+                this.world.setHighlightZones(null);
             }
         }
 
@@ -4342,7 +4479,9 @@ class MouseManager {
             case "MNG_ZONE":
                 this.zoneModal.open(this.selectedZone);
                 this.zoneModal.onAfterSave = () => {
+                    this.selectedZone.setCoupleZone();
                     this.world.areTablesOverlapping();
+                    this.world.checkTablesZonesRules();
                 }
                 break;
             case "ADD_CONSTRAINT_POINTS":
@@ -4639,6 +4778,8 @@ class RoomEditor {
                 scale: table.scale,
                 rotate: table.rotate,
                 tableType: table.tableType,
+                parentTableType: table?.parentTableType || null,
+                value: table?.value || 1,
                 code: table.code,
                 number: table.number,
                 name: table.name,
@@ -4689,7 +4830,7 @@ class RoomEditor {
             this.world.roomPlan.constraintZone.updateZonePoligonElement();
         }
 
-        if (serializedData.roomPlan.zones) { 
+        if (serializedData.roomPlan.zones) {
             for (let zone of serializedData.roomPlan.zones) {
                 const z = this.world.roomPlan.createZone();
                 z.name = zone.name;
@@ -4699,7 +4840,7 @@ class RoomEditor {
                 z.coupleAllowed = zone.coupleAllowed;
                 z.staffOnly = zone.staffOnly;
                 z.allowExpanded = zone.allowExpanded;
-                this.world.roomPlan.addZone(z);
+                this.world.roomPlan.addZone(z, this.world.roomPlan.width, this.world.roomPlan.height);
                 z.setSize(this.world.roomPlan.width, this.world.roomPlan.height);
                 z.bright = 0.85;
                 z.updateZonePoligonElement();
@@ -6027,7 +6168,7 @@ class ManageGuestsModal {
 
         let totalAdult = 0;
         if (document.getElementById('totalAdult')) {
-            totalAdult = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] ? s.guestAge.select2('data')[0]?.id == 'ADULT': true).length;
+            totalAdult = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] ? s.guestAge.select2('data')[0]?.id == 'ADULT' : true).length;
             document.getElementById('totalAdult').innerHTML = totalAdult;
         }
 

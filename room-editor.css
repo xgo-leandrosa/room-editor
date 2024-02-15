@@ -173,6 +173,23 @@
     cursor: default;
 }
 
+.zone-selected polygon,
+.zone-center-selected polygon {
+    fill: #f8bbbb;
+}
+
+.zone-selected polygon {
+    fill-opacity: 0.3;
+}
+
+.zone-center polygon {
+    fill-opacity: 0.8;
+}
+
+.zone-center-selected polygon {
+    fill-opacity: 0.5;
+}
+
 .roomPlan {
     position: absolute;
     z-index: 1;
@@ -1114,4 +1131,35 @@ textarea.editor-input {
     position: absolute;
     top: 1px;
     left: 5px;
+}
+
+
+.clip-path-node {
+    cursor: move;
+    cursor: -webkit-grab;
+    height: 50px;
+    left: calc(var(--x) * 1px);
+    opacity: 0.75;
+    position: absolute;
+    top: calc(var(--y) * 1px);
+    transform: translate(-50%, -50%);
+    transition: opacity .15s;
+    width: 50px;
+    z-index: 1;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    &:after {
+        background: #fff;
+        border-radius: 100%;
+        content: '';
+        height: 20px;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+    }
 }
