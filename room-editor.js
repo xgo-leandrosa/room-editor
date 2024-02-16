@@ -4651,7 +4651,10 @@ class RoomEditor {
 
         if (this.mode == RoomEditorMode.READ_ONLY) {
             // SET ZOOM FIT ON SCREEN
-            this.world.roomPlan.afterLoadImage(this.mouseManager.worldFitScreen);
+            const that = this;
+            this.world.roomPlan.afterLoadImage(() => {
+                that.mouseManager.worldFitScreen();
+            });
             //this.mouseManager.worldFitScreen();
 
             // HIDE UI
