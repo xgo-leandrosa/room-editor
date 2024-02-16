@@ -4502,9 +4502,11 @@ class MouseManager {
             return;
         }
 
-        this.world.scale = this.roomEditor.editorContainerElement.getClientRects()[0].width / this.world.roomPlan.width - 0.001;
-        const scaleY = this.roomEditor.editorContainerElement.getClientRects()[0].height / this.world.roomPlan.height - 0.001;
-        this.world.x = -(this.world.roomPlan.halfWidth * (1 - this.world.scale));
+        const scaleX = this.roomEditor.editorContainerElement.getClientRects()[0].width / this.world.roomPlan.width - 0.002;
+        const scaleY = this.roomEditor.editorContainerElement.getClientRects()[0].height / this.world.roomPlan.height - 0.002;
+
+        this.world.scale = scaleX < scaleY ? scaleX : scaleY;
+        this.world.x = -(this.world.roomPlan.halfWidth * (1 - scaleX));
         this.world.y = -(this.world.roomPlan.halfHeight * (1 - scaleY));
         this.world.applyTransform();
     }
