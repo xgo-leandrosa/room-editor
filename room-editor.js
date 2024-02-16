@@ -1442,6 +1442,18 @@ class World extends RoomObject {
             this.removeTable(table2);
         }
     }
+
+    showDangers() {
+        for(const table of this.tables) {
+            table.showDangers()
+        }
+    }
+
+    hideDangers() {
+        for(const table of this.tables) {
+            table.hideDangers()
+        }
+    }
 }
 
 class Zone {
@@ -1460,7 +1472,6 @@ class Zone {
     bright = 1;
 
     zindex=0;
-
 
     // IS UPDATED WITH THE TABLES PRESENT IN THE ZONE ON RUNTIME
     tables = [];
@@ -1507,6 +1518,18 @@ class Zone {
             } else {
                 this.zoneElement.style['z-index'] = null;
             }
+        }
+    }
+
+    hide() {
+        if(this.zoneElement) {
+            this.zoneElement.style.display = 'none';
+        }
+    }
+
+    show() {
+        if(this.zoneElement) {
+            this.zoneElement.style.display = 'block';
         }
     }
 
@@ -1684,6 +1707,17 @@ class RoomPlan extends RoomObject {
             zone.destroy();
         }
         this.zones = [];
+    }
+
+    hideZones() {
+        for(const zone of this.zones) {
+            zone.hide();
+        }
+    }
+    showZones() {
+        for(const zone of this.zones) {
+            zone.show();
+        }
     }
 }
 
@@ -1996,6 +2030,15 @@ class Table extends RoomObject {
             this.dangerType.push(dangerType);
         }
 
+    }
+
+    hideDangers() {
+        this.element.classList.remove('tableDanger');
+    }
+
+    showDangers() {
+        if(this.inDanger)
+            this.element.classList.add('tableDanger');
     }
 
     setSelected() {
@@ -4662,6 +4705,33 @@ class RoomEditor {
                 }
                 this.world.roomPlan.updateConstrainZonePoligonElement();
             */
+    }
+
+    getImage() {
+        const width = this.editorContainerElement.getClientRects()[0].width;
+        const height = this.editorContainerElement.getClientRects()[0].height;
+        this.mouseManager.worldFitScreen();
+        this.mouseManager.setSelectedObject(null);
+        this.world.roomPlan.hideZones();
+        this.world.hideDangers();
+
+        domtoimage.toPng(this.world.element, {
+            width,
+            height,
+            bgcolor: 'white'
+        })
+        .then((dataUrl) => {
+
+            this.world.roomPlan.showZones();
+            this.world.showDangers();
+
+            var img = new Image();
+            img.src = dataUrl;
+            document.body.appendChild(img);
+        })
+        .catch((error) => {
+            console.error('oops, something went wrong!', error);
+        });
     }
 
     serializeEditor() {
