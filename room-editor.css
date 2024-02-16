@@ -173,21 +173,32 @@
     cursor: default;
 }
 
+.zone-disabled polygon,
+.zone-center-disabled polygon {
+    /* fill: #f8bbbb; */
+    fill: rgba(0, 0, 0, 0.45);
+    cursor: not-allowed;
+    fill-opacity: 1;
+}
+
 .zone-selected polygon,
 .zone-center-selected polygon {
-    fill: #f8bbbb;
+    fill: #ffffff;
+    fill-opacity: 1;
+    stroke: #a9a9a9;
+    stroke-dasharray: 10;
+    stroke-width: 5;
 }
 
-.zone-selected polygon {
-    fill-opacity: 0.3;
-}
 
 .zone-center polygon {
-    fill-opacity: 0.8;
+    /* fill: #f0f0f0;
+    fill-opacity: 1; */
 }
 
-.zone-center-selected polygon {
-    fill-opacity: 0.5;
+.zone-center-disabled polygon {
+    fill: #f8f8f8;
+    fill-opacity: 1;
 }
 
 .roomPlan {

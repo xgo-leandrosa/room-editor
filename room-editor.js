@@ -1011,6 +1011,7 @@ const SNAPPING_POINT_FINAL_SCALE = 2;
 const DEBUG_POINTS = false;
 class World extends RoomObject {
     roomPlan;
+    mode;
 
     constructor(editorContainer) {
         super();
@@ -1167,7 +1168,6 @@ class World extends RoomObject {
     }
 
     checkTablesZonesRules() {
-
         for (const zone of this.roomPlan.zones) {
 
             zone.tables = [];
@@ -1178,16 +1178,16 @@ class World extends RoomObject {
                 const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, zone.polygon);
 
                 if ((isLt || isRt || isLb || isRb)) {
-
                     zone.tables.push(table);
                 }
             }
         }
 
-        for (const zone of this.roomPlan.zones) {
-            zone.validateTables();
+        if(this.mode !== RoomEditorMode.ADMINISTRATOR) {
+            for (const zone of this.roomPlan.zones) {
+                zone.validateTables();
+            }
         }
-
     }
 
     checkTableInConstraintZone(table) {
@@ -1471,24 +1471,33 @@ class World extends RoomObject {
         }
     }
 
-    setHighlightZones(table) {
+    setHighlightZones(table, mode) {
+        if (mode !== RoomEditorMode.COUPLE) return;
         if (table) {
             if (this.roomPlan.zones?.length > 0) {
+
                 for (let index = 0; index < this.roomPlan.zones.length; index++) {
                     const zone = this.roomPlan.zones[index];
 
                     if (zone.isNotAllowed(table)) {
+                        // zone.svgElement.classList.remove('zone-selected', 'zone-center-selected');
+                        if (zone?.coupleAllowed) zone.svgElement.classList.add('zone-center-disabled');
+                        else zone.zoneElement.style.display = 'none';
+                        // else zone.svgElement.classList.add('zone-disabled');
+                    } else {
+                        zone.zoneElement.style.display = 'block';
+                        zone.svgElement.classList.remove('zone-disabled', 'zone-center-disabled');
                         if (zone?.coupleAllowed) zone.svgElement.classList.add('zone-center-selected');
                         else zone.svgElement.classList.add('zone-selected');
-                    } else zone.svgElement.classList.remove('zone-selected', 'zone-center-selected');
-
+                    }
                 }
             }
         } else {
             if (this.roomPlan.zones?.length > 0) {
                 for (let index = 0; index < this.roomPlan.zones.length; index++) {
                     const zone = this.roomPlan.zones[index];
-                    zone.svgElement.classList.remove('zone-selected', 'zone-center-selected');
+                    zone.zoneElement.style.display = 'block';
+                    zone.svgElement.classList.remove('zone-disabled', 'zone-center-disabled', 'zone-selected', 'zone-center-selected');
 
                 }
             }
@@ -1497,6 +1506,7 @@ class World extends RoomObject {
 }
 
 class Zone {
+    world;
 
     zoneElement;
     svgElement;
@@ -1510,7 +1520,7 @@ class Zone {
     staffOnly = false;
     allowExpanded = false;
     freeZone = false;
-    color = "#f0f0f073";
+    color = "#f0f0f038";
     bright = 1;
 
 
@@ -1539,6 +1549,10 @@ class Zone {
     updateZonePoligonElement() {
         if (this.zoneElement) {
 
+            this.bright = this.zoneElement.getAttribute("zone") == 'true'
+                ? 0.9
+                : 1;
+
             if (this.polygon.length > 0) {
                 this.zoneElement.style.background = this.color;
                 this.zoneElement.style.filter = `brightness(${this.bright})`;
@@ -1551,7 +1565,9 @@ class Zone {
                 const p = this.polygon[i];
                 coords += ` ${p.x}px ${p.y}px` + (!isLast ? ',' : '');
             }
-            this.zoneElement.style["clip-path"] = `polygon(${coords})`;
+            this.zoneElement.style["clip-path"] = this.polygon.length > 0
+                ? `polygon(${coords})`
+                : 'unset';
 
             if (this.zoneElement.getAttribute("zone") == 'true') {
                 this.zoneElement.style.background = 'unset';
@@ -1559,10 +1575,20 @@ class Zone {
 
                 const points = this.polygon.map(m => `${m.x} ${m.y}`);
                 if (points?.length > 0) {
-                    this.svgElement = this.createSVG(this.zoneElement);
-                    this.polyElement = this.drawPoly(points.join(', '));
-                    this.svgElement.appendChild(this.polyElement);
-                    this.zoneElement.appendChild(this.svgElement);
+                    if (this.svgElement) {
+                        this.polyElement = this.drawPoly(points.join(', '));
+                        if (this.svgElement.childNodes?.[0]) {
+                            this.svgElement.replaceChild(this.polyElement, this.svgElement.childNodes[0]);
+                        } else console.warn('svg polygon not found');
+                    } else {
+                        this.svgElement = this.createSVG(this.zoneElement);
+                        this.polyElement = this.drawPoly(points.join(', '));
+                        this.svgElement.appendChild(this.polyElement);
+                        this.zoneElement.appendChild(this.svgElement);
+                    }
+                    this.svgElement.style.display = 'block';
+                } else {
+                    this.svgElement.style.display = 'none';
                 }
 
                 this.setCoupleZone();
@@ -1571,37 +1597,45 @@ class Zone {
         }
     }
 
+    enableDisableZone(mode) {
+        this.svgElement.display = mode != RoomEditorMode.COUPLE
+            ? 'none'
+            : 'block';
+        this.zoneElement.style.background = mode != RoomEditorMode.COUPLE
+            ? this.color
+            : 'unset';
+        this.zoneElement.style.filter = mode != RoomEditorMode.COUPLE
+            ? `brightness(${this.bright})`
+            : 'unset';
+    }
+
     setCoupleZone() {
-        if (this.zoneElement.getAttribute("zone") == 'true') {
+        if (this.zoneElement.getAttribute("zone") == 'true' && this.svgElement) {
             if (this.coupleAllowed && this.allowedTables?.length == 0) this.svgElement.classList.add('zone-center');
             else this.svgElement.classList.remove('zone-center');
         }
     }
 
     createSVG(canvas) {
-        let width = canvas.getBoundingClientRect().width;
+        let width = canvas.offsetWidth;
         let height = canvas.offsetHeight;
         var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
         svg.setAttribute('version', '1.1');
         svg.setAttribute('height', '100%');
         svg.setAttribute('width', '100%');
-        canvas.appendChild(svg);
         return svg;
     }
 
     drawPoly(points) {
-
         var poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         poly.setAttribute("poly", 'true');
         poly.setAttribute("points", points);
-        poly.setAttribute("stroke", '#a9a9a9');
-        poly.setAttribute("stroke-dasharray", '10');
-        poly.setAttribute("stroke-width", '5');
+        // poly.setAttribute("stroke", '#a9a9a9');
+        // poly.setAttribute("stroke-dasharray", '10');
+        // poly.setAttribute("stroke-width", '5');
         poly.setAttribute('fill', '#fff');
         poly.setAttribute('fill-opacity', '0');
-
-        //svg.appendChild(poly); //where svg is referring to your sag element
 
         return poly;
     }
@@ -1655,7 +1689,7 @@ class Zone {
 
 
             // STAFF ONLY
-            if (this.staffOnly && table.tablePurpose != 'STAFF') {
+            if ((this.staffOnly && table.tablePurpose != 'STAFF') || (!this.staffOnly && table.tablePurpose == 'STAFF')) {
                 table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                 console.log("if(this.staffOnly && table.tablePurpose != 'STAFF') {")
                 continue;
@@ -1721,8 +1755,7 @@ class RoomPlan extends RoomObject {
 
     constraintZone;
 
-    zones = [
-    ]
+    zones = [];
 
     constructor(imageSrc) {
         super();
@@ -2035,7 +2068,7 @@ class Table extends RoomObject {
                 ? '#95B1B0'
                 : this.tablePurpose == 'CHILD'
                     ? '#AEE4F5'
-                    : '#E3E3E3';
+                    : '#d1cece';
     }
 
     addTableNumeration() {
@@ -4172,7 +4205,7 @@ class MouseManager {
             if (this.selectedObject.tablePurpose != "COUPLE") {
                 // this.selectedObject.tablePurpose = type;
                 this.selectedObject.updateTablePurpose(type);
-                this.roomEditor.world.setHighlightZones(this.selectedObject);
+                this.roomEditor.world.setHighlightZones(this.selectedObject, this.roomEditor.mode);
                 this.roomEditor.world.checkTablesZonesRules();
             }
         }
@@ -4340,7 +4373,7 @@ class MouseManager {
                 this.setSelectedObject(table1);
                 this.updateStats();
 
-                this.world.highlightZones(table1);
+                this.world.highlightZones(table1, this.roomEditor.mode);
             }
 
             return;
@@ -4348,10 +4381,10 @@ class MouseManager {
             const isWorldObject = this.world.tables.find(t => t.isElementOrChildElement(event.toElement));
             if (isWorldObject && isWorldObject.dragable) {
                 this.setSelectedObject(isWorldObject);
-                this.world.setHighlightZones(isWorldObject);
+                this.world.setHighlightZones(isWorldObject, this.roomEditor.mode);
             } else {
                 this.setSelectedObject(null);
-                this.world.setHighlightZones(null);
+                this.world.setHighlightZones(null, this.roomEditor.mode);
             }
         }
 
@@ -4472,7 +4505,6 @@ class MouseManager {
             case "CREATE_NEW_ZONE":
                 this.selectedZone = this.world.roomPlan.createZone();
                 this.selectedZone.setSize(this.world.roomPlan.width, this.world.roomPlan.height);
-                this.selectedZone.bright = 0.85;
                 this.world.roomPlan.addZone(this.selectedZone);
                 this.editorMode = "ZONE";
                 break;
@@ -4608,7 +4640,6 @@ class RoomEditor {
         this.orderPositionModal = new OrderPositionModal();
         this.zoneModal = new ZoneModal();
 
-
         this.mouseManager = new MouseManager(this.world, this);
     }
 
@@ -4619,8 +4650,8 @@ class RoomEditor {
         }
 
         const tablesInDanger = this.mode == RoomEditorMode.ROOM_PLAN
-            ? this.world.tables.filter(t => t.inDanger || t.orderPosition == null || t.orderPosition == undefined || t.orderPosition < 0 || t.orderPosition > this.world.tables?.length)
-            : this.world.tables.filter(t => t.inDanger);
+            ? this.world.tables.filter(f => f?.active).filter(t => t.inDanger || t.orderPosition == null || t.orderPosition == undefined || t.orderPosition < 0 || t.orderPosition > this.world.tables?.length)
+            : this.world.tables.filter(f => f?.active).filter(t => t.inDanger);
 
         for (const tableInDanger of tablesInDanger) {
             if (!tableInDanger.inDanger) {
@@ -4675,6 +4706,15 @@ class RoomEditor {
             this.mouseManager.setSelectedObject(null);
         } else {
             this.mouseManager.enableUI();
+        }
+    }
+
+    checkZoneSvg = () => {
+        if (this.world?.zones?.length > 0) {
+            for (let index = 0; index < this.world.zones.length; index++) {
+                const zone = this.world.zones[index];
+                zone.enableDisableZone(this.mode)
+            }
         }
     }
 
@@ -4758,7 +4798,7 @@ class RoomEditor {
                     ...this.world.roomPlan.constraintZone.polygon
                 ],
                 zones: this.world.roomPlan.zones.map(z => ({
-                    name: z.name,
+                    name: z.name, createZoneche,
                     polygon: z.polygon,
                     allowedTables: z.allowedTables,
                     allowedOrientation: z.allowedOrientation,
@@ -4819,6 +4859,7 @@ class RoomEditor {
         this.world.x = serializedData.roomPlan.x;
         this.world.y = serializedData.roomPlan.y;
         this.world.scale = serializedData.roomPlan.scale;
+        this.world.mode = this.mode;
         this.world.applyTransform();
 
 
@@ -4840,10 +4881,10 @@ class RoomEditor {
                 z.coupleAllowed = zone.coupleAllowed;
                 z.staffOnly = zone.staffOnly;
                 z.allowExpanded = zone.allowExpanded;
-                this.world.roomPlan.addZone(z, this.world.roomPlan.width, this.world.roomPlan.height);
+                this.world.roomPlan.addZone(z);
                 z.setSize(this.world.roomPlan.width, this.world.roomPlan.height);
-                z.bright = 0.85;
                 z.updateZonePoligonElement();
+                z.enableDisableZone(this.mode);
             }
         }
 
@@ -5354,6 +5395,8 @@ class ZoneModal {
         inputCouple.checked = zone.coupleAllowed || false;
         inputCouple.onchange = (e) => {
             this.formElements.staffOnly.checked = false;
+            // TODO only if checked?
+            $(`#allowedTablesSelect`).val(null).trigger('change');
         }
 
         this.formElements.coupleAllowed = inputCouple;
