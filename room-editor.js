@@ -1625,6 +1625,10 @@ class RoomPlan extends RoomObject {
 
     constraintZone;
 
+    imageLoaded = false;
+    afterLoadImageFunctions = [];
+     
+
     zones = [
     ]
 
@@ -1640,7 +1644,17 @@ class RoomPlan extends RoomObject {
         this.element.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
     }
 
+    afterLoadImage(func) {
+        if(!this.imageLoaded) {
+            this.afterLoadImageFunctions.push(func);
+        } else {
+            func();
+        }
+    }
+
     updateImageSrc(imageSrc) {
+        this.imageLoaded = false;
+
         if (this.elementImg) {
             this.element.removeChild(this.elementImg);
         }
@@ -1656,6 +1670,13 @@ class RoomPlan extends RoomObject {
 
             this.halfWidth = this.width / 2;
             this.halfHeight = this.height / 2;
+
+            this.imageLoaded = true;
+            for(const f of this.afterLoadImageFunctions) {
+                f();
+            }
+            this.afterLoadImageFunctions = [];
+
 
             //TODO ALWAYS DO THIS ? 
             this.constraintZone.setSize(this.width, this.height);
@@ -4629,7 +4650,9 @@ class RoomEditor {
 
         if (this.mode == RoomEditorMode.READ_ONLY) {
             // SET ZOOM FIT ON SCREEN
-            this.mouseManager.worldFitScreen();
+            this.world.roomPlan.afterLoadImage(this.mouseManager.worldFitScreen());
+            //this.mouseManager.worldFitScreen();
+            
             // HIDE UI
             this.mouseManager.disableUI();
 
