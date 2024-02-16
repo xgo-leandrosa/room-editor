@@ -4651,7 +4651,7 @@ class RoomEditor {
 
         if (this.mode == RoomEditorMode.READ_ONLY) {
             // SET ZOOM FIT ON SCREEN
-            this.world.roomPlan.afterLoadImage(this.mouseManager.worldFitScreen());
+            this.world.roomPlan.afterLoadImage(this.mouseManager.worldFitScreen);
             //this.mouseManager.worldFitScreen();
 
             // HIDE UI
