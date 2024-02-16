@@ -61,7 +61,7 @@
 
 .table-draw--selected {
     /* background-color: #B6D7A8 !important; */
-    filter: brightness(0.95);
+    filter: brightness(0.90);
 }
 
 .tableNumeration {
@@ -325,6 +325,10 @@ ul {
     font-size: 16px;
     white-space: nowrap;
     color: rgba(0, 0, 0, 0.65) !important;
+}
+
+.editor-label::after {
+    content: ': ';
 }
 
 .tables_ui {
@@ -719,6 +723,11 @@ ul {
 .editor-modal-body input,
 #guestModal .select2 {
     margin-left: 8px;
+}
+
+#guestModal .select2 {
+    width: 100px;
+    min-width: 100px;
 }
 
 #zoneModal .select2, 
