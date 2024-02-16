@@ -4708,30 +4708,32 @@ class RoomEditor {
     }
 
     getImage() {
-        const width = this.editorContainerElement.getClientRects()[0].width;
-        const height = this.editorContainerElement.getClientRects()[0].height;
-        this.mouseManager.worldFitScreen();
-        this.mouseManager.setSelectedObject(null);
-        this.world.roomPlan.hideZones();
-        this.world.hideDangers();
+        return new Promise((resolve, reject) => {
+            const width = this.editorContainerElement.getClientRects()[0].width;
+            const height = this.editorContainerElement.getClientRects()[0].height;
+            this.mouseManager.worldFitScreen();
+            this.mouseManager.setSelectedObject(null);
+            this.world.roomPlan.hideZones();
+            this.world.hideDangers();
+    
+            domtoimage.toPng(this.world.element, {
+                width,
+                height,
+                bgcolor: 'white'
+            })
+            .then((dataUrl) => {
+    
+                this.world.roomPlan.showZones();
+                this.world.showDangers();
+    
+               resolve(dataUrl);
+            })
+            .catch((error) => {
+                console.error('[Room editor] getimage error', error);
+                reject(error);
+            });
 
-        domtoimage.toPng(this.world.element, {
-            width,
-            height,
-            bgcolor: 'white'
         })
-        .then((dataUrl) => {
-
-            this.world.roomPlan.showZones();
-            this.world.showDangers();
-
-            var img = new Image();
-            img.src = dataUrl;
-            document.body.appendChild(img);
-        })
-        .catch((error) => {
-            console.error('oops, something went wrong!', error);
-        });
     }
 
     serializeEditor() {
