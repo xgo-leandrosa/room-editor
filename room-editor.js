@@ -4503,8 +4503,9 @@ class MouseManager {
         }
 
         this.world.scale = this.roomEditor.editorContainerElement.getClientRects()[0].width / this.world.roomPlan.width - 0.001;
+        const scaleY = this.roomEditor.editorContainerElement.getClientRects()[0].height / this.world.roomPlan.height - 0.001;
         this.world.x = -(this.world.roomPlan.halfWidth * (1 - this.world.scale));
-        this.world.y = -(this.world.roomPlan.halfHeight * (1 - this.world.scale));
+        this.world.y = -(this.world.roomPlan.halfHeight * (1 - scaleY));
         this.world.applyTransform();
     }
 }
@@ -4652,7 +4653,7 @@ class RoomEditor {
             // SET ZOOM FIT ON SCREEN
             this.world.roomPlan.afterLoadImage(this.mouseManager.worldFitScreen());
             //this.mouseManager.worldFitScreen();
-            
+
             // HIDE UI
             this.mouseManager.disableUI();
 
