@@ -279,10 +279,10 @@ const DEFAULT_TRANSLATIONS = [
 
     {
         value: {
-            pt: "Média pax/mesa",
-            en: "Average pax/table",
-            es: "Promedio pax/tabla",
-            fr: "Moyenne pax/table"
+            pt: "Média pessoas/mesa",
+            en: "Average people/table",
+            es: "Promedio personas/tabla",
+            fr: "Moyenne personnes/table"
         },
         tag: "AVG_PAX_TABLES",
         platform: "BO"
@@ -870,6 +870,24 @@ const DEFAULT_TRANSLATIONS = [
         },
         tag: "DELETE_ZONE_POINTS"
     },
+    {
+        value: {
+            pt: "Para a frente",
+            en: "Bring forward",
+            es: "Adelantar",
+            fr: "Amener à l'avant"
+        },
+        tag: "ZONE_FRONT"
+    },
+    {
+        value: {
+            pt: "Para trás",
+            en: "Send backward",
+            es: "Enviar atrás",
+            fr: "Envoyer en arrière"
+        },
+        tag: "ZONE_BACK"
+    },
 ];
 
 
@@ -1011,6 +1029,8 @@ const SNAPPING_POINT_FINAL_SCALE = 2;
 const DEBUG_POINTS = false;
 class World extends RoomObject {
     roomPlan;
+    mode;
+    staff = 0;
 
     constructor(editorContainer) {
         super();
@@ -1168,24 +1188,25 @@ class World extends RoomObject {
 
     checkTablesZonesRules() {
 
-        for(const zone of this.roomPlan.zones) {
+        for (const zone of this.roomPlan.zones) {
 
             zone.tables = [];
-            for(const table of this.tables) {
+            for (const table of this.tables) {
                 const isLt = this.isPointInPolygon(table.corners.lt.x, table.corners.lt.y, zone.polygon);
                 const isRt = this.isPointInPolygon(table.corners.rt.x, table.corners.rt.y, zone.polygon);
                 const isLb = this.isPointInPolygon(table.corners.lb.x, table.corners.lb.y, zone.polygon);
                 const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, zone.polygon);
-    
-                if ((isLt || isRt || isLb || isRb)) {
 
+                if ((isLt || isRt || isLb || isRb)) {
                     zone.tables.push(table);
                 }
             }
         }
 
-        for(const zone of this.roomPlan.zones) {
-            zone.validateTables();
+        if (this.mode !== RoomEditorMode.ADMINISTRATOR) {
+            for (const zone of this.roomPlan.zones) {
+                zone.validateTables();
+            }
         }
 
     }
@@ -1402,6 +1423,11 @@ class World extends RoomObject {
             expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth;
             expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth;
             expandedTable.width = expandedTable.tableElementSizeWidth + expandedTable.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+            expandedTable.orderPosition = table1.orderPosition > table2.orderPosition
+                ? table2.orderPosition
+                : table1.orderPosition;
+            expandedTable.parentTableType = table1.tableType;
+            expandedTable.value++;
 
             expandedTable.seatsTopNumber += tableToJoin.seatsTopNumber;
 
@@ -1412,6 +1438,7 @@ class World extends RoomObject {
 
             expandedTable.updateSeats();
             this.removeTable(tableToJoin);
+            this.fixTablesCircularOrder(table1.orderPosition, table2.orderPosition);
 
         } else {
             const pos = this.getMidpoint({ x: table1.x, y: table1.y }, { x: table2.x, y: table2.y })
@@ -1431,6 +1458,11 @@ class World extends RoomObject {
 
             newExpandedTable.seatsTopNumber = table1.seatsTopNumber * 2;
             newExpandedTable.seatsSidesNumber = table1.seatsSidesNumber;
+            newExpandedTable.orderPosition = table1.orderPosition > table2.orderPosition
+                ? table2.orderPosition
+                : table1.orderPosition;
+            newExpandedTable.parentTableType = table1.tableType;
+            newExpandedTable.value++;
 
             newExpandedTable.sizeChanged();
             newExpandedTable.init();
@@ -1440,6 +1472,22 @@ class World extends RoomObject {
             /*this.setSelectedObject(table1);*/
             this.removeTable(table1);
             this.removeTable(table2);
+
+            this.fixTablesCircularOrder(table1.orderPosition, table2.orderPosition);
+        }
+    }
+
+    fixTablesCircularOrder(orderPos1, orderPos2) {
+        const orderPositionToFix = orderPos1 < orderPos2
+            ? orderPos2
+            : orderPos1;
+        const tablesToCorrectOrder = this.tables.filter(f => f?.orderPosition > orderPositionToFix);
+        if (tablesToCorrectOrder?.length > 0) {
+            for (let index = 0; index < tablesToCorrectOrder.length; index++) {
+                const table = tablesToCorrectOrder[index];
+                table.orderPosition = table.orderPosition - 1;
+                table.updateTableOrderValue();
+            }
         }
     }
 
@@ -1468,10 +1516,10 @@ class Zone {
     staffOnly = false;
     allowExpanded = false;
     freeZone = false;
-    color = "#f0f0f073";
+    color = "#f0f0f038";
     bright = 1;
 
-    zindex=0;
+    zindex = 0;
 
     // IS UPDATED WITH THE TABLES PRESENT IN THE ZONE ON RUNTIME
     tables = [];
@@ -1498,6 +1546,10 @@ class Zone {
     updateZonePoligonElement() {
         if (this.zoneElement) {
 
+            this.bright = this.zoneElement.getAttribute("zone") == 'true'
+                ? 0.9
+                : 1;
+
             if (this.polygon.length > 0) {
                 this.zoneElement.style.background = this.color;
                 this.zoneElement.style.filter = `brightness(${this.bright})`;
@@ -1511,9 +1563,11 @@ class Zone {
                 const p = this.polygon[i];
                 coords += ` ${p.x}px ${p.y}px` + (!isLast ? ',' : '');
             }
-            this.zoneElement.style["clip-path"] = `polygon(${coords})`;
+            this.zoneElement.style["clip-path"] = this.polygon.length > 0
+                ? `polygon(${coords})`
+                : 'unset';
 
-            if(this.zindex) {
+            if (this.zindex) {
                 this.zoneElement.style['z-index'] = 15 + this.zindex;
             } else {
                 this.zoneElement.style['z-index'] = null;
@@ -1557,59 +1611,62 @@ class Zone {
     }
 
     validateTables() {
-        for(const table of this.tables) {
+        for (const table of this.tables) {
             table.isSafe(TABLE_DANGER_TYPE.INVALID_ZONE);
 
 
             // STAFF ONLY
-            if(this.staffOnly && table.tablePurpose != 'STAFF') {
+            if ((this.staffOnly && table.tablePurpose != 'STAFF') || (!this.staffOnly && table.tablePurpose == 'STAFF')) {
                 table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                 console.log("if(this.staffOnly && table.tablePurpose != 'STAFF') {")
                 continue;
             }
 
             // CHECK ORIENTATION
-            if(this.allowedOrientation) {
-                if(this.allowedOrientation == 'HORIZONTAL'&& (table.rotate != 0 &&  table.rotate != 180)) {
+            if (this.allowedOrientation) {
+                if (this.allowedOrientation == 'HORIZONTAL' && (table.rotate != 0 && table.rotate != 180)) {
                     table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                     console.log("if(this.allowedOrientation == 'HORIZONTAL'&& (table.rotate != 0 &&  table.rotate != 180)) {")
                     continue;
                 }
 
-                if(this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 &&  table.rotate != 270)) {
+                if (this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 && table.rotate != 270)) {
                     table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                     console.log("if(this.allowedOrientation == 'VERTICAL' && (table.rotate != 90 &&  table.rotate != 270)) {")
                     continue;
                 }
 
                 //if(this.allowedOrientation == 'BOTH') {
-                
+
                 //}
             }
-             
-            
+
+
             // COUPLE ALLOWED
-            if(table.tablePurpose == 'COUPLE') {
-                if(!this.coupleAllowed) {
+            if (table.tablePurpose == 'COUPLE') {
+                if (!this.coupleAllowed) {
                     table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                     console.log("if(!this.coupleAllowed && table.tablePurpose == 'COUPLE') {")
                     continue;
                 }
             } else {
 
-                    // ALLOW EXPANDED
-                    if(table.tableType == 'ExpandedTable' && !this.allowExpanded) {
-                        table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
-                        console.log("if(table.tableType == 'EXPANDED_TABLE' && !this.allowExpanded) {")
-                        continue;
-                    }
-    
-                    // CHECK TYPE
-                    if(!this.allowedTables.includes(table.tableType)) {
-                        table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
-                        console.log("if(!this.allowedTables.includes(table.tableType)) {")
-                        continue;
-                    }
+                // ALLOW EXPANDED
+                if (table.tableType == 'ExpandedTable' && !this.allowExpanded) {
+                    table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                    console.log("if(table.tableType == 'EXPANDED_TABLE' && !this.allowExpanded) {")
+                    continue;
+                }
+
+                // CHECK TYPE
+                const typeToCompare = table?.tableType == 'ExpandedTable'
+                    ? table?.parentTableType
+                    : table?.tableType;
+                if (!this.allowedTables.includes(typeToCompare.tableType)) {
+                    table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                    console.log("if(!this.allowedTables.includes(typeToCompare)) {")
+                    continue;
+                }
 
             }
         }
@@ -1681,7 +1738,7 @@ class RoomPlan extends RoomObject {
             //TODO ALWAYS DO THIS ? 
             this.constraintZone.setSize(this.width, this.height);
 
-            for(const zone of this.zones) {
+            for (const zone of this.zones) {
                 zone.setSize(this.width, this.height);
             }
 
@@ -1724,7 +1781,7 @@ class RoomPlan extends RoomObject {
     }
 
     deleteZones() {
-        for(const zone of this.zones) {
+        for (const zone of this.zones) {
             zone.destroy();
         }
         this.zones = [];
@@ -1978,7 +2035,7 @@ class Table extends RoomObject {
                 ? '#95B1B0'
                 : this.tablePurpose == 'CHILD'
                     ? '#AEE4F5'
-                    : '#E3E3E3';
+                    : '#d1cece';
     }
 
     addTableNumeration() {
@@ -2131,6 +2188,8 @@ class ExpandedTable extends Table {
 
     seats = [];
     tableType = "ExpandedTable";
+    parentTableType = null;
+    value = 1;
 
     tableElement;
     tableElementSizeWidth = 300;
@@ -2442,15 +2501,15 @@ class CoupleRoundTable extends Table {
         {
             number: 0,
             x: 75,
-            y: 5,
-            rotate: 345,
+            y: 7,
+            rotate: 343,
             couple: true,
         },
         {
             number: 1,
             x: 140,
-            y: 5,
-            rotate: 15,
+            y: 7,
+            rotate: 19,
             couple: true,
         },
     ];
@@ -3702,7 +3761,7 @@ class MouseManager {
         statAvgPaxTablesSpan1.appendChild(statAvgPaxTablesSpan11);
         statAvgPaxTablesSpan1.appendChild(statAvgPaxTablesSpan12);
         const statAvgPaxTablesSpan2 = document.createElement("span");
-        statAvgPaxTablesSpan2.classList.add("room-editor-stat-value");
+        statAvgPaxTablesSpan2.classList.add("room-editor-stat-value", 'editor-stats-danger');
         statAvgPaxTablesSpan2.innerText = "0";
         this.statsElements['AVG_PAX_TABLES'] = statAvgPaxTablesSpan2;
         statAvgPaxTablesDiv.appendChild(statAvgPaxTablesSpan1);
@@ -3763,20 +3822,26 @@ class MouseManager {
     }
 
     updateStats() {
-        const allGuests = this.world.tables.filter(t => t.active == true).map(t => t.seats).flat().filter(s => s.guestName);
+        const allGuests = this.world.tables.filter(t => t.active == true).map(t => t.seats).flat().filter(s => s.guestName?.trim() != '');
+        const staff = this.world?.staff || 0;
 
         const ADULT_AGE = allGuests.filter(s => s.guestAge == 'ADULT').length;
         const FROM_CHILD_AGE = allGuests.filter(s => s.guestAge == 'CHILD').length;
         const FROM_NEWBORN_CHILD_AGE = allGuests.filter(s => s.guestAge == 'BABY' || s.guestAge == 'NEWBORN').length;
         const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.active == true).length;
-        const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE;
-        const AVG_PAX_TABLES = Math.round(ROOM_PLAN_TOTAL_PAX / ROOM_PLAN_TOTAL_TABLES);
+        const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE/2) + (staff/2);
+
+        const totalSeats = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE + staff;
+        const AVG_PAX_TABLES = (totalSeats / ROOM_PLAN_TOTAL_TABLES);
         this.statsElements['ADULT_AGE'].innerText = ADULT_AGE;
         this.statsElements['FROM_CHILD_AGE'].innerText = FROM_CHILD_AGE;
         this.statsElements['FROM_NEWBORN_CHILD_AGE'].innerText = FROM_NEWBORN_CHILD_AGE;
         this.statsElements['ROOM_PLAN_TOTAL_TABLES'].innerText = ROOM_PLAN_TOTAL_TABLES;
-        this.statsElements['AVG_PAX_TABLES'].innerText = AVG_PAX_TABLES;
-        this.statsElements['ROOM_PLAN_TOTAL_PAX'].innerText = ROOM_PLAN_TOTAL_PAX;
+        this.statsElements['AVG_PAX_TABLES'].innerText = AVG_PAX_TABLES?.toFixed(2) || 0;
+        if (AVG_PAX_TABLES < 10) {
+            this.statsElements['AVG_PAX_TABLES'].classList.add('editor-stats-danger');
+        } else this.statsElements['AVG_PAX_TABLES'].classList.remove('editor-stats-danger');
+        this.statsElements['ROOM_PLAN_TOTAL_PAX'].innerText = ROOM_PLAN_TOTAL_PAX?.toFixed(2) || 0;
     }
 
     enableUI() {
@@ -4061,11 +4126,11 @@ class MouseManager {
                         );
                         break;
                     case "ZONE_FRONT":
-                         elements[0].appendChild(
+                        elements[0].appendChild(
                             this.contextMenuCreateElement({
                                 class: "sort",
                                 id: "ui-context-sort",
-                                icon: "fa-pen-ruler",
+                                icon: "fa-square-caret-up",
                                 text: this.translationSystem.getTranslation("ZONE_FRONT"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'ZONE_FRONT')
@@ -4074,11 +4139,11 @@ class MouseManager {
                         );
                         break;
                     case "ZONE_BACK":
-                         elements[0].appendChild(
+                        elements[0].appendChild(
                             this.contextMenuCreateElement({
                                 class: "sort",
                                 id: "ui-context-sort",
-                                icon: "fa-pen-ruler",
+                                icon: "fa-square-caret-down",
                                 text: this.translationSystem.getTranslation("ZONE_BACK"),
                                 onclick: (event) => {
                                     this.contextMenuAction(event, 'ZONE_BACK')
@@ -4148,6 +4213,7 @@ class MouseManager {
             if (this.selectedObject.tablePurpose != "COUPLE") {
                 // this.selectedObject.tablePurpose = type;
                 this.selectedObject.updateTablePurpose(type);
+                this.roomEditor.world.checkTablesZonesRules();
             }
         }
     }
@@ -4433,7 +4499,7 @@ class MouseManager {
             case "ORDER_POSITION":
                 this.orderPositionModal.open(this.selectedObject, this.world.tables);
                 this.orderPositionModal.onAfterSave = () => {
-                    this.selectedObject.updateTableOrderValue(this.world.roomEditor.mode);
+                    this.selectedObject.updateTableOrderValue();
                 }
                 break;
 
@@ -4452,16 +4518,17 @@ class MouseManager {
                 this.zoneModal.open(this.selectedZone);
                 this.zoneModal.onAfterSave = () => {
                     this.world.areTablesOverlapping();
+                    this.world.checkTablesZonesRules();
                 }
                 break;
             case "ZONE_FRONT":
-                if(this.selectedZone) {
+                if (this.selectedZone) {
                     this.selectedZone.zindex++;
                     this.selectedZone.updateZonePoligonElement();
                 }
                 break;
             case "ZONE_BACK":
-                if(this.selectedZone) {
+                if (this.selectedZone) {
                     this.selectedZone.zindex--;
                     this.selectedZone.updateZonePoligonElement();
                 }
@@ -4604,8 +4671,8 @@ class RoomEditor {
         }
 
         const tablesInDanger = this.mode == RoomEditorMode.ROOM_PLAN
-            ? this.world.tables.filter(t => t.inDanger || t.orderPosition == null || t.orderPosition == undefined || t.orderPosition < 0 || t.orderPosition > this.world.tables?.length)
-            : this.world.tables.filter(t => t.inDanger);
+            ? this.world.tables.filter(f => f?.active).filter(t => t.inDanger || t.orderPosition == null || t.orderPosition == undefined || t.orderPosition < 0 || t.orderPosition > this.world.tables?.length)
+            : this.world.tables.filter(f => f?.active).filter(t => t.inDanger);
 
         for (const tableInDanger of tablesInDanger) {
             if (!tableInDanger.inDanger) {
@@ -4798,6 +4865,8 @@ class RoomEditor {
                 scale: table.scale,
                 rotate: table.rotate,
                 tableType: table.tableType,
+                parentTableType: table?.parentTableType || null,
+                value: table?.value || 1,
                 code: table.code,
                 number: table.number,
                 name: table.name,
@@ -4837,6 +4906,8 @@ class RoomEditor {
         this.world.x = serializedData.roomPlan.x;
         this.world.y = serializedData.roomPlan.y;
         this.world.scale = serializedData.roomPlan.scale;
+        this.world.staff = serializedData?.roomPlan?.staff || 0;
+        this.world.mode = this.mode;
         this.world.applyTransform();
 
 
@@ -4849,7 +4920,7 @@ class RoomEditor {
         }
 
         this.world.roomPlan.deleteZones();
-        if (serializedData.roomPlan.zones) { 
+        if (serializedData.roomPlan.zones) {
             for (let zone of serializedData.roomPlan.zones) {
                 const z = this.world.roomPlan.createZone();
                 z.name = zone.name;
@@ -5374,6 +5445,8 @@ class ZoneModal {
         inputCouple.checked = zone.coupleAllowed || false;
         inputCouple.onchange = (e) => {
             this.formElements.staffOnly.checked = false;
+            // TODO only if checked?
+            $(`#allowedTablesSelect`).val(null).trigger('change');
         }
 
         this.formElements.coupleAllowed = inputCouple;
@@ -5603,6 +5676,11 @@ class ManageGuestsModal {
 
     createModalBody(table) {
         this.subjectTable = table;
+        const tablePurposeTag = this.subjectTable?.tablePurpose == 'CHILD'
+            ? 'ROOM_PLAN_CHILD'
+            : this.subjectTable?.tablePurpose == 'STAFF'
+                ? 'ROOM_PLAN_STAFF'
+                : 'ROOM_PLAN_GUESTS';
         this.modalBodyElement.innerHTML = '';
         this.formElements = {};
 
@@ -5617,6 +5695,10 @@ class ManageGuestsModal {
             <div class="editor-table round-table"></div>
             <span translation-key="${this.subjectTable.tableType}">${this.subjectTable.tableType}</span>
             <i class="fa-regular fa-user editor-table-user" style="margin: 0 2px 0 10px"></i>${this.subjectTable.seats?.length}
+            <div style="display: ${this.subjectTable?.tablePurpose != 'GUEST' ? 'block' : 'none'}; margin-left: 10px">
+            <span class="editor-label" translation-key="TYPE_TABLES">Mesas para</span>
+            <span translation-key="${tablePurposeTag}">Convidados</span>
+            </div>
         `;
         row1.appendChild(info);
 
@@ -5838,6 +5920,7 @@ class ManageGuestsModal {
             }
 
             this.miniTable.updateSeats();
+            this.miniTable.updateTablePurpose(this.subjectTable.tablePurpose);
 
         }
 
@@ -6010,18 +6093,30 @@ class ManageGuestsModal {
     initializeSeatInputs(seat, mode) {
         this.formElements.seats[seat.number].guestAge = $(`.editor-select-age-${seat.number}`).select2({
             minimumResultsForSearch: -1,
+            placeholder: ' ',
+            allowClear: true,
             data: [
-                { id: 'ADULT', text: this.translationSystem.getTranslation("ABOVE_8_YEARS") },
+                // { id: 'ADULT', text: this.translationSystem.getTranslation("ABOVE_8_YEARS") },
                 { id: 'CHILD', text: this.translationSystem.getTranslation("CHILD_AGE") },
                 { id: 'BABY', text: this.translationSystem.getTranslation("BABY_AGE") },
                 { id: 'NEWBORN', text: this.translationSystem.getTranslation("NEWBORN_AGE") },
             ],
+            templateResult: (table) => {
+                let textTranslation = table.text;
+                if (table?.text != 'ADULT')
+                    textTranslation = this.translationSystem.getTranslation(table.text);
+
+                return textTranslation;
+            },
             val: seat?.guestAge || null,
             disabled: mode == RoomEditorMode.READ_ONLY ? true : false
         });
         if (seat?.guestAge) $(`.editor-select-age-${seat.number}`).val(seat.guestAge).trigger('change');
         $(`.editor-select-age-${seat.number}`).on("select2:select", () => { this.updateTotals(); });
         $(`.editor-select-age-${seat.number}`).prop("disabled", mode == RoomEditorMode.READ_ONLY ? true : false);
+        $(`.editor-select-age-${seat.number}`).on("select2:unselect", (e) => {
+            $(`.editor-select-age-${seat.number}`).val('ADULT').trigger('select2:select');
+        });
 
         // this.formElements.seats[seat.number].foodRestrictions = $(`.editor-form-select-restriction-${seat.number}`).select2({
         //     placeholder: '',
@@ -6101,7 +6196,7 @@ class ManageGuestsModal {
 
             for (const [i, seat] of this.subjectTable.seats.entries()) {
                 seat.guestName = this.formElements.seats[i].guestName.value;
-                seat.guestAge = this.formElements.seats[i].guestAge.select2('data')[0].id;
+                seat.guestAge = this.formElements.seats[i].guestAge.select2('data')?.[0]?.id || 'ADULT';
                 seat.foodRestrictions = this.formElements.seats[i].foodRestrictions;
                 const restrictions = this.foodRestrictions.filter(f => seat.foodRestrictions.includes(f?.id));
                 seat.foodRestrictionsLabel = restrictions.join(', ');
@@ -6166,26 +6261,25 @@ class ManageGuestsModal {
 
         let totalAdult = 0;
         if (document.getElementById('totalAdult')) {
-            totalAdult = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'ADULT').length;
+            totalAdult = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] ? s.guestAge.select2('data')[0]?.id == 'ADULT' : true).length;
             document.getElementById('totalAdult').innerHTML = totalAdult;
         }
 
         let totalChild = 0;
         if (document.getElementById('totalChild')) {
-            totalChild = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'CHILD').length;
-
+            totalChild = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] && s.guestAge.select2('data')[0]?.id == 'CHILD').length;
             document.getElementById('totalChild').innerHTML = totalChild;
         }
 
         let totalBaby = 0;
         if (document.getElementById('totalBaby')) {
-            totalBaby = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'BABY').length;
+            totalBaby = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] && s.guestAge.select2('data')[0]?.id == 'BABY').length;
             document.getElementById('totalBaby').innerHTML = totalBaby;
         }
 
         let totalNewborn = 0;
         if (document.getElementById('totalNewborn')) {
-            totalNewborn = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')[0].id == 'NEWBORN').length;
+            totalNewborn = this.formElements.seats.filter(s => s.guestName.value).filter(s => s.guestAge.select2('data')?.[0] && s.guestAge.select2('data')[0]?.id == 'NEWBORN').length;
             document.getElementById('totalNewborn').innerHTML = totalNewborn;
         }
 
