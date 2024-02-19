@@ -1490,6 +1490,18 @@ class World extends RoomObject {
             }
         }
     }
+
+    showDangers() {
+        for(const table of this.tables) {
+            table.showDangers()
+        }
+    }
+
+    hideDangers() {
+        for(const table of this.tables) {
+            table.hideDangers()
+        }
+    }
 }
 
 class Zone {
@@ -1508,7 +1520,6 @@ class Zone {
     bright = 1;
 
     zindex = 0;
-
 
     // IS UPDATED WITH THE TABLES PRESENT IN THE ZONE ON RUNTIME
     tables = [];
@@ -1561,6 +1572,18 @@ class Zone {
             } else {
                 this.zoneElement.style['z-index'] = null;
             }
+        }
+    }
+
+    hide() {
+        if(this.zoneElement) {
+            this.zoneElement.style.display = 'none';
+        }
+    }
+
+    show() {
+        if(this.zoneElement) {
+            this.zoneElement.style.display = 'block';
         }
     }
 
@@ -1659,6 +1682,10 @@ class RoomPlan extends RoomObject {
 
     constraintZone;
 
+    imageLoaded = false;
+    afterLoadImageFunctions = [];
+     
+
     zones = [
     ]
 
@@ -1674,7 +1701,17 @@ class RoomPlan extends RoomObject {
         this.element.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
     }
 
+    afterLoadImage(func) {
+        if(!this.imageLoaded) {
+            this.afterLoadImageFunctions.push(func);
+        } else {
+            func();
+        }
+    }
+
     updateImageSrc(imageSrc) {
+        this.imageLoaded = false;
+
         if (this.elementImg) {
             this.element.removeChild(this.elementImg);
         }
@@ -1690,6 +1727,13 @@ class RoomPlan extends RoomObject {
 
             this.halfWidth = this.width / 2;
             this.halfHeight = this.height / 2;
+
+            this.imageLoaded = true;
+            for(const f of this.afterLoadImageFunctions) {
+                f();
+            }
+            this.afterLoadImageFunctions = [];
+
 
             //TODO ALWAYS DO THIS ? 
             this.constraintZone.setSize(this.width, this.height);
@@ -1741,6 +1785,17 @@ class RoomPlan extends RoomObject {
             zone.destroy();
         }
         this.zones = [];
+    }
+
+    hideZones() {
+        for(const zone of this.zones) {
+            zone.hide();
+        }
+    }
+    showZones() {
+        for(const zone of this.zones) {
+            zone.show();
+        }
     }
 }
 
@@ -2053,6 +2108,15 @@ class Table extends RoomObject {
             this.dangerType.push(dangerType);
         }
 
+    }
+
+    hideDangers() {
+        this.element.classList.remove('tableDanger');
+    }
+
+    showDangers() {
+        if(this.inDanger)
+            this.element.classList.add('tableDanger');
     }
 
     setSelected() {
@@ -4505,9 +4569,12 @@ class MouseManager {
             return;
         }
 
-        this.world.scale = this.roomEditor.editorContainerElement.getClientRects()[0].width / this.world.roomPlan.width - 0.001;
-        this.world.x = -(this.world.roomPlan.halfWidth * (1 - this.world.scale));
-        this.world.y = -(this.world.roomPlan.halfHeight * (1 - this.world.scale));
+        const scaleX = this.roomEditor.editorContainerElement.getClientRects()[0].width / this.world.roomPlan.width - 0.002;
+        const scaleY = this.roomEditor.editorContainerElement.getClientRects()[0].height / this.world.roomPlan.height - 0.002;
+
+        this.world.scale = scaleX < scaleY ? scaleX : scaleY;
+        this.world.x = -(this.world.roomPlan.halfWidth * (1 - scaleX));
+        this.world.y = -(this.world.roomPlan.halfHeight * (1 - scaleY));
         this.world.applyTransform();
     }
 }
@@ -4653,7 +4720,12 @@ class RoomEditor {
 
         if (this.mode == RoomEditorMode.READ_ONLY) {
             // SET ZOOM FIT ON SCREEN
-            this.mouseManager.worldFitScreen();
+            const that = this;
+            this.world.roomPlan.afterLoadImage(() => {
+                that.mouseManager.worldFitScreen();
+            });
+            //this.mouseManager.worldFitScreen();
+
             // HIDE UI
             this.mouseManager.disableUI();
 
@@ -4729,6 +4801,35 @@ class RoomEditor {
                 }
                 this.world.roomPlan.updateConstrainZonePoligonElement();
             */
+    }
+
+    getImage() {
+        return new Promise((resolve, reject) => {
+            const width = this.editorContainerElement.getClientRects()[0].width;
+            const height = this.editorContainerElement.getClientRects()[0].height;
+            this.mouseManager.worldFitScreen();
+            this.mouseManager.setSelectedObject(null);
+            this.world.roomPlan.hideZones();
+            this.world.hideDangers();
+    
+            domtoimage.toPng(this.world.element, {
+                width,
+                height,
+                bgcolor: 'white'
+            })
+            .then((dataUrl) => {
+    
+                this.world.roomPlan.showZones();
+                this.world.showDangers();
+    
+               resolve(dataUrl);
+            })
+            .catch((error) => {
+                console.error('[Room editor] getimage error', error);
+                reject(error);
+            });
+
+        })
     }
 
     serializeEditor() {

@@ -1,3 +1,7 @@
+.world {
+    background: white;
+}
+
 .constraintZone {
     z-index: 10;
 }
