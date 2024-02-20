@@ -4961,14 +4961,13 @@ class RoomEditor {
             if (object.tableType == "ExpandedTable") {
                 const parentObject = new TableTypes[serializedObject.parentTableType](this.world);
 
-                object.tableElementSizeHeight = parentObject.halfHeight;
-                object.tableElementSizeWidth = parentObject.width * serializedObject.value;
+                object.tableElementSizeWidth = parentObject.tableElementSizeWidth * serializedObject.value;
+                object.tableElementSizeHeight = parentObject.tableElementSizeHeight;
 
-                const right = object.snappingPoints.find(sp => sp.side == 'right');
-                object.snappingPoints.find(sp => sp.side == 'right').x = object.tableElementSizeWidth + (this.world.roomPlan.spaceBetweenTables / 2) + TABLE_ELEMENT_OFFSET;
-
-                object.width = object.tableElementSizeWidth + (this.world.roomPlan.spaceBetweenTables) + (TABLE_ELEMENT_OFFSET * 2);
-                object.height = object.tableElementSizeHeight + (this.world.roomPlan.spaceBetweenTables) + (TABLE_ELEMENT_OFFSET * 2)
+                object.width = object.tableElementSizeWidth + this.world.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+                object.height = object.tableElementSizeHeight + this.world.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+                
+                object.snappingPoints.find(sp => sp.side == 'right').x = object.width + TABLE_ELEMENT_OFFSET;
 
                 object.seatsTopNumber = parentObject.seatsTopNumber * serializedObject.value;
                 object.seatsSidesNumber = parentObject.seatsSidesNumber;
