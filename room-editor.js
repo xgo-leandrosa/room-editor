@@ -1492,13 +1492,13 @@ class World extends RoomObject {
     }
 
     showDangers() {
-        for(const table of this.tables) {
+        for (const table of this.tables) {
             table.showDangers()
         }
     }
 
     hideDangers() {
-        for(const table of this.tables) {
+        for (const table of this.tables) {
             table.hideDangers()
         }
     }
@@ -1516,7 +1516,7 @@ class Zone {
     staffOnly = false;
     allowExpanded = false;
     freeZone = false;
-    color = "#f0f0f038";
+    color = "#e5e5e538";
     bright = 1;
 
     zindex = 0;
@@ -1576,13 +1576,13 @@ class Zone {
     }
 
     hide() {
-        if(this.zoneElement) {
+        if (this.zoneElement) {
             this.zoneElement.style.display = 'none';
         }
     }
 
     show() {
-        if(this.zoneElement) {
+        if (this.zoneElement) {
             this.zoneElement.style.display = 'block';
         }
     }
@@ -1643,7 +1643,7 @@ class Zone {
 
 
             // COUPLE ALLOWED
-            if (table.tablePurpose == 'COUPLE') {
+            if (table?.tablePurpose == 'COUPLE') {
                 if (!this.coupleAllowed) {
                     table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                     console.log("if(!this.coupleAllowed && table.tablePurpose == 'COUPLE') {")
@@ -1662,7 +1662,7 @@ class Zone {
                 const typeToCompare = table?.tableType == 'ExpandedTable'
                     ? table?.parentTableType
                     : table?.tableType;
-                if (!this.allowedTables.includes(typeToCompare.tableType)) {
+                if (!this.allowedTables.includes(typeToCompare)) {
                     table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                     console.log("if(!this.allowedTables.includes(typeToCompare)) {")
                     continue;
@@ -1684,7 +1684,7 @@ class RoomPlan extends RoomObject {
 
     imageLoaded = false;
     afterLoadImageFunctions = [];
-     
+
 
     zones = [
     ]
@@ -1702,7 +1702,7 @@ class RoomPlan extends RoomObject {
     }
 
     afterLoadImage(func) {
-        if(!this.imageLoaded) {
+        if (!this.imageLoaded) {
             this.afterLoadImageFunctions.push(func);
         } else {
             func();
@@ -1729,7 +1729,7 @@ class RoomPlan extends RoomObject {
             this.halfHeight = this.height / 2;
 
             this.imageLoaded = true;
-            for(const f of this.afterLoadImageFunctions) {
+            for (const f of this.afterLoadImageFunctions) {
                 f();
             }
             this.afterLoadImageFunctions = [];
@@ -1788,12 +1788,12 @@ class RoomPlan extends RoomObject {
     }
 
     hideZones() {
-        for(const zone of this.zones) {
+        for (const zone of this.zones) {
             zone.hide();
         }
     }
     showZones() {
-        for(const zone of this.zones) {
+        for (const zone of this.zones) {
             zone.show();
         }
     }
@@ -2115,7 +2115,7 @@ class Table extends RoomObject {
     }
 
     showDangers() {
-        if(this.inDanger)
+        if (this.inDanger)
             this.element.classList.add('tableDanger');
     }
 
@@ -3829,7 +3829,7 @@ class MouseManager {
         const FROM_CHILD_AGE = allGuests.filter(s => s.guestAge == 'CHILD').length;
         const FROM_NEWBORN_CHILD_AGE = allGuests.filter(s => s.guestAge == 'BABY' || s.guestAge == 'NEWBORN').length;
         const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.active == true).length;
-        const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE/2) + (staff/2);
+        const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE / 2) + (staff / 2);
 
         const totalSeats = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE + staff;
         const AVG_PAX_TABLES = (totalSeats / ROOM_PLAN_TOTAL_TABLES);
@@ -4811,23 +4811,23 @@ class RoomEditor {
             this.mouseManager.setSelectedObject(null);
             this.world.roomPlan.hideZones();
             this.world.hideDangers();
-    
+
             domtoimage.toPng(this.world.element, {
                 width,
                 height,
                 bgcolor: 'white'
             })
-            .then((dataUrl) => {
-    
-                this.world.roomPlan.showZones();
-                this.world.showDangers();
-    
-               resolve(dataUrl);
-            })
-            .catch((error) => {
-                console.error('[Room editor] getimage error', error);
-                reject(error);
-            });
+                .then((dataUrl) => {
+
+                    this.world.roomPlan.showZones();
+                    this.world.showDangers();
+
+                    resolve(dataUrl);
+                })
+                .catch((error) => {
+                    console.error('[Room editor] getimage error', error);
+                    reject(error);
+                });
 
         })
     }
@@ -4954,21 +4954,23 @@ class RoomEditor {
             object.notes = serializedObject.notes;
             object.orderPosition = serializedObject.orderPosition;
             object.active = (serializedObject.active === true || serializedObject.active === false) ? serializedObject.active : true;
+            object.value = serializedObject?.value | 1;
 
 
             // ExpandedTable Only
             if (object.tableType == "ExpandedTable") {
-                object.tableElementSizeHeight = serializedObject.height;
-                object.tableElementSizeWidth = serializedObject.width;
+                const parentObject = new TableTypes[serializedObject.parentTableType](this.world);
 
-                object.snappingPoints.find(sp => sp.side == 'right').x = object.tableElementSizeWidth + (this.spaceBetweenTables / 2) + TABLE_ELEMENT_OFFSET;
+                object.tableElementSizeWidth = parentObject.tableElementSizeWidth * serializedObject.value;
+                object.tableElementSizeHeight = parentObject.tableElementSizeHeight;
 
-                object.width = object.tableElementSizeWidth + (this.spaceBetweenTables) + (TABLE_ELEMENT_OFFSET * 2);
-                object.height = object.tableElementSizeHeight + (this.spaceBetweenTables) + (TABLE_ELEMENT_OFFSET * 2)
+                object.width = object.tableElementSizeWidth + this.world.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+                object.height = object.tableElementSizeHeight + this.world.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+                
+                object.snappingPoints.find(sp => sp.side == 'right').x = object.width + TABLE_ELEMENT_OFFSET;
 
-                object.seatsTopNumber = serializedObject.seatsTopNumber;
-                object.seatsSidesNumber = serializedObject.seatsSidesNumber;
-
+                object.seatsTopNumber = parentObject.seatsTopNumber * serializedObject.value;
+                object.seatsSidesNumber = parentObject.seatsSidesNumber;
 
                 object.init();
                 object.tableElementUpdateSize();
@@ -5004,6 +5006,7 @@ class RoomEditor {
 
         this.world.updateTablesNumber();
         this.world.areTablesOverlapping();
+        this.mouseManager.updateStats();
 
         this.guestsModal.foodRestrictions = (serializedData.foodRestrictions || []).map(m => ({
             id: m?._id,
