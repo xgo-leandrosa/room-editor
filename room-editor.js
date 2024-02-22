@@ -192,6 +192,16 @@ const DEFAULT_TRANSLATIONS = [
     },
     {
         value: {
+            pt: "Staff",
+            en: "Staff",
+            es: "Staff",
+            fr: "Staff"
+        },
+        tag: "ROOM_PLAN_STAFF",
+        platform: "BO"
+    },
+    {
+        value: {
             pt: "Notas",
             en: "Notes",
             es: "Notas",
@@ -3733,6 +3743,23 @@ class MouseManager {
         statFromNewbornAgeDiv.appendChild(statFromNewbornAgeSpan1);
         statFromNewbornAgeDiv.appendChild(statFromNewbornAgeSpan2);
         this.uids['ui3'].appendChild(statFromNewbornAgeDiv);
+        const statStaffDiv = document.createElement("div");
+        statStaffDiv.classList.add("room-editor-stats");
+        const statStaffSpan1 = document.createElement("span");
+        statStaffSpan1.classList.add('stats-label');
+        const statStaffSpan11 = document.createElement("span");
+        const statStaffSpan12 = document.createElement("span");
+        statStaffSpan11.setAttribute('translation-key', 'ROOM_PLAN_STAFF');
+        statStaffSpan12.innerText = ":";
+        statStaffSpan1.appendChild(statStaffSpan11);
+        statStaffSpan1.appendChild(statStaffSpan12);
+        const statStaffSpan2 = document.createElement("span");
+        statStaffSpan2.classList.add("room-editor-stat-value");
+        statStaffSpan2.innerText = "0";
+        this.statsElements['STAFF'] = statStaffSpan2;
+        statStaffDiv.appendChild(statStaffSpan1);
+        statStaffDiv.appendChild(statStaffSpan2);
+        this.uids['ui3'].appendChild(statStaffDiv);
         const statTotalTablesDiv = document.createElement("div");
         statTotalTablesDiv.classList.add("room-editor-stats");
         const statTotalTablesSpan1 = document.createElement("span");
@@ -3833,6 +3860,7 @@ class MouseManager {
 
         const totalSeats = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE + staff;
         const AVG_PAX_TABLES = (totalSeats / ROOM_PLAN_TOTAL_TABLES);
+        this.statsElements['STAFF'].innerText = staff || 0;
         this.statsElements['ADULT_AGE'].innerText = ADULT_AGE;
         this.statsElements['FROM_CHILD_AGE'].innerText = FROM_CHILD_AGE;
         this.statsElements['FROM_NEWBORN_CHILD_AGE'].innerText = FROM_NEWBORN_CHILD_AGE;
