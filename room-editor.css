@@ -284,6 +284,33 @@ ul {
     padding-left: 0;
 } */
 
+.editor-toolbar {
+    width: calc(100% - 200px);
+}
+
+.editor-sidebar {
+    width: 200px;
+    display: flex;
+    flex-direction: column !important;
+    overflow: auto;
+    background-color: white;
+    z-index: 150 !important;
+    border-left: 1px solid lightgray;
+    position: absolute !important;
+    right: 0;
+    top: 0;
+    height: 100% !important;
+    padding-left: 10px;
+}
+
+.side_tables_ui {
+    margin: 4px 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: auto;
+}
+
 .editor-row {
     position: relative;
     height: auto;
@@ -471,6 +498,13 @@ ul {
     white-space: nowrap;
 }
 
+.editor-tooltip-guests {
+    padding-inline-start: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 .pax {
     margin-left: 8px;
     font-size: 11px;
@@ -524,7 +558,6 @@ ul {
     position: absolute;
     bottom: 0;
     background-color: white;
-    width: 100%;
     justify-content: flex-end;
 }
 

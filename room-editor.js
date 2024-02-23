@@ -1207,7 +1207,7 @@ class World extends RoomObject {
                 const isLb = this.isPointInPolygon(table.corners.lb.x, table.corners.lb.y, zone.polygon);
                 const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, zone.polygon);
 
-                if ((isLt || isRt || isLb || isRb)) {
+                if ((isLt && isRt && isLb && isRb)) {
                     zone.tables.push(table);
                 }
             }
@@ -1585,6 +1585,20 @@ class Zone {
         }
     }
 
+    polygonArea() {
+        let area = 0;
+        const numVertices = this.polygon.length;
+
+        for (let i = 0; i < numVertices; i++) {
+            const j = (i + 1) % numVertices;
+            area += (this.polygon[i].x * this.polygon[j].y - this.polygon[j].x * this.polygon[i].y);
+        }
+
+        area = Math.abs(area) / 2;
+        return area;
+    }
+
+
     hide() {
         if (this.zoneElement) {
             this.zoneElement.style.display = 'none';
@@ -1696,8 +1710,7 @@ class RoomPlan extends RoomObject {
     afterLoadImageFunctions = [];
 
 
-    zones = [
-    ]
+    zones = []
 
     constructor(imageSrc) {
         super();
@@ -1828,22 +1841,24 @@ class Table extends RoomObject {
     notes = "";
     orderPosition = null;
     active = true;
+    allocated = false;
+
+    originalPosition = null;
 
     tableDefaultSize = 155;
 
     seatsTopNumber = 0;
     seatsSidesNumber = 0;
-    seatsPositions = [
-    ];
+    seatsPositions = [];
     seats = [];
     tableType = "Table";
     tablePurpose = "GUEST";
+    parentTableType = null;
 
     tableElement;
     tableElementSizeWidth = 105;
     tableElementSizeHeight = 105;
     tableElementPosition = { x: 0, y: 0 };
-    tableElement = 0;
 
     inDanger = false;
     dangerType = [];
@@ -1919,6 +1934,14 @@ class Table extends RoomObject {
     disable() {
         this.element.style.display = 'none';
         this.active = false;
+    }
+
+    setAllocated() {
+        this.allocated = true;
+    }
+
+    setNotAllocated() {
+        this.allocated = false;
     }
 
     calculateSeatPositions() {
@@ -2130,11 +2153,16 @@ class Table extends RoomObject {
     }
 
     setSelected() {
+        this.originalPosition = {
+            x: this.x,
+            y: this.y
+        };
         this.element.classList.add('tableSelected');
         this.tableElement.classList.add('table-draw--selected');
     }
 
     unsetSelected() {
+        this.originalPosition = null;
         this.element.classList.remove('tableSelected');
         this.tableElement.classList.remove('table-draw--selected');
     }
@@ -3449,6 +3477,7 @@ class Seat extends RoomObject {
 class MouseManager {
     selectedObject = null;
     editorContainerElement = null;
+    editorContentElement = null;
     guestModal;
     orderPositionModal;
     zoneModal;
@@ -3465,6 +3494,7 @@ class MouseManager {
     constructor(world, roomEditor) {
         this.roomEditor = roomEditor;
         this.editorContainerElement = roomEditor.editorContainerElement;
+        this.editorContentElement = roomEditor.editorContentElement;
         this.guestModal = roomEditor.guestsModal;
         this.orderPositionModal = roomEditor.orderPositionModal;
         this.zoneModal = roomEditor.zoneModal;
@@ -3534,6 +3564,94 @@ class MouseManager {
         }
     }
 
+    getGuestName(name) {
+        // Split the input string into words
+        const words = name.trim().split(/\s+/);
+
+        // If there are less than 2 words, return the input string
+        if (words.length < 2) {
+            return name;
+        }
+
+        // Extract the first and last words
+        const firstWord = words[0];
+        const lastWord = words[words.length - 1];
+
+        // Concatenate the first and last words into a new string
+        const result = `${firstWord} ${lastWord}`;
+
+        return result;
+    }
+
+    setNotAllocatedGuestTables() {
+        const element = document.getElementById("notAllocatedTables");
+
+        if (element) {
+            element.innerHTML = "";
+
+            console.warn('tables', this.roomEditor?.world?.tables);
+
+            for (let table of this.roomEditor?.world?.tables) {
+
+                const tableBtn = document.createElement('button');
+                tableBtn.classList.add('editor-btn', 'ui', 'guestTableChooserItem');
+                tableBtn.setAttribute('data-tableType', 'RoundTable');
+                tableBtn.style.marginRight = '0px';
+                tableBtn.style.display = !table?.allocated && table?.active ? 'flex' : 'none';
+                tableBtn.style.justifyContent = 'space-between';
+
+                const divText = document.createElement('div');
+                divText.classList.add('ui');
+                divText.style.display = 'inline-flex';
+                divText.setAttribute('data-tableType', 'RoundTable');
+                divText.innerHTML = `
+                    <div class="table_ui ${TableTypesIcon['RoundTable']} ui guestTableChooserItem" data-tableType="RoundTable"></div>
+                    <span class="ui guestTableChooserItem" data-tableType="RoundTable">${table?.name}</span>
+                `;
+
+                const divPax = document.createElement('div');
+                divPax.classList.add('pax', 'ui', 'guestTableChooserItem');
+                divPax.setAttribute('data-tableType', 'RoundTable');
+                divPax.innerHTML = `
+                    <i class="fa-solid fa-users"></i>
+                    ${table?.seats?.filter(f => f?.guestName?.trim() != '')?.length}/<b>${table?.seats?.length}</b>
+                `;
+
+                tableBtn.appendChild(divText);
+                tableBtn.appendChild(divPax);
+
+                if (table?.seats?.filter(f => f?.guestName?.trim() != '')?.length > 0) {
+                    const tooltipElement = document.createElement("div");
+                    tooltipElement.innerHTML = `
+                        <span translation-key="ROOM_PLAN_GUESTS">Convidados</span>:
+                    `;
+
+
+                    const ulGuests = document.createElement('ul');
+                    ulGuests.classList.add('editor-tooltip-guests');
+
+                    for (let seat of table?.seats.filter(f => f?.guestName?.trim() != '')) {
+                        const liSeat = document.createElement('li');
+                        liSeat.innerText = `${(seat?.number || 0) + 1}. ${this.getGuestName(seat?.guestName || '')}`;
+                        ulGuests.appendChild(liSeat);
+                    }
+
+                    tooltipElement.appendChild(ulGuests);
+
+                    const tippyInstance = tippy(divPax, {
+                        theme: 'light',
+                        content: tooltipElement
+                    });
+                }
+
+
+                element.appendChild(tableBtn);
+            }
+            this.translationSystem.reviewPage();
+
+        }
+    }
+
     setActiveCouplesTables(tablesTypes) {
         this.activeCouplesTables = tablesTypes;
         const elements = document.getElementsByClassName("coupleTableSelect");
@@ -3567,8 +3685,8 @@ class MouseManager {
 
     initializeUi() {
         this.uids['ui1'] = document.createElement('div');
-        this.uids['ui1'].classList.add("editor-row");
-        this.uids['ui1'].classList.add("ui-row");
+        this.uids['ui1'].classList.add("editor-row", "ui-row", 'editor-toolbar');
+
         const mainContainer = document.createElement('div');
         mainContainer.style.display = 'flex';
         mainContainer.style.flexWrap = 'wrap';
@@ -3643,6 +3761,7 @@ class MouseManager {
         // Create the third editorRoom-input div
         const editorRoomInput3 = document.createElement('div');
         editorRoomInput3.classList.add('editorRoom-input');
+        editorRoomInput3.id = 'inputTables'
 
         const tablesLabel = document.createElement('label');
         tablesLabel.innerHTML = '<span translation-key="TABLES">Mesas</span>:';
@@ -3688,8 +3807,7 @@ class MouseManager {
         this.editorContainerElement.appendChild(this.uids['ui1']);
 
         this.uids['ui3'] = document.createElement('div');
-        this.uids['ui3'].classList.add("editor-row");
-        this.uids['ui3'].classList.add("ui-row");
+        this.uids['ui3'].classList.add("editor-row", "ui-row", 'editor-toolbar');
         this.uids['ui3'].classList.add("room-editor-row-stats");
 
         const statAdultAgeDiv = document.createElement("div");
@@ -3841,7 +3959,19 @@ class MouseManager {
 
         this.editorContainerElement.appendChild(this.uids['ui3']);
 
+        this.uids['ui4'] = document.createElement('div');
+        this.uids['ui4'].classList.add("editor-row", 'ui', 'ui-row', 'editor-sidebar');
 
+        const tablesLabelSide = document.createElement('label');
+        tablesLabelSide.innerHTML = '<span translation-key="TABLES">Mesas</span>:';
+
+        const tablesUiDivSide = document.createElement('div');
+        tablesUiDivSide.classList.add('side_tables_ui', 'ui');
+        tablesUiDivSide.id = 'notAllocatedTables';
+        this.uids['ui4'].appendChild(tablesLabelSide);
+        this.uids['ui4'].appendChild(tablesUiDivSide);
+
+        this.editorContainerElement.appendChild(this.uids['ui4']);
 
         $(document).ready(() => {
             this.initializeCoupleTableSelect();
@@ -3875,9 +4005,13 @@ class MouseManager {
     enableUI() {
         this.uiEnable = true;
         for (let ui of Object.keys(this.uids)) {
-            if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && ui == 'ui3') {
+            if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && (ui == 'ui3' || ui == 'ui4')) {
                 this.uids[ui].style.display = 'none';
             } else this.uids[ui].style.display = 'flex';
+
+            if (this.roomEditor.mode != RoomEditorMode.ROOM_PLAN && ui != 'ui4') {
+                this.uids[ui].style.paddingRight = '20px';
+            } else this.uids[ui].style.paddingRight = '0px';
         }
 
         const coupleInput = document.getElementById('editorCoupleInput');
@@ -3888,6 +4022,11 @@ class MouseManager {
         const staffRadioInput = document.getElementById('radiotablePurposeSTAFF');
         if (staffRadioInput) {
             staffRadioInput.style.display = this.roomEditor.mode == RoomEditorMode.COUPLE ? 'none' : 'flex';
+        }
+
+        const tablesInput = document.getElementById('inputTables');
+        if (tablesInput) {
+            tablesInput.style.display = this.roomEditor.mode == RoomEditorMode.COUPLE ? 'none' : 'flex';
         }
     }
 
@@ -4455,6 +4594,7 @@ class MouseManager {
     }
 
     handleMouseUp(event) {
+
         if (this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
             return;
         }
@@ -4465,6 +4605,30 @@ class MouseManager {
             // TODO CHECK IF THIS IS OK
             this.world.areTablesOverlapping();
             this.world.checkSnappingPoints();
+
+            if (this.selectedObject) {
+                if (this.selectedObject) console.warn('table', this.selectedObject);
+                if (this.selectedObject?.inDanger) {
+
+                    // If dangerType is OUT_CONSTRAINT_ZONE, than allocated false
+                    if (this.selectedObject?.dangerType?.includes(TABLE_DANGER_TYPE.OUT_CONSTRAINT_ZONE)) {
+                        this.selectedObject.setNotAllocated();
+                    }
+
+                    // If dragged to an unouthorized zone, send to original position
+                    if (this.selectedObject?.dangerType?.includes(TABLE_DANGER_TYPE.INVALID_ZONE)
+                        && this.selectedObject?.originalPosition) {
+                        this.selectedObject.x = this.selectedObject.originalPosition.x;
+                        this.selectedObject.y = this.selectedObject.originalPosition.y;
+                        this.selectedObject.applyTransform();
+                    }
+                } else {
+                    // TODO: position closest to the couple table
+                    this.selectedObject.setAllocated();
+                }
+
+                this.roomEditor.mouseManager.setNotAllocatedGuestTables();
+            }
         }
 
     }
@@ -4809,7 +4973,6 @@ class RoomEditor {
             this.world.setRoomPlan(roomPlan);
             roomPlan.applyTransform();
 
-
             this.mouseManager.setWorld(this.world);
         } else {
             this.world.roomPlan.updateImageSrc(roomPlanImg)
@@ -4965,6 +5128,7 @@ class RoomEditor {
                 z.updateZonePoligonElement();
             }
         }
+        console.warn('zones', this.world.roomPlan.zones);
 
         this.world.roomPlan.spaceBetweenTables = serializedData.roomPlan.spaceBetweenTables;
 
@@ -4982,19 +5146,21 @@ class RoomEditor {
             object.notes = serializedObject.notes;
             object.orderPosition = serializedObject.orderPosition;
             object.active = (serializedObject.active === true || serializedObject.active === false) ? serializedObject.active : true;
+            object.allocated = (serializedObject.allocated === true || serializedObject.allocated === false) ? serializedObject.allocated : false;
             object.value = serializedObject?.value | 1;
 
 
             // ExpandedTable Only
             if (object.tableType == "ExpandedTable") {
                 const parentObject = new TableTypes[serializedObject.parentTableType](this.world);
+                object.parentTableType = parentObject?.tableType || null;
 
                 object.tableElementSizeWidth = parentObject.tableElementSizeWidth * serializedObject.value;
                 object.tableElementSizeHeight = parentObject.tableElementSizeHeight;
 
                 object.width = object.tableElementSizeWidth + this.world.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
                 object.height = object.tableElementSizeHeight + this.world.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-                
+
                 object.snappingPoints.find(sp => sp.side == 'right').x = object.width + TABLE_ELEMENT_OFFSET;
 
                 object.seatsTopNumber = parentObject.seatsTopNumber * serializedObject.value;
@@ -5035,6 +5201,7 @@ class RoomEditor {
         this.world.updateTablesNumber();
         this.world.areTablesOverlapping();
         this.mouseManager.updateStats();
+        this.mouseManager.setNotAllocatedGuestTables();
 
         this.guestsModal.foodRestrictions = (serializedData.foodRestrictions || []).map(m => ({
             id: m?._id,
