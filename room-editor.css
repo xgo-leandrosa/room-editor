@@ -108,7 +108,7 @@
 
 .seat {
     position: absolute;
-    border-radius: 4px 4px 0px 0px;
+    border-radius: 6px 6px 2px 2px;
     background: red;
     font-weight: 700;
     font-family: Inter, sans-serif;
@@ -160,7 +160,7 @@
 }
 
 .seat--rem {
-    border-top: 1px;
+    /* border-top: 1px; */
     border-right: 1px;
     border-bottom: 0px;
     border-left: 1px;
@@ -168,7 +168,8 @@
     border-color: #B6D7A8;
     background: #FFFFFF;
     color: #5A5A5A;
-
+    border-top: groove 8px;
+    /* margin-bottom: 10px; */
 }
 
 .seatNumeration {
@@ -283,33 +284,6 @@ ul {
     border-left: none;
     padding-left: 0;
 } */
-
-.editor-toolbar {
-    width: calc(100% - 200px);
-}
-
-.editor-sidebar {
-    width: 200px;
-    display: flex;
-    flex-direction: column !important;
-    overflow: auto;
-    background-color: white;
-    z-index: 150 !important;
-    border-left: 1px solid lightgray;
-    position: absolute !important;
-    right: 0;
-    top: 0;
-    height: 100% !important;
-    padding-left: 10px;
-}
-
-.side_tables_ui {
-    margin: 4px 0;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    overflow: auto;
-}
 
 .editor-row {
     position: relative;
@@ -558,14 +532,16 @@ ul {
     position: absolute;
     bottom: 0;
     background-color: white;
-    justify-content: flex-end;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .room-editor-stats {
     display: inline-flex;
     align-items: center;
-    margin-right: 8px;
-    ;
+    margin-block-end: 5px;
+    margin-inline-end: 12px;
 }
 
 .room-editor-stats .stats-label {
@@ -875,6 +851,13 @@ textarea.editor-input {
     outline: unset;
 }
 
+.tag {
+    border: 1px solid #d9d9d9;
+    padding: 6px 4px;
+    border-radius: 4px;
+    background-color: #d9d9d9;
+}
+
 .select2-selection {
     padding: 4px 11px !important;
     background-color: #fff !important;
@@ -1068,31 +1051,6 @@ textarea.editor-input {
 .tippy-backdrop {
     background-color: white;
     color: black;
-}
-
-/* Scrollbar */
-* {
-    scrollbar-width: thin;
-    scrollbar-height: thin;
-    scrollbar-color: #555 #888;
-}
-
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 20px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #555;
 }
 
 .editor-form-select-restriction {
