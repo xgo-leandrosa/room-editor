@@ -36,9 +36,48 @@ const DEFAULT_TRANSLATIONS = [
             es: "Eliminar",
             fr: "Éliminer"
         },
-        "canBeDeleted": true,
         platform: "BO",
         tag: "DELETE"
+    },
+    {
+        value: {
+            pt: "Desativar",
+            en: "Disable",
+            es: "Desactivar",
+            fr: "Désactiver"
+        },
+        platform: "BO",
+        tag: "DISABLE"
+    },
+    {
+        value: {
+            pt: "Ativar",
+            en: "Activate",
+            es: "Activar",
+            fr: "Activer"
+        },
+        platform: "BO",
+        tag: "ENABLE"
+    },
+    {
+        value: {
+            pt: "Aumentar mesa",
+            en: "Enlarge table",
+            es: "Ampliar tabla",
+            fr: "Agrandir le tableau"
+        },
+        platform: "BO",
+        tag: "INCREASE_TABLE"
+    },
+    {
+        value: {
+            pt: "Reduzir mesa",
+            en: "Reduce table",
+            es: "Reducir mesa",
+            fr: "Réduire le tableau"
+        },
+        platform: "BO",
+        tag: "REDUCE_TABLE"
     },
     {
         value: {
@@ -69,6 +108,16 @@ const DEFAULT_TRANSLATIONS = [
         },
         platform: "BO",
         tag: "ORDER_BIGGER_THAN1"
+    },
+    {
+        value: {
+            pt: "Eliminar com mesa de casal Oval L",
+            en: "Remove with Oval L couple table",
+            es: "Quitar con mesa pareja Oval L",
+            fr: "Retirer avec table de couple Oval L"
+        },
+        platform: "BO",
+        tag: "REMOVE_WITH_OVAL_L"
     },
     {
         value: {
@@ -279,6 +328,16 @@ const DEFAULT_TRANSLATIONS = [
         },
         platform: "BO",
         tag: "TABLES"
+    },
+    {
+        value: {
+            pt: "Mesas disponíveis",
+            en: "Tables available",
+            es: "Tablas disponibles",
+            fr: "Tables disponibles"
+        },
+        platform: "BO",
+        tag: "AVAILABLE_TABLES"
     },
 
 
@@ -765,6 +824,15 @@ const DEFAULT_TRANSLATIONS = [
     },
     {
         value: {
+            pt: "Apenas crianças",
+            en: "Children only",
+            es: "Solo niños",
+            fr: "Juste des enfants"
+        },
+        tag: "CHILD_ONLY"
+    },
+    {
+        value: {
             pt: "Uniões permitidas",
             en: "Allowed unions",
             es: "Uniones permitidas",
@@ -959,8 +1027,6 @@ class RoomObject {
         // Return the new coordinates
         return { x: xPrime, y: yPrime };
     }
-
-
 
     rotatePointAroundOrigin(x, y, angleDegrees, originX = 0, originY = 0) {
         // Translate the point to make the origin coincide with (0, 0)
@@ -1207,7 +1273,7 @@ class World extends RoomObject {
                 const isLb = this.isPointInPolygon(table.corners.lb.x, table.corners.lb.y, zone.polygon);
                 const isRb = this.isPointInPolygon(table.corners.rb.x, table.corners.rb.y, zone.polygon);
 
-                if ((isLt || isRt || isLb || isRb)) {
+                if (isLt || isRt || isLb || isRb) {
                     zone.tables.push(table);
                 }
             }
@@ -1410,7 +1476,7 @@ class World extends RoomObject {
     }
 
     joinTable(tablesSnapping) {
-        const { table1, table2 } = tablesSnapping
+        const { table1, table2 } = tablesSnapping;
 
         if (table1.tableType == "ExpandedTable" || table2.tableType == "ExpandedTable") {
 
@@ -1433,9 +1499,9 @@ class World extends RoomObject {
             expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth;
             expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth;
             expandedTable.width = expandedTable.tableElementSizeWidth + expandedTable.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-            expandedTable.orderPosition = table1.orderPosition > table2.orderPosition
-                ? table2.orderPosition
-                : table1.orderPosition;
+            expandedTable.code = table1.code > table2.code
+                ? table2.code
+                : table1.code;
             expandedTable.parentTableType = table1.tableType;
             expandedTable.value++;
 
@@ -1448,7 +1514,7 @@ class World extends RoomObject {
 
             expandedTable.updateSeats();
             this.removeTable(tableToJoin);
-            this.fixTablesCircularOrder(table1.orderPosition, table2.orderPosition);
+            this.fixTablesCircularOrder(table1.code, table2.code);
 
         } else {
             const pos = this.getMidpoint({ x: table1.x, y: table1.y }, { x: table2.x, y: table2.y })
@@ -1468,9 +1534,9 @@ class World extends RoomObject {
 
             newExpandedTable.seatsTopNumber = table1.seatsTopNumber * 2;
             newExpandedTable.seatsSidesNumber = table1.seatsSidesNumber;
-            newExpandedTable.orderPosition = table1.orderPosition > table2.orderPosition
-                ? table2.orderPosition
-                : table1.orderPosition;
+            newExpandedTable.code = table1.code > table2.code
+                ? table2.code
+                : table1.code;
             newExpandedTable.parentTableType = table1.tableType;
             newExpandedTable.value++;
 
@@ -1483,7 +1549,7 @@ class World extends RoomObject {
             this.removeTable(table1);
             this.removeTable(table2);
 
-            this.fixTablesCircularOrder(table1.orderPosition, table2.orderPosition);
+            this.fixTablesCircularOrder(table1.code, table2.code);
         }
     }
 
@@ -1491,11 +1557,11 @@ class World extends RoomObject {
         const orderPositionToFix = orderPos1 < orderPos2
             ? orderPos2
             : orderPos1;
-        const tablesToCorrectOrder = this.tables.filter(f => f?.orderPosition > orderPositionToFix);
+        const tablesToCorrectOrder = this.tables.filter(f => f?.code > orderPositionToFix);
         if (tablesToCorrectOrder?.length > 0) {
             for (let index = 0; index < tablesToCorrectOrder.length; index++) {
                 const table = tablesToCorrectOrder[index];
-                table.orderPosition = table.orderPosition - 1;
+                table.code = table.code - 1;
                 table.updateTableOrderValue();
             }
         }
@@ -1524,6 +1590,7 @@ class Zone {
     allowedOrientation = null;
     coupleAllowed = false;
     staffOnly = false;
+    childOnly = false;
     allowExpanded = false;
     freeZone = false;
     color = "#e5e5e538";
@@ -1585,6 +1652,20 @@ class Zone {
         }
     }
 
+    polygonArea() {
+        let area = 0;
+        const numVertices = this.polygon.length;
+
+        for (let i = 0; i < numVertices; i++) {
+            const j = (i + 1) % numVertices;
+            area += (this.polygon[i].x * this.polygon[j].y - this.polygon[j].x * this.polygon[i].y);
+        }
+
+        area = Math.abs(area) / 2;
+        return area;
+    }
+
+
     hide() {
         if (this.zoneElement) {
             this.zoneElement.style.display = 'none';
@@ -1629,6 +1710,13 @@ class Zone {
             if ((this.staffOnly && table.tablePurpose != 'STAFF') || (!this.staffOnly && table.tablePurpose == 'STAFF')) {
                 table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
                 console.log("if(this.staffOnly && table.tablePurpose != 'STAFF') {")
+                continue;
+            }
+
+            // CHILD ONLY
+            if ((this.childOnly && table.tablePurpose != 'CHILD')) {
+                table.isInDanger(TABLE_DANGER_TYPE.INVALID_ZONE);
+                console.log("if(this.childOnly && table.tablePurpose != 'CHILD') {")
                 continue;
             }
 
@@ -1696,8 +1784,7 @@ class RoomPlan extends RoomObject {
     afterLoadImageFunctions = [];
 
 
-    zones = [
-    ]
+    zones = []
 
     constructor(imageSrc) {
         super();
@@ -1809,7 +1896,7 @@ class RoomPlan extends RoomObject {
     }
 }
 
-const TABLE_ELEMENT_OFFSET = 30;
+const TABLE_ELEMENT_OFFSET = 35;
 const SNAPPING_POINT_SIZE = 15;
 
 const TABLE_DANGER_TYPE = {
@@ -1823,27 +1910,30 @@ const TABLE_DANGER_TYPE = {
 class Table extends RoomObject {
 
     code = 0;
-    number = 0;
     name = "";
     notes = "";
-    orderPosition = null;
     active = true;
+    removeWithOvalL = false;
+
+    originalPosition = null;
 
     tableDefaultSize = 155;
 
     seatsTopNumber = 0;
     seatsSidesNumber = 0;
-    seatsPositions = [
-    ];
+    seatsPositions = [];
     seats = [];
     tableType = "Table";
     tablePurpose = "GUEST";
+    parentTableType = null;
 
     tableElement;
     tableElementSizeWidth = 105;
     tableElementSizeHeight = 105;
     tableElementPosition = { x: 0, y: 0 };
-    tableElement = 0;
+
+    optionElement;
+    optionTooltipElement;
 
     inDanger = false;
     dangerType = [];
@@ -1912,13 +2002,32 @@ class Table extends RoomObject {
     }
 
     enable() {
-        this.element.style.display = 'block';
+        this.element.style.opacity = 1;
         this.active = true;
     }
 
     disable() {
-        this.element.style.display = 'none';
+        this.element.style.opacity = 0.3;
         this.active = false;
+    }
+
+    getGuestName(name) {
+        // Split the input string into words
+        const words = name.trim().split(/\s+/);
+
+        // If there are less than 2 words, return the input string
+        if (words.length < 2) {
+            return name;
+        }
+
+        // Extract the first and last words
+        const firstWord = words[0];
+        const lastWord = words[words.length - 1];
+
+        // Concatenate the first and last words into a new string
+        const result = `${firstWord} ${lastWord}`;
+
+        return result;
     }
 
     calculateSeatPositions() {
@@ -1956,7 +2065,6 @@ class Table extends RoomObject {
 
             let globalNumber = 0;
             for (let i = 0; i <= (topsNumbersSeats - 1); i++) {
-
                 this.seatsPositions.push({
                     number: globalNumber,
                     x: (TABLE_ELEMENT_OFFSET) + (distanceBetweenSeatsTops) + (i * distanceBetweenSeatsTops) + (i * seatSize),
@@ -2061,25 +2169,39 @@ class Table extends RoomObject {
         this.updateTableNumerationValue();
         this.tableElementNumeration.appendChild(this.spanTableNumeration);
 
-        this.spanTableCircularOrder = document.createElement('span');
-        this.spanTableCircularOrder.classList.add('tableCircularOrder');
-        this.updateTableOrderValue();
-        this.tableElementNumeration.appendChild(this.spanTableCircularOrder);
+        // this.spanTableCircularOrder = document.createElement('span');
+        // this.spanTableCircularOrder.classList.add('tableCircularOrder');
+        // this.updateTableOrderValue();
+        // this.tableElementNumeration.appendChild(this.spanTableCircularOrder);
 
         this.tableElement.appendChild(this.tableElementNumeration);
     }
 
     updateTableNumerationValue() {
-        this.spanTableNumeration.innerText = (this.number + 1);
+        this.spanTableNumeration.innerText = this.numberToLetter();
     }
 
-    updateTableOrderValue() {
-        // TODO only show on ROOM_PLAN mode
-        this.spanTableCircularOrder.style.display = this.orderPosition != null && this.orderPosition != undefined
-            ? 'block'
-            : 'none';
-        this.spanTableCircularOrder.innerHTML = `<i class="fa-solid fa-rotate"></i>${(this.orderPosition + 1)}`;
+    numberToLetter() {
+        if (!Number.isInteger(this.code) || this.code < 0) {
+            return;
+        }
+
+        // Calculate the position in the alphabet
+        let position = this.code % 26;
+
+        // Calculate the number of repetitions
+        let repetitions = Math.floor(this.code / 26) + 1;
+
+        return String.fromCharCode(position + 65).repeat(repetitions);
     }
+
+    // updateTableOrderValue() {
+    //     // TODO only show on ROOM_PLAN mode
+    //     this.spanTableCircularOrder.style.display = this.orderPosition != null && this.orderPosition != undefined
+    //         ? 'block'
+    //         : 'none';
+    //     this.spanTableCircularOrder.innerHTML = `<i class="fa-solid fa-rotate"></i>${(this.orderPosition + 1)}`;
+    // }
 
     getElementAndParents(element) {
         const elementsArray = [];
@@ -2097,7 +2219,7 @@ class Table extends RoomObject {
 
     isElementOrChildElement(elementToCompare) {
         const elementsToCompare = this.getElementAndParents(elementToCompare);
-        return elementsToCompare.some(item => (item === this.element) || (item === this.tableElement) || (item === this.tableElementNumeration));
+        return elementsToCompare.some(item => (item === this.element) || (item === this.tableElement) || (item === this.tableElementNumeration) || (item === this.optionElement));
         // return this.element === elementToCompare || this.tableElement === elementToCompare || this.tableElementNumeration === elementToCompare || this.seats.find(s => s.isElementOrChildElement(elementToCompare));
     }
 
@@ -2130,11 +2252,16 @@ class Table extends RoomObject {
     }
 
     setSelected() {
+        this.originalPosition = {
+            x: this.x,
+            y: this.y
+        };
         this.element.classList.add('tableSelected');
         this.tableElement.classList.add('table-draw--selected');
     }
 
     unsetSelected() {
+        this.originalPosition = null;
         this.element.classList.remove('tableSelected');
         this.tableElement.classList.remove('table-draw--selected');
     }
@@ -2356,8 +2483,7 @@ class RectangularTable extends Table {
 
     seatsTopNumber = 5;
     seatsSidesNumber = 2;
-    seatsPositions = [
-    ];
+    seatsPositions = [];
     seats = [];
     tableType = "RectangularTable";
 
@@ -2433,8 +2559,7 @@ class RoundTable extends Table {
 
     seatsTopNumber = 10;
     seatsSidesNumber = 0;
-    seatsPositions = [
-    ];
+    seatsPositions = [];
 
     seats = [];
     isRound = true;
@@ -2526,7 +2651,6 @@ class CoupleRoundTable extends Table {
     seats = [];
     tableType = "CoupleRoundTable";
     tablePurpose = "COUPLE";
-    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 180;
@@ -2576,7 +2700,6 @@ class CoupleOvalSTable extends Table {
     seats = [];
     tableType = "CoupleOvalSTable";
     tablePurpose = "COUPLE";
-    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 250;
@@ -2674,7 +2797,6 @@ class CoupleOvalMTable extends Table {
     seats = [];
     tableType = "CoupleOvalMTable";
     tablePurpose = "COUPLE";
-    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 400;
@@ -2785,7 +2907,6 @@ class CoupleOvalMFullTable extends Table {
     seats = [];
     tableType = "CoupleOvalMFullTable";
     tablePurpose = "COUPLE";
-    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 400;
@@ -2919,7 +3040,6 @@ class CoupleOvalLTable extends Table {
     seats = [];
     tableType = "CoupleOvalLTable";
     tablePurpose = "COUPLE";
-    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 600;
@@ -3065,7 +3185,6 @@ class CoupleOvalLFullTable extends Table {
     seats = [];
     tableType = "CoupleOvalLFullTable";
     tablePurpose = "COUPLE";
-    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 600;
@@ -3113,7 +3232,6 @@ class CoupleForestSTable extends Table {
     seats = [];
     tableType = "CoupleForestSTable";
     tablePurpose = "COUPLE";
-    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 205;
@@ -3225,7 +3343,6 @@ class CoupleForestMTable extends Table {
     seats = [];
     tableType = "CoupleForestMTable";
     tablePurpose = "COUPLE";
-    orderPosition = 0;
 
     tableElement;
     tableElementSizeWidth = 195;
@@ -3449,6 +3566,7 @@ class Seat extends RoomObject {
 class MouseManager {
     selectedObject = null;
     editorContainerElement = null;
+    editorContentElement = null;
     guestModal;
     orderPositionModal;
     zoneModal;
@@ -3465,6 +3583,7 @@ class MouseManager {
     constructor(world, roomEditor) {
         this.roomEditor = roomEditor;
         this.editorContainerElement = roomEditor.editorContainerElement;
+        this.editorContentElement = roomEditor.editorContentElement;
         this.guestModal = roomEditor.guestsModal;
         this.orderPositionModal = roomEditor.orderPositionModal;
         this.zoneModal = roomEditor.zoneModal;
@@ -3558,7 +3677,6 @@ class MouseManager {
         if (this.world) {
             const tableCouple = this.world.tables.find(t => t.tablePurpose == "COUPLE");
             if (tableCouple) {
-                ;
                 $("#coupleTableSelect").val(tableCouple.tableType);
             }
         }
@@ -3567,8 +3685,8 @@ class MouseManager {
 
     initializeUi() {
         this.uids['ui1'] = document.createElement('div');
-        this.uids['ui1'].classList.add("editor-row");
-        this.uids['ui1'].classList.add("ui-row");
+        this.uids['ui1'].classList.add("editor-row", "ui-row");
+
         const mainContainer = document.createElement('div');
         mainContainer.style.display = 'flex';
         mainContainer.style.flexWrap = 'wrap';
@@ -3643,6 +3761,7 @@ class MouseManager {
         // Create the third editorRoom-input div
         const editorRoomInput3 = document.createElement('div');
         editorRoomInput3.classList.add('editorRoom-input');
+        editorRoomInput3.id = 'inputTables'
 
         const tablesLabel = document.createElement('label');
         tablesLabel.innerHTML = '<span translation-key="TABLES">Mesas</span>:';
@@ -3688,8 +3807,7 @@ class MouseManager {
         this.editorContainerElement.appendChild(this.uids['ui1']);
 
         this.uids['ui3'] = document.createElement('div');
-        this.uids['ui3'].classList.add("editor-row");
-        this.uids['ui3'].classList.add("ui-row");
+        this.uids['ui3'].classList.add("editor-row", "ui-row", 'editor-toolbar');
         this.uids['ui3'].classList.add("room-editor-row-stats");
 
         const statAdultAgeDiv = document.createElement("div");
@@ -3841,8 +3959,6 @@ class MouseManager {
 
         this.editorContainerElement.appendChild(this.uids['ui3']);
 
-
-
         $(document).ready(() => {
             this.initializeCoupleTableSelect();
         });
@@ -3875,7 +3991,7 @@ class MouseManager {
     enableUI() {
         this.uiEnable = true;
         for (let ui of Object.keys(this.uids)) {
-            if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && ui == 'ui3') {
+            if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && (ui == 'ui3')) {
                 this.uids[ui].style.display = 'none';
             } else this.uids[ui].style.display = 'flex';
         }
@@ -3888,6 +4004,11 @@ class MouseManager {
         const staffRadioInput = document.getElementById('radiotablePurposeSTAFF');
         if (staffRadioInput) {
             staffRadioInput.style.display = this.roomEditor.mode == RoomEditorMode.COUPLE ? 'none' : 'flex';
+        }
+
+        const tablesInput = document.getElementById('inputTables');
+        if (tablesInput) {
+            tablesInput.style.display = this.roomEditor.mode == RoomEditorMode.COUPLE ? 'none' : 'flex';
         }
     }
 
@@ -4100,6 +4221,71 @@ class MouseManager {
                             })
                         );
                         break;
+                    case "DISABLE":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "trash",
+                                id: "ui-context-delete",
+                                icon: "fa-trash",
+                                text: this.translationSystem.getTranslation("DISABLE"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'DISABLE')
+                                }
+                            })
+                        );
+                        break;
+                    case "ENABLE":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "enable",
+                                id: "ui-context-delete",
+                                icon: "fa-trash-arrow-up",
+                                text: this.translationSystem.getTranslation("ENABLE"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'ENABLE')
+                                }
+                            })
+                        );
+                        break;
+                    case "CHANGE_GUESTS":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "changeGuests",
+                                id: "ui-context-change-guests",
+                                icon: "fa-pencil",
+                                text: this.translationSystem.getTranslation("CHANGE_GUESTS"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'CHANGE_GUESTS')
+                                }
+                            })
+                        );
+                        break;
+                    case "INCREASE_TABLE":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "increaseTable",
+                                id: "ui-context-increase-table",
+                                icon: "fa-expand",
+                                text: this.translationSystem.getTranslation("INCREASE_TABLE"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'INCREASE_TABLE')
+                                }
+                            })
+                        );
+                        break;
+                    case "REDUCE_TABLE":
+                        elements[0].appendChild(
+                            this.contextMenuCreateElement({
+                                class: "reduceTable",
+                                id: "ui-context-reduce-table",
+                                icon: "fa-compress",
+                                text: this.translationSystem.getTranslation("REDUCE_TABLE"),
+                                onclick: (event) => {
+                                    this.contextMenuAction(event, 'REDUCE_TABLE')
+                                }
+                            })
+                        );
+                        break;
                     case "ORDER_POSITION":
                         elements[0].appendChild(
                             this.contextMenuCreateElement({
@@ -4305,7 +4491,7 @@ class MouseManager {
 
         if (this.selectedObject && this.selectedObject.tableType) {
 
-            if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && this.selectedObject.tablePurpose != "COUPLE") {
+            if ((this.roomEditor.mode == RoomEditorMode.ROOM_PLAN || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR) && this.selectedObject.tablePurpose != "COUPLE") {
                 options.push("ORDER_POSITION");
             }
 
@@ -4317,19 +4503,35 @@ class MouseManager {
                 options.push("MANAGE_GUESTS");
             }
 
-            if (this.selectedObject.tablePurpose != "COUPLE" && this.roomEditor.mode != RoomEditorMode.READ_ONLY) {
+            if (this.selectedObject && this.selectedObject.tablePurpose == "GUEST" && (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR || this.roomEditor.mode == RoomEditorMode.COUPLE)) {
+                options.push('CHANGE_GUESTS');
+                if (this.selectedObject?.tableType == 'RectangularTable') options.push('INCREASE_TABLE');
+                if (this.selectedObject?.tableType == 'RectangularLTable') options.push('REDUCE_TABLE');
+            }
+
+            if ((this.selectedObject.tablePurpose != "COUPLE" || this.selectedObject?.tablePurpose != 'STAFF') && this.roomEditor.mode == RoomEditorMode.COUPLE) {
+                if (this.selectedObject?.active) options.push("DISABLE");
+                else options.push("ENABLE");
+            }
+
+            if (this.selectedObject.tablePurpose != "COUPLE" && (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR)) {
                 options.push("ROTATE");
                 options.push("DELETE");
             }
 
         }
 
-        if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("constraintZone") == 'true') {
-            options.push("CREATE_NEW_ZONE");
-            options.push("ADD_CONSTRAINT_POINTS");
-            options.push("CLEAR_CONSTRAINT_POINTS");
+        // TODO: allow admin too?
+        if (event.target.getAttribute("constraintZone") == 'true') {
+            if ((this.roomEditor.mode == RoomEditorMode.ROOM_PLAN || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR)) {
+                options.push("CREATE_NEW_ZONE");
+            }
+            if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN) {
+                options.push("ADD_CONSTRAINT_POINTS");
+                options.push("CLEAR_CONSTRAINT_POINTS");
+            }
         }
-        if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN && event.target.getAttribute("zone") == 'true') {
+        if ((this.roomEditor.mode == RoomEditorMode.ROOM_PLAN || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR) && event.target.getAttribute("zone") == 'true') {
             this.selectedZone = this.world.roomPlan.zones.find(z => z.zoneElement === event.target);
             options.push("DELETE_ZONE");
             options.push("MNG_ZONE");
@@ -4395,7 +4597,6 @@ class MouseManager {
         }
 
         if (event.toElement.classList.contains("ui")) {
-
             if (event.toElement.dataset["tabletype"]) {
                 const table1 = new TableTypes[event.toElement.dataset["tabletype"]](this.world);
                 table1.code = this.world?.tables?.length > 0 ? this.world?.tables?.length : 1;
@@ -4409,9 +4610,8 @@ class MouseManager {
                 table1.updateSeats();
                 this.setSelectedObject(table1);
                 this.updateStats();
+                return;
             }
-
-            return;
         } else {
             const isWorldObject = this.world.tables.find(t => t.isElementOrChildElement(event.toElement));
             if (isWorldObject && isWorldObject.dragable) {
@@ -4439,15 +4639,13 @@ class MouseManager {
         const dx = event.clientX - this.lastX;
         const dy = event.clientY - this.lastY;
 
-
-        if (this.selectedObject) {
+        if (this.selectedObject && this.roomEditor.mode != RoomEditorMode.COUPLE) {
             this.selectedObject.pan(dx / this.world.scale, dy / this.world.scale);
             this.selectedObject.applyTransform();
         } else {
             this.world.pan(dx, dy);
             this.world.applyTransform();
             //document.getElementById("worldPosition").innerHTML = `X: ${this.world.x}px Y:${this.world.y} px`;
-
         }
 
         this.lastX = event.clientX;
@@ -4455,6 +4653,7 @@ class MouseManager {
     }
 
     handleMouseUp(event) {
+
         if (this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
             return;
         }
@@ -4465,6 +4664,24 @@ class MouseManager {
             // TODO CHECK IF THIS IS OK
             this.world.areTablesOverlapping();
             this.world.checkSnappingPoints();
+
+            if (this.selectedObject && this.selectedObject?.inDanger) {
+
+                // If dragged to an unouthorized zone, send to original position
+                if (this.selectedObject?.dangerType?.includes(TABLE_DANGER_TYPE.INVALID_ZONE)) {
+
+                    if (this.selectedObject?.originalPosition) {
+                        // TODO add alert
+                        this.selectedObject.x = this.selectedObject.originalPosition.x;
+                        this.selectedObject.y = this.selectedObject.originalPosition.y;
+                        this.selectedObject.applyTransform();
+                    } else {
+                        this.selectedObject.disable();
+                        return;
+                    }
+                }
+
+            }
         }
 
     }
@@ -4491,8 +4708,7 @@ class MouseManager {
 
     hideContextMenu() {
         this.contextMenuVisible = false;
-        this.contextMenuElement
-            .style.display = "none"
+        this.contextMenuElement.style.display = "none"
     }
 
     activeContextMenu(event) {
@@ -4524,11 +4740,30 @@ class MouseManager {
                 this.setSelectedObject(null);
                 this.updateStats();
                 break;
+            case "DISABLE":
+                this.selectedObject.disable();
+                this.setSelectedObject(null);
+                this.updateStats();
+                break;
+            case "ENABLE":
+                this.selectedObject.enable();
+                this.setSelectedObject(null);
+                this.updateStats();
+                break;
             case "ORDER_POSITION":
                 this.orderPositionModal.open(this.selectedObject, this.world.tables);
                 this.orderPositionModal.onAfterSave = () => {
-                    this.selectedObject.updateTableOrderValue();
+                    this.selectedObject.updateTableNumerationValue();
                 }
+                break;
+            case "CHANGE_GUESTS":
+                this.selectedObjectToChange = this.selectedObject;
+                break;
+            case "INCREASE_TABLE":
+                this.selectedObject.increaseTable();
+                break;
+            case "REDUCE_TABLE":
+                this.selectedObject.reduceTable();
                 break;
 
 
@@ -4699,17 +4934,17 @@ class RoomEditor {
         }
 
         const tablesInDanger = this.mode == RoomEditorMode.ROOM_PLAN
-            ? this.world.tables.filter(f => f?.active).filter(t => t.inDanger || t.orderPosition == null || t.orderPosition == undefined || t.orderPosition < 0 || t.orderPosition > this.world.tables?.length)
+            ? this.world.tables.filter(f => f?.active).filter(t => t.inDanger || t.number == null || t.number < 0)
             : this.world.tables.filter(f => f?.active).filter(t => t.inDanger);
 
         for (const tableInDanger of tablesInDanger) {
             if (!tableInDanger.inDanger) {
-                if (tableInDanger.orderPosition == null || tableInDanger.orderPosition == undefined) {
+                if (tableInDanger.number == null || tableInDanger.number == undefined) {
                     if (!tableInDanger.dangerType.includes(TABLE_DANGER_TYPE.MISSING_ORDER)) {
                         tableInDanger.isInDanger(TABLE_DANGER_TYPE.MISSING_ORDER);
                     }
                 }
-                if (tableInDanger.orderPosition < 0 || tableInDanger.orderPosition > this.world.tables?.length) {
+                if (tableInDanger.number < 0) {
                     if (!tableInDanger.dangerType.includes(TABLE_DANGER_TYPE.ORDER_OUT_OF_RANGE)) {
                         tableInDanger.isInDanger(TABLE_DANGER_TYPE.ORDER_OUT_OF_RANGE);
                     }
@@ -4721,7 +4956,6 @@ class RoomEditor {
                     code: tableInDanger.code,
                     number: tableInDanger.number,
                     name: tableInDanger.name,
-                    orderPosition: tableInDanger.orderPosition,
                     danger: danger,
                 })
             }
@@ -4763,8 +4997,8 @@ class RoomEditor {
         }
     }
 
-    enableTableByOrderPosition(orderPosition) {
-        const table = this.world.tables.find(t => t.orderPosition == orderPosition);
+    enableTableByNumber(number) {
+        const table = this.world.tables.find(t => t.number == number);
         if (table) {
             table.enable();
         } else {
@@ -4772,8 +5006,8 @@ class RoomEditor {
         }
     }
 
-    disableTableByOrderPosition(orderPosition) {
-        const table = this.world.tables.find(t => t.orderPosition == orderPosition);
+    disableTableByNumber(number) {
+        const table = this.world.tables.find(t => t.number == number);
         if (table) {
             table.disable();
         } else {
@@ -4808,7 +5042,6 @@ class RoomEditor {
             const roomPlan = new RoomPlan(roomPlanImg);
             this.world.setRoomPlan(roomPlan);
             roomPlan.applyTransform();
-
 
             this.mouseManager.setWorld(this.world);
         } else {
@@ -4878,6 +5111,7 @@ class RoomEditor {
                     allowedOrientation: z.allowedOrientation,
                     coupleAllowed: z.coupleAllowed,
                     staffOnly: z.staffOnly,
+                    childOnly: z.childOnly,
                     allowExpanded: z.allowExpanded,
                     zindex: z.zindex,
                 }))
@@ -4900,9 +5134,8 @@ class RoomEditor {
                 name: table.name,
                 notes: table.notes,
                 tablePurpose: table.tablePurpose,
-                orderPosition: table.orderPosition,
                 active: table.active,
-
+                removeWithOvalL: table.removeWithOvalL,
                 width: table.tableElementSizeWidth,
                 height: table.tableElementSizeHeight,
 
@@ -4957,6 +5190,7 @@ class RoomEditor {
                 z.allowedOrientation = zone.allowedOrientation;
                 z.coupleAllowed = zone.coupleAllowed;
                 z.staffOnly = zone.staffOnly;
+                z.childOnly = zone.childOnly;
                 z.allowExpanded = zone.allowExpanded;
                 z.zindex = zone.zindex || 0;
                 this.world.roomPlan.addZone(z);
@@ -4976,11 +5210,9 @@ class RoomEditor {
             object.scale = serializedObject.scale;
             object.rotate = serializedObject.rotate | 0;
             object.code = serializedObject.code;
-            object.number = serializedObject.number;
             object.tablePurpose = serializedObject.tablePurpose;
             object.name = serializedObject.name;
             object.notes = serializedObject.notes;
-            object.orderPosition = serializedObject.orderPosition;
             object.active = (serializedObject.active === true || serializedObject.active === false) ? serializedObject.active : true;
             object.value = serializedObject?.value | 1;
 
@@ -4988,13 +5220,14 @@ class RoomEditor {
             // ExpandedTable Only
             if (object.tableType == "ExpandedTable") {
                 const parentObject = new TableTypes[serializedObject.parentTableType](this.world);
+                object.parentTableType = parentObject?.tableType || null;
 
                 object.tableElementSizeWidth = parentObject.tableElementSizeWidth * serializedObject.value;
                 object.tableElementSizeHeight = parentObject.tableElementSizeHeight;
 
                 object.width = object.tableElementSizeWidth + this.world.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
                 object.height = object.tableElementSizeHeight + this.world.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-                
+
                 object.snappingPoints.find(sp => sp.side == 'right').x = object.width + TABLE_ELEMENT_OFFSET;
 
                 object.seatsTopNumber = parentObject.seatsTopNumber * serializedObject.value;
@@ -5020,19 +5253,15 @@ class RoomEditor {
                 object.updateSeats();
             }
 
-
-            if (object.active === false) {
-                object.disable();
-            } else {
-                object.enable();
-                object.applyTransform();
-            }
+            if (object.active === false) object.disable();
+            else object.enable();
+            object.applyTransform();
 
             // Add the deserialized object to the world
             this.world.addTable(object);
         });
 
-        this.world.updateTablesNumber();
+        // this.world.updateTablesNumber();
         this.world.areTablesOverlapping();
         this.mouseManager.updateStats();
 
@@ -5153,8 +5382,8 @@ class OrderPositionModal {
         // Add logic to handle saving data
         console.log("Saving data...");
         if (this.validateForm()) {
-
-            this.subjectTable.orderPosition = parseInt(this.formElements.orderPosition.value) - 1;
+            this.subjectTable.code = this.formElements.code.value - 1;
+            this.subjectTable.removeWithOvalL = this.formElements.removeWithOvalL.checked;
 
             if (this.onAfterSave) {
                 this.onAfterSave();
@@ -5166,16 +5395,16 @@ class OrderPositionModal {
 
     validateForm() {
         let isValid = false;
-        const orderPosition = this.formElements.orderPosition.value;
+        const code = this.formElements.code.value;
         document.getElementById("orderPositionInput").setCustomValidity("");
 
-        const foundOrder = parseInt(orderPosition) > 1
-            ? this.worldTables.find(f => f?.code != this.subjectTable?.code && f?.orderPosition == (parseInt(orderPosition) - 1))
+        const foundOrder = parseInt(code) > 1
+            ? this.worldTables.find(f => f?.code != this.subjectTable?.code && f?.code == (parseInt(code) - 1))
             : null;
-        if (orderPosition == '' || parseInt(orderPosition) <= 1 || foundOrder) {
+        if (code == '' || parseInt(code) <= 1 || foundOrder) {
             const errorMsg = foundOrder
                 ? 'ORDER_ASSIGNED'
-                : parseInt(orderPosition) <= 1
+                : code && parseInt(code) <= 1
                     ? "ORDER_BIGGER_THAN1"
                     : "INPUT_ERROR_REQUIRED";
             document.getElementById("orderPositionInput").setCustomValidity(this.translationSystem.getTranslation(errorMsg));
@@ -5188,18 +5417,27 @@ class OrderPositionModal {
         return isValid;
     }
 
+    numberToLetter(code) {
+        if (!Number.isInteger(code) || code < 1) {
+            return;
+        }
+
+        if (code > 104) code = 104;
+
+        // Calculate the position in the alphabet
+        let position = (code - 1) % 26;
+
+        // Calculate the number of repetitions
+        let repetitions = Math.floor((code - 1) / 26) + 1;
+
+        return String.fromCharCode(position + 65).repeat(repetitions);
+    }
+
     createModalBody(table, tables) {
         this.subjectTable = table;
         this.worldTables = tables;
         this.modalBodyElement.innerHTML = '';
         this.formElements = {};
-
-        // Create the first row with buttons
-        const row = document.createElement("div");
-        row.classList.add("editor-row");
-
-        const col1 = document.createElement("div");
-        col1.classList.add("editor-col");
 
         const formElement = document.createElement("form");
         formElement.name = "editor-order-form";
@@ -5207,6 +5445,13 @@ class OrderPositionModal {
         formElement.classList.add("editor-form");
         formElement.style.background = 'unset';
         formElement.style.border = 'unset';
+
+        // Create the first row with buttons
+        const row = document.createElement("div");
+        row.classList.add("editor-row");
+        row.style.justifyContent = 'space-between';
+
+        const divOrder = document.createElement('div');
 
         const label = document.createElement("div");
         const labelSpan = document.createElement("span");
@@ -5221,22 +5466,71 @@ class OrderPositionModal {
         input.classList.add('editor-input-number');
         input.style.marginLeft = '0px';
         input.type = "number";
+        input.min = '1';
+        input.max = '104'
         input.id = "orderPositionInput";
-        input.name = "orderPosition";
-        input.value = table?.orderPosition != null && table?.orderPosition != undefined ? (table.orderPosition + 1) : "";
+        input.name = "code";
+        input.value = table?.code ? (table?.code + 1) : "";
+        input.onchange = (e) => {
+            const val = e?.target?.value;
+            labelLetterSpan.style.opacity = val != '' ? '1' : '0';
+            labelLetterSpan.innerText = val && parseInt(val)
+                ? this.numberToLetter(parseInt(val))
+                : '';
+        }
+        input.onwheel = (e) => {
+            const val = e.target.value;
+            labelLetterSpan.style.display = val != '' ? '1' : '0';
+            labelLetterSpan.innerText = val && parseInt(val)
+                ? this.numberToLetter(parseInt(val))
+                : '';
+        }
 
-        this.formElements.orderPosition = input;
-        formElement.appendChild(label);
-        formElement.appendChild(input);
-        col1.appendChild(formElement);
+        const labelLetterSpan = document.createElement("span");
+        labelLetterSpan.classList.add('tag')
+        labelLetterSpan.style.marginLeft = '8px';
+        labelLetterSpan.style.opacity = table?.code
+            ? '1'
+            : '0';
+        labelLetterSpan.innerText = table?.code
+            ? this.numberToLetter(table?.code + 1)
+            : "";
 
-        const col2 = document.createElement("div");
-        col2.classList.add("editor-col");
+        this.formElements.code = input;
+        divOrder.appendChild(label);
+        divOrder.appendChild(input);
+        divOrder.appendChild(labelLetterSpan);
+        row.appendChild(divOrder);
 
-        row.appendChild(col1);
-        row.appendChild(col2);
+        const divOvalL = document.createElement('div');
+        divOvalL.style.display = 'flex';
+        divOvalL.style.alignItems = 'center';
+        divOvalL.style.paddingTop = '20px';
 
-        this.modalBodyElement.appendChild(row);
+        const labelOvalL = document.createElement("div");
+        const labelOvalLSpan = document.createElement("span");
+        labelOvalLSpan.setAttribute('translation-key', "REMOVE_WITH_OVAL_L");
+        labelOvalLSpan.innerText = "Eliminar com mesa do casal Oval L";
+        const labelOvalLSpanDots = document.createElement("span");
+        labelOvalLSpanDots.innerText = ":";
+        labelOvalL.appendChild(labelOvalLSpan);
+        labelOvalL.appendChild(labelOvalLSpanDots);
+
+        const inputOvalL = document.createElement("input");
+        inputOvalL.style.marginLeft = '8px';
+        inputOvalL.type = "checkbox";
+        inputOvalL.id = "removeWithOvalL";
+        inputOvalL.name = "removeWithOvalL";
+        inputOvalL.checked = table.removeWithOvalL || false;
+
+        this.formElements.removeWithOvalL = input;
+        divOvalL.appendChild(labelOvalL);
+        divOvalL.appendChild(inputOvalL);
+        row.appendChild(divOvalL);
+
+        formElement.appendChild(row);
+
+        this.modalBodyElement.appendChild(formElement);
     }
 }
 
@@ -5338,6 +5632,7 @@ class ZoneModal {
             this.subjectZone.allowedOrientation = this.formElements.allowedOrientation.select2('data')[0].id;
             this.subjectZone.coupleAllowed = this.formElements.coupleAllowed.checked;
             this.subjectZone.staffOnly = this.formElements.staffOnly.checked;
+            this.subjectZone.childOnly = this.formElements.childOnly.checked;
             this.subjectZone.allowExpanded = this.formElements.allowExpanded.checked;
             this.subjectZone.allowedTables = this.formElements.allowedTables.select2('data')?.length > 0
                 ? this.formElements.allowedTables.select2('data').map(m => m?.id)
@@ -5476,6 +5771,7 @@ class ZoneModal {
         inputCouple.checked = zone.coupleAllowed || false;
         inputCouple.onchange = (e) => {
             this.formElements.staffOnly.checked = false;
+            this.formElements.childOnly.checked = false;
             // TODO only if checked?
             $(`#allowedTablesSelect`).val(null).trigger('change');
         }
@@ -5487,7 +5783,7 @@ class ZoneModal {
         const labelStaff = document.createElement("div");
         const labelStaffSpan = document.createElement("span");
         labelStaffSpan.setAttribute('translation-key', "STAFF_ONLY");
-        labelStaffSpan.innerText = "Apenas mesas de staff";
+        labelStaffSpan.innerText = "Apenas staff";
         const labelStaffSpanDots = document.createElement("span");
         labelStaffSpanDots.innerText = ":";
         labelStaff.appendChild(labelStaffSpan);
@@ -5501,11 +5797,37 @@ class ZoneModal {
         inputStaff.checked = zone.staffOnly || false;
         inputStaff.onchange = (e) => {
             this.formElements.coupleAllowed.checked = false;
+            this.formElements.childOnly.checked = false;
+            this.formElements.allowExpanded.checked = false;
         }
 
         this.formElements.staffOnly = inputStaff;
         labelStaff.appendChild(inputStaff);
         row2.appendChild(labelStaff);
+
+        const labelChild = document.createElement("div");
+        const labelChildSpan = document.createElement("span");
+        labelChildSpan.setAttribute('translation-key', "CHILD_ONLY");
+        labelChildSpan.innerText = "Apenas crianças";
+        const labelChildSpanDots = document.createElement("span");
+        labelChildSpanDots.innerText = ":";
+        labelChild.appendChild(labelChildSpan);
+        labelChild.appendChild(labelChildSpanDots);
+
+        const inputChild = document.createElement("input");
+        inputChild.style.marginLeft = '8px';
+        inputChild.type = "checkbox";
+        inputChild.id = "childOnly";
+        inputChild.name = "childOnly";
+        inputChild.checked = zone.childOnly || false;
+        inputChild.onchange = (e) => {
+            this.formElements.coupleAllowed.checked = false;
+            this.formElements.staffOnly.checked = false;
+        }
+
+        this.formElements.childOnly = inputChild;
+        labelChild.appendChild(inputChild);
+        row2.appendChild(labelChild);
 
         const labelUnion = document.createElement("div");
         const labelUnionSpan = document.createElement("span");
