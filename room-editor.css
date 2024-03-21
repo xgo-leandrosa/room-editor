@@ -35,6 +35,36 @@
     border: 1px dashed rgba(255, 0, 0, 0.48);
 }
 
+.tableStaff {
+    background-color: #95B1B0;
+}
+
+.tableStaff > div {
+    display: none;
+}
+
+.table:not(.tableStaff) > .tableNumeration {
+    display: none;
+}
+
+.tableStaff > .tableNumeration {
+    display: block;
+    margin-top: calc(50% - 30px);
+    color: white;
+}
+
+.table.tableStaff.tableSelected {
+    outline: 5px solid yellow;
+}
+
+.table.tableStaff.tableDanger {
+    outline: 5px dashed rgba(255, 0, 0, 1);
+}
+
+.table.tableStaff.tableSelected.tableDanger {
+    outline: 5px dashed rgba(255, 0, 0, 1);
+}
+
 .table-draw {
     position: absolute;
     background-color: #D6D6D6;

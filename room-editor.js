@@ -1105,10 +1105,10 @@ const SNAPPING_POINT_FINAL_SCALE = 2;
 const DEBUG_POINTS = false;
 class World extends RoomObject {
     roomPlan;
-    mode;
     staff = 0;
+    guestsBy = 'SEAT';
 
-    constructor(editorContainer) {
+    constructor(roomEditor) {
         super();
         this.x = 0;
         this.y = 0;
@@ -1122,7 +1122,8 @@ class World extends RoomObject {
         this.element.classList.add('world');
         //this.element.style.width=this.worldSize + 'px';
         //this.element.style.height=this.worldSize + 'px';
-        editorContainer.appendChild(this.element)
+        this.roomEditor = roomEditor;
+        this.roomEditor.editorContainerElement.appendChild(this.element)
     }
 
 
@@ -1157,11 +1158,24 @@ class World extends RoomObject {
         table.addToContainer();
         this.tables.push(table);
         this.updateTablesNumber();
+        this.checkworldWithCoupleOvalL(table, false);
     }
 
     removeTable(table) {
         table.removeOfContainer();
         this.tables = this.tables.filter(t => t !== table);
+        this.checkworldWithCoupleOvalL(table, true);
+    }
+    
+    checkworldWithCoupleOvalL(table, removed = false)  {
+        const tablesOvalL = ['CoupleOvalLTable','CoupleOvalLFullTable']
+        if(tablesOvalL.includes(table.tableType)) {
+            const tablesToRemove = this.tables.filter(t => t.removeWithOvalL);
+            
+            for(let table of tablesToRemove) {
+                table.worldWithOvalLTable(!removed);
+            }
+        }
     }
 
     removeTables() {
@@ -1279,7 +1293,7 @@ class World extends RoomObject {
             }
         }
 
-        if (this.mode !== RoomEditorMode.ADMINISTRATOR) {
+        if (this.roomEditor.mode !== RoomEditorMode.ADMINISTRATOR) {
             for (const zone of this.roomPlan.zones) {
                 zone.validateTables();
             }
@@ -1300,7 +1314,7 @@ class World extends RoomObject {
     }
 
     checkTablesInConstraintZone() {
-        const filteredTables = this.tables.filter(t => t.active == true);
+        const filteredTables = this.tables.filter(t => t.isActive());
         for (let i = 0; i < filteredTables.length; i++) {
             filteredTables[i].isSafe(TABLE_DANGER_TYPE.OUT_CONSTRAINT_ZONE);
         }
@@ -1344,7 +1358,7 @@ class World extends RoomObject {
 
     areTablesOverlapping() {
         // Helper function to calculate the intersection area of two rectangles
-        const filteredTables = this.tables.filter(t => t.active == true);
+        const filteredTables = this.tables.filter(t => t.isActive());
 
         for (let i = 0; i < filteredTables.length; i++) {
             filteredTables[i].isSafe(TABLE_DANGER_TYPE.OVERLAPPING);
@@ -1375,7 +1389,7 @@ class World extends RoomObject {
     }
 
     updateTablesNumber() {
-        const filteredTables = this.tables.filter(t => t.active == true);
+        const filteredTables = this.tables.filter(t => t.isActive());
         for (let i = 0; i < filteredTables.length; i++) {
             filteredTables[i].number = i;
             filteredTables[i].updateTableNumerationValue();
@@ -1406,7 +1420,7 @@ class World extends RoomObject {
 
     checkSnappingPoints() {
 
-        const filteredTables = this.tables.filter(t => t.active == true && t.snappingPointsActive);
+        const filteredTables = this.tables.filter(t => t.isActive() && t.snappingPointsActive);
 
         for (let table of filteredTables) {
             for (let sp of table.snappingPoints) {
@@ -1577,6 +1591,46 @@ class World extends RoomObject {
         for (const table of this.tables) {
             table.hideDangers()
         }
+    }
+
+
+    checkExtraCost(totalTables, avgPaxTable) {
+        const cloupleTableSeatsNumber = this.tables.find(t => t.couple == true)?.seats.filter(s => s.guestName?.trim() != '').length;
+        if(totalTables > 14 && (
+            (cloupleTableSeatsNumber > 8 &&  avgPaxTable < 9.5) ||
+            (cloupleTableSeatsNumber <= 8  && avgPaxTable < 9.8 ) 
+        )) {
+
+            if(!this.roomPlan.extraCost) {
+                this.roomPlan.extraCost = true;
+                this.roomPlan.emitExtraCostEvent();
+            }
+        } else {
+            if(this.roomPlan.extraCost) {
+                this.roomPlan.extraCost = false;
+                this.roomPlan.emitExtraCostEvent();
+            }
+        }
+    }
+
+    setGuestsBy(guestsBy) {
+        // TODO CHANGED
+        this.guestsBy = guestsBy;
+
+        if(this.guestsBy == 'TABLE') {
+            for(const table of this.tables) {
+                table.enableTooltip();
+                table.disableSeatsTooltip();
+                table.updateSeats();
+            }
+        } else {
+            for(const table of this.tables) {
+                table.disableTooltip();
+                table.enableSeatsTooltip();
+                table.updateSeats();
+            }
+        }
+
     }
 }
 
@@ -1783,6 +1837,8 @@ class RoomPlan extends RoomObject {
     imageLoaded = false;
     afterLoadImageFunctions = [];
 
+    extraCost = false;
+    extraCostChangedFunc;
 
     zones = []
 
@@ -1894,6 +1950,12 @@ class RoomPlan extends RoomObject {
             zone.show();
         }
     }
+
+    emitExtraCostEvent() {
+        if(this.extraCostChangedFunc) {
+            this.extraCostChangedFunc(this.extraCost);
+        }
+    }
 }
 
 const TABLE_ELEMENT_OFFSET = 35;
@@ -1914,6 +1976,7 @@ class Table extends RoomObject {
     notes = "";
     active = true;
     removeWithOvalL = false;
+    removeBecauseOfOvalL = false;
 
     originalPosition = null;
 
@@ -1999,6 +2062,9 @@ class Table extends RoomObject {
         this.addSeatsTooltips();
         this.updateSeatsNumerations();
         this.addTableNumeration();
+
+        this.addTooltipGuest();
+        this.disableTooltip();
     }
 
     enable() {
@@ -2009,6 +2075,73 @@ class Table extends RoomObject {
     disable() {
         this.element.style.opacity = 0.3;
         this.active = false;
+    }
+
+    isActive() {
+        return this.active == true && this.removeBecauseOfOvalL == false;
+    }
+
+    worldWithOvalLTable(withOvalLTable = false) {
+        if(withOvalLTable) {
+            this.removeBecauseOfOvalL = true;
+            this.element.style.display = 'none';
+        } else {
+            this.removeBecauseOfOvalL = false;
+            this.element.style.display = 'block';
+        }
+    }
+
+
+    enableTooltip() {
+        this.tippyInstance.enable();
+    }
+    disableTooltip() {
+        this.tippyInstance.disable();
+    }
+
+    addTooltipGuest() {
+        this.tooltipElementGuest = document.createElement("div");
+        this.updateTooltipGuest();
+        this.tippyInstance = tippy(this.tableElement, {
+            theme: 'light',
+            content: this.tooltipElementGuest
+        });
+    }
+
+    updateTooltipGuest() {
+        this.tooltipElementGuest.innerHTML = '';
+
+        for(let seat of this.seats.filter(s => s.guestName)) {
+
+            const tooltipElementRow1 = document.createElement("div");
+            tooltipElementRow1.classList.add("editor-row");
+    
+            const tooltipElementRow1Icon = document.createElement("div");
+            const tooltipElementRow1Content = document.createElement("div");
+            tooltipElementRow1.appendChild(tooltipElementRow1Icon)
+    
+            const miniSeat = document.createElement("div");
+            miniSeat.classList.add("miniSeat", "seat--rem");
+            miniSeat.innerHTML = seat.number + 1;
+            tooltipElementRow1Icon.appendChild(miniSeat);
+    
+            tooltipElementRow1.appendChild(tooltipElementRow1Content)
+    
+            tooltipElementRow1Content.innerHTML = seat.guestName || new TranslationSystem().getTranslation("NO_GUESTS");
+    
+            const tooltipElementRow2Icon = document.createElement("div");
+            tooltipElementRow2Icon.classList.add("table_ui");
+            tooltipElementRow2Icon.classList.add("cake-icon");
+    
+            const tooltipElementRow2Content = document.createElement("div");
+            tooltipElementRow1.appendChild(tooltipElementRow2Icon)
+            tooltipElementRow1.appendChild(tooltipElementRow2Content)
+    
+            tooltipElementRow2Content.innerHTML = seat.guestAgeTranslation();
+    
+
+            this.tooltipElementGuest.appendChild(tooltipElementRow1);
+        }
     }
 
     getGuestName(name) {
@@ -2128,6 +2261,9 @@ class Table extends RoomObject {
             seat.updateStatus();
             seat.updateToolTip();
         }
+
+        this.updateTooltipGuest();
+        this.updateBackground();
     }
 
     addSeatsTooltips() {
@@ -2142,18 +2278,59 @@ class Table extends RoomObject {
         }
     }
 
+    disableSeatsTooltip() {
+        for (let seat of this.seats) {
+            seat.disableTooltip();
+        }
+    }
+    enableSeatsTooltip() {
+        for (let seat of this.seats) {
+            seat.enableTooltip();
+        }
+    }
+
     addTableElement() {
+    }
+
+    updateBackground() {
+        
+        let GUEST_TABLE_COLOR = '#d1cece';
+        let COUPLE_TABLE_COLOR = '#D1BB80';
+        let STAFF_TABLE_COLOR = '#95B1B0';
+        let CHILD_TABLE_COLOR = '#AEE4F5';
+
+        if(this.world) {
+            if(this.world.guestsBy == 'TABLE' && this.seats.filter(s => s.guestName).length == this.seats.length) {
+                // IF ALL SEATS FILL THEN CHANGE COLOR
+                GUEST_TABLE_COLOR = '#b6d7a8';
+                CHILD_TABLE_COLOR = "linear-gradient(180deg, rgba(174,228,245,1) 48%, rgba(182,215,168,1) 100%)";
+            }
+        }
+
+        let backgroundColor = GUEST_TABLE_COLOR;
+        switch(this.tablePurpose) {
+            case 'COUPLE':
+                backgroundColor = COUPLE_TABLE_COLOR;
+                this.element.classList.remove('tableStaff');
+                break;
+            case 'STAFF':
+                backgroundColor = STAFF_TABLE_COLOR;
+                this.element.classList.add('tableStaff');
+                break;
+            case 'CHILD':
+                backgroundColor = CHILD_TABLE_COLOR;
+                this.element.classList.remove('tableStaff');
+                break;
+            default:
+                backgroundColor = GUEST_TABLE_COLOR;
+                this.element.classList.remove('tableStaff');
+        }
+        this.tableElement.style.background = backgroundColor;
     }
 
     updateTablePurpose(tablePurpose) {
         this.tablePurpose = tablePurpose;
-        this.tableElement.style.backgroundColor = this.tablePurpose == 'COUPLE'
-            ? '#D1BB80'
-            : this.tablePurpose == 'STAFF'
-                ? '#95B1B0'
-                : this.tablePurpose == 'CHILD'
-                    ? '#AEE4F5'
-                    : '#d1cece';
+        this.updateBackground();
     }
 
     addTableNumeration() {
@@ -2175,6 +2352,8 @@ class Table extends RoomObject {
         // this.tableElementNumeration.appendChild(this.spanTableCircularOrder);
 
         this.tableElement.appendChild(this.tableElementNumeration);
+
+        this.element.appendChild(this.tableElementNumeration);
     }
 
     updateTableNumerationValue() {
@@ -3434,11 +3613,17 @@ class Seat extends RoomObject {
         } else {
             this.element.classList.remove('seat--couple');
 
-            if (this.guestName) {
-                this.setFilled();
-            } else {
+            //IF HIDE GUESTS
+            if(this.table.world && this.table?.world?.guestsBy == 'TABLE') {
                 this.setREM();
+            } else {
+                if (this.guestName) {
+                    this.setFilled();
+                } else {
+                    this.setREM();
+                }
             }
+
         }
 
     }
@@ -3500,6 +3685,14 @@ class Seat extends RoomObject {
             theme: 'light',
             content: this.tooltipElement
         });
+    }
+
+    disableTooltip() {
+        this.tippyInstance.disable();
+    }
+
+    enableTooltip() {
+        this.tippyInstance.enable();
     }
 
     guestAgeTranslation() {
@@ -3579,6 +3772,9 @@ class MouseManager {
     uids = {};
     statsElements = {};
     uiEnable = true;
+
+    secundarySelectedObject = null;
+    changingGuestsTable = false;
 
     constructor(world, roomEditor) {
         this.roomEditor = roomEditor;
@@ -3965,17 +4161,18 @@ class MouseManager {
     }
 
     updateStats() {
-        const allGuests = this.world.tables.filter(t => t.active == true).map(t => t.seats).flat().filter(s => s.guestName?.trim() != '');
+        const allGuests = this.world.tables.filter(t => t.isActive()).map(t => t.seats).flat().filter(s => s.guestName?.trim() != '');
         const staff = this.world?.staff || 0;
 
         const ADULT_AGE = allGuests.filter(s => s.guestAge == 'ADULT').length;
         const FROM_CHILD_AGE = allGuests.filter(s => s.guestAge == 'CHILD').length;
         const FROM_NEWBORN_CHILD_AGE = allGuests.filter(s => s.guestAge == 'BABY' || s.guestAge == 'NEWBORN').length;
-        const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.active == true).length;
+        const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.isActive()).length;
         const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE / 2) + (staff / 2);
 
         const totalSeats = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE + staff;
         const AVG_PAX_TABLES = (totalSeats / ROOM_PLAN_TOTAL_TABLES);
+        
         this.statsElements['STAFF'].innerText = staff || 0;
         this.statsElements['ADULT_AGE'].innerText = ADULT_AGE;
         this.statsElements['FROM_CHILD_AGE'].innerText = FROM_CHILD_AGE;
@@ -3986,6 +4183,8 @@ class MouseManager {
             this.statsElements['AVG_PAX_TABLES'].classList.add('editor-stats-danger');
         } else this.statsElements['AVG_PAX_TABLES'].classList.remove('editor-stats-danger');
         this.statsElements['ROOM_PLAN_TOTAL_PAX'].innerText = ROOM_PLAN_TOTAL_PAX?.toFixed(2) || 0;
+
+        this.world.checkExtraCost(ROOM_PLAN_TOTAL_TABLES,AVG_PAX_TABLES);
     }
 
     enableUI() {
@@ -4106,18 +4305,26 @@ class MouseManager {
 
         const newTableCouple = new TableTypes[tableType](this.world);
 
-        const pos = this.getWorldPositionCenterScreen();
         if (!tableCouple) {
+            const pos = this.getWorldPositionCenterScreen();
             newTableCouple.code = 0;
             newTableCouple.x = pos.x;
             newTableCouple.y = pos.y;
 
         } else {
             newTableCouple.code = 0;
-            newTableCouple.x = tableCouple.x;
-            newTableCouple.y = tableCouple.y;
+            
+           newTableCouple.x = (tableCouple.x + tableCouple.halfWidth) - newTableCouple.halfWidth;
+           newTableCouple.y = (tableCouple.y + tableCouple.halfHeight) - newTableCouple.halfHeight;
+           const diff_old_center_x = (tableCouple.x + tableCouple.halfWidth) - (newTableCouple.x + tableCouple.halfWidth);
+           const diff_old_center_y = (tableCouple.y + tableCouple.halfHeight) - (newTableCouple.y + tableCouple.halfHeight);
+           newTableCouple.x -= diff_old_center_x;
+           newTableCouple.y -= diff_old_center_y;
+        
             newTableCouple.rotate = tableCouple.rotate;
 
+
+            
             this.world.removeTable(tableCouple);
         }
 
@@ -4509,9 +4716,12 @@ class MouseManager {
                 if (this.selectedObject?.tableType == 'RectangularLTable') options.push('REDUCE_TABLE');
             }
 
-            if ((this.selectedObject.tablePurpose != "COUPLE" || this.selectedObject?.tablePurpose != 'STAFF') && this.roomEditor.mode == RoomEditorMode.COUPLE) {
-                if (this.selectedObject?.active) options.push("DISABLE");
-                else options.push("ENABLE");
+            if ((this.selectedObject.tablePurpose != "COUPLE" || this.selectedObject?.tablePurpose != 'STAFF') && (this.roomEditor.mode == RoomEditorMode.COUPLE || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR)) {
+                if (this.selectedObject?.active) {
+                    options.push("DISABLE");
+                } else {
+                    options.push("ENABLE");
+                }
             }
 
             if (this.selectedObject.tablePurpose != "COUPLE" && (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR)) {
@@ -4565,7 +4775,8 @@ class MouseManager {
         //     return;
         // }
 
-        if (event.button === 0) {
+        
+        if (event.button === 0 && this.roomEditor.mode != RoomEditorMode.COUPLE) {
             this.dragging = true;
             this.lastX = event.clientX;
             this.lastY = event.clientY;
@@ -4610,10 +4821,23 @@ class MouseManager {
                 table1.updateSeats();
                 this.setSelectedObject(table1);
                 this.updateStats();
+                event.preventDefault();
                 return;
             }
         } else {
             const isWorldObject = this.world.tables.find(t => t.isElementOrChildElement(event.toElement));
+
+
+            if(this.changingGuestsTable) {
+                this.changingGuestsTable = false;
+                this.setSelectedObject(null);
+                if (isWorldObject && isWorldObject.dragable) {
+                    debugger;
+                }
+                event.preventDefault();
+                return;
+            }
+
             if (isWorldObject && isWorldObject.dragable) {
                 this.setSelectedObject(isWorldObject);
             } else {
@@ -4639,7 +4863,7 @@ class MouseManager {
         const dx = event.clientX - this.lastX;
         const dy = event.clientY - this.lastY;
 
-        if (this.selectedObject && this.roomEditor.mode != RoomEditorMode.COUPLE) {
+        if (this.selectedObject) {
             this.selectedObject.pan(dx / this.world.scale, dy / this.world.scale);
             this.selectedObject.applyTransform();
         } else {
@@ -4757,7 +4981,8 @@ class MouseManager {
                 }
                 break;
             case "CHANGE_GUESTS":
-                this.selectedObjectToChange = this.selectedObject;
+                this.secundarySelectedObject = null;
+                this.changingGuestsTable = true;
                 break;
             case "INCREASE_TABLE":
                 this.selectedObject.increaseTable();
@@ -4934,8 +5159,8 @@ class RoomEditor {
         }
 
         const tablesInDanger = this.mode == RoomEditorMode.ROOM_PLAN
-            ? this.world.tables.filter(f => f?.active).filter(t => t.inDanger || t.number == null || t.number < 0)
-            : this.world.tables.filter(f => f?.active).filter(t => t.inDanger);
+            ? this.world.tables.filter(f => f?.isActive()).filter(t => t.inDanger || t.number == null || t.number < 0)
+            : this.world.tables.filter(f => f?.isActive()).filter(t => t.inDanger);
 
         for (const tableInDanger of tablesInDanger) {
             if (!tableInDanger.inDanger) {
@@ -4973,6 +5198,13 @@ class RoomEditor {
         console.warn("function deprecated use the setMode function instead");
     }
 
+    setGuestsMode(mode) { // TABLE or SEAT
+        if(!["TABLE", "SEAT"].includes(mode)) {
+            throw new Error("Guest mode no available only 'TABLE' or 'SEAT' options");
+        }
+
+        this.world.setGuestsBy(mode);
+    }
     setMode(mode) {
         if (!RoomEditorMode[mode]) {
             throw new Error("Invalid Editor Mode");
@@ -5033,10 +5265,18 @@ class RoomEditor {
         }
     }
 
+    extraCostValue() {
+        return this.world.roomPlan.extraCost;
+    }
+
+    onExtraCostchanged(funcOnExtraCostChanged) {
+        this.world.roomPlan.extraCostChangedFunc = funcOnExtraCostChanged;
+    }
+
 
     setRoomPlan(roomPlanImg, constraintPoints = []) {
         if (!this.world) {
-            this.world = new World(this.editorContainerElement);
+            this.world = new World(this);
             this.world.applyTransform();
 
             const roomPlan = new RoomPlan(roomPlanImg);
@@ -5114,7 +5354,8 @@ class RoomEditor {
                     childOnly: z.childOnly,
                     allowExpanded: z.allowExpanded,
                     zindex: z.zindex,
-                }))
+                })),
+                //extraCost: this.world.roomPlan.extraCost,
             },
             tables: [],
         };
@@ -5135,7 +5376,10 @@ class RoomEditor {
                 notes: table.notes,
                 tablePurpose: table.tablePurpose,
                 active: table.active,
+
                 removeWithOvalL: table.removeWithOvalL,
+                removeBecauseOfOvalL: table.removeBecauseOfOvalL,
+
                 width: table.tableElementSizeWidth,
                 height: table.tableElementSizeHeight,
 
@@ -5168,7 +5412,6 @@ class RoomEditor {
         this.world.y = serializedData.roomPlan.y;
         this.world.scale = serializedData.roomPlan.scale;
         this.world.staff = serializedData?.roomPlan?.staff || 0;
-        this.world.mode = this.mode;
         this.world.applyTransform();
 
 
@@ -5179,6 +5422,8 @@ class RoomEditor {
 
             this.world.roomPlan.constraintZone.updateZonePoligonElement();
         }
+
+        //this.world.roomPlan.extraCost = serializedData.roomPlan.extraCost || false;
 
         this.world.roomPlan.deleteZones();
         if (serializedData.roomPlan.zones) {
@@ -5214,6 +5459,10 @@ class RoomEditor {
             object.name = serializedObject.name;
             object.notes = serializedObject.notes;
             object.active = (serializedObject.active === true || serializedObject.active === false) ? serializedObject.active : true;
+
+            object.removeWithOvalL = serializedObject.removeWithOvalL || false;
+            object.removeBecauseOfOvalL = serializedObject.removeBecauseOfOvalL || false;
+
             object.value = serializedObject?.value | 1;
 
 
@@ -5253,8 +5502,16 @@ class RoomEditor {
                 object.updateSeats();
             }
 
-            if (object.active === false) object.disable();
-            else object.enable();
+            if (object.active === false)  {
+                object.disable();
+            } else {
+                object.enable();
+            } 
+
+            if(object.removeBecauseOfOvalL) {
+                object.worldWithOvalLTable(object.removeBecauseOfOvalL);
+            }
+
             object.applyTransform();
 
             // Add the deserialized object to the world
@@ -5523,7 +5780,7 @@ class OrderPositionModal {
         inputOvalL.name = "removeWithOvalL";
         inputOvalL.checked = table.removeWithOvalL || false;
 
-        this.formElements.removeWithOvalL = input;
+        this.formElements.removeWithOvalL = inputOvalL;
         divOvalL.appendChild(labelOvalL);
         divOvalL.appendChild(inputOvalL);
         row.appendChild(divOvalL);
