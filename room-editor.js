@@ -2388,7 +2388,7 @@ class Table extends RoomObject {
         // this.updateTableOrderValue();
         // this.tableElementNumeration.appendChild(this.spanTableCircularOrder);
 
-        this.tableElement.appendChild(document.cloneNode(this.tableElementNumeration));
+        this.tableElement.appendChild(this.tableElementNumeration.cloneNode(true));
 
         this.element.appendChild(this.tableElementNumeration);
     }
