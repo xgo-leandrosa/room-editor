@@ -1105,7 +1105,6 @@ const SNAPPING_POINT_FINAL_SCALE = 2;
 const DEBUG_POINTS = false;
 class World extends RoomObject {
     roomPlan;
-    staff = 0;
     guestsBy = 'SEAT';
 
     horizontalCenterOfRoom = null;
@@ -4073,6 +4072,7 @@ class MouseManager {
         statAdultAgeDiv.appendChild(statAdultAgeSpan1);
         statAdultAgeDiv.appendChild(statAdultAgeSpan2);
         this.uids['ui3'].appendChild(statAdultAgeDiv);
+
         const statFromChildAgeDiv = document.createElement("div");
         statFromChildAgeDiv.classList.add("room-editor-stats");
         const statFromChildAgeSpan1 = document.createElement("span");
@@ -4090,6 +4090,7 @@ class MouseManager {
         statFromChildAgeDiv.appendChild(statFromChildAgeSpan1);
         statFromChildAgeDiv.appendChild(statFromChildAgeSpan2);
         this.uids['ui3'].appendChild(statFromChildAgeDiv);
+
         const statFromNewbornAgeDiv = document.createElement("div");
         statFromNewbornAgeDiv.classList.add("room-editor-stats");
         const statFromNewbornAgeSpan1 = document.createElement("span");
@@ -4107,6 +4108,7 @@ class MouseManager {
         statFromNewbornAgeDiv.appendChild(statFromNewbornAgeSpan1);
         statFromNewbornAgeDiv.appendChild(statFromNewbornAgeSpan2);
         this.uids['ui3'].appendChild(statFromNewbornAgeDiv);
+
         const statStaffDiv = document.createElement("div");
         statStaffDiv.classList.add("room-editor-stats");
         const statStaffSpan1 = document.createElement("span");
@@ -4124,6 +4126,7 @@ class MouseManager {
         statStaffDiv.appendChild(statStaffSpan1);
         statStaffDiv.appendChild(statStaffSpan2);
         this.uids['ui3'].appendChild(statStaffDiv);
+
         const statTotalTablesDiv = document.createElement("div");
         statTotalTablesDiv.classList.add("room-editor-stats");
         const statTotalTablesSpan1 = document.createElement("span");
@@ -4141,6 +4144,7 @@ class MouseManager {
         statTotalTablesDiv.appendChild(statTotalTablesSpan1);
         statTotalTablesDiv.appendChild(statTotalTablesSpan2);
         this.uids['ui3'].appendChild(statTotalTablesDiv);
+
         const statAvgPaxTablesDiv = document.createElement("div");
         statAvgPaxTablesDiv.classList.add("room-editor-stats");
         const statAvgPaxTablesSpan1 = document.createElement("span");
@@ -4158,6 +4162,7 @@ class MouseManager {
         statAvgPaxTablesDiv.appendChild(statAvgPaxTablesSpan1);
         statAvgPaxTablesDiv.appendChild(statAvgPaxTablesSpan2);
         this.uids['ui3'].appendChild(statAvgPaxTablesDiv);
+
         const statTotalPaxDiv = document.createElement("div");
         statTotalPaxDiv.classList.add("room-editor-stats");
         const statTotalPaxSpan1 = document.createElement("span");
@@ -4175,6 +4180,24 @@ class MouseManager {
         statTotalPaxDiv.appendChild(statTotalPaxSpan1);
         statTotalPaxDiv.appendChild(statTotalPaxSpan2);
         this.uids['ui3'].appendChild(statTotalPaxDiv);
+
+        const statTotalGuestDiv = document.createElement("div");
+        statTotalGuestDiv.classList.add("room-editor-stats");
+        const statTotalGuestSpan1 = document.createElement("span");
+        statTotalGuestSpan1.classList.add('stats-label');
+        const statTotalGuestSpan11 = document.createElement("span");
+        const statTotalGuestSpan12 = document.createElement("span");
+        statTotalGuestSpan11.setAttribute('translation-key', 'TOTAL_SEATS');
+        statTotalGuestSpan12.innerText = ":";
+        statTotalGuestSpan1.appendChild(statTotalGuestSpan11);
+        statTotalGuestSpan1.appendChild(statTotalGuestSpan12);
+        const statTotalGuestSpan2 = document.createElement("span");
+        statTotalGuestSpan2.classList.add("room-editor-stat-value");
+        statTotalGuestSpan2.innerText = "0";
+        this.statsElements['TOTAL_SEATS'] = statTotalGuestSpan2;
+        statTotalGuestDiv.appendChild(statTotalGuestSpan1);
+        statTotalGuestDiv.appendChild(statTotalGuestSpan2);
+        this.uids['ui3'].appendChild(statTotalGuestDiv);
 
         /*this.uids['ui3'].innerHTML = `
             <div class="room-editor-stats">
@@ -4211,19 +4234,19 @@ class MouseManager {
     }
 
     updateStats() {
-        const allGuests = this.world.tables.filter(t => t.isActive()).map(t => t.seats).flat().filter(s => s.guestName?.trim() != '');
-        const staff = this.world?.staff || 0;
+        const allGuests = this.world.tables.filter(t => t.isActive() && t.tablePurpose != 'STAFF').map(t => t.seats).flat().filter(s => s.guestName?.trim() != '');
+        const allGuestsStaff = this.world.tables.filter(t => t.isActive() && t.tablePurpose == 'STAFF').map(t => t.seats).flat().filter(s => s.guestName?.trim() != '');
 
         const ADULT_AGE = allGuests.filter(s => s.guestAge == 'ADULT').length;
         const FROM_CHILD_AGE = allGuests.filter(s => s.guestAge == 'CHILD').length;
         const FROM_NEWBORN_CHILD_AGE = allGuests.filter(s => s.guestAge == 'BABY' || s.guestAge == 'NEWBORN').length;
         const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.isActive()).length;
-        const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE / 2) + (staff / 2);
+        const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE / 2) + (allGuestsStaff.length / 2);
 
-        const totalSeats = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE + staff;
-        const AVG_PAX_TABLES = (totalSeats / ROOM_PLAN_TOTAL_TABLES);
+        const TOTAL_SEATS = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE;
+        const AVG_PAX_TABLES = (TOTAL_SEATS / ROOM_PLAN_TOTAL_TABLES);
         
-        this.statsElements['STAFF'].innerText = staff || 0;
+        this.statsElements['STAFF'].innerText = allGuestsStaff.length;
         this.statsElements['ADULT_AGE'].innerText = ADULT_AGE;
         this.statsElements['FROM_CHILD_AGE'].innerText = FROM_CHILD_AGE;
         this.statsElements['FROM_NEWBORN_CHILD_AGE'].innerText = FROM_NEWBORN_CHILD_AGE;
@@ -4233,6 +4256,7 @@ class MouseManager {
             this.statsElements['AVG_PAX_TABLES'].classList.add('editor-stats-danger');
         } else this.statsElements['AVG_PAX_TABLES'].classList.remove('editor-stats-danger');
         this.statsElements['ROOM_PLAN_TOTAL_PAX'].innerText = ROOM_PLAN_TOTAL_PAX?.toFixed(2) || 0;
+        this.statsElements['TOTAL_SEATS'].innerText = TOTAL_SEATS || 0;
 
         this.world.checkExtraCost(ROOM_PLAN_TOTAL_TABLES,AVG_PAX_TABLES);
     }
