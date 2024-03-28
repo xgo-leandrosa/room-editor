@@ -5603,6 +5603,23 @@ class RoomEditor {
                 object.init();
             }
 
+
+
+            if(object.tablePurpose == 'STAFF' && object.seats.length != serializedObject.seats.length) {
+                object.seatsPositions = [];
+                for (const objSeat of serializedObject.seats) {        
+                    object.seatsPositions.push(
+                        {
+                            number: objSeat.number,
+                            x: 0,
+                            y: 0,
+                            rotate: 0,
+                        }
+                    );
+                }
+                object.updateSeats();
+            }
+
             for (const objSeat of serializedObject.seats) {
                 object.seats[objSeat.number].guestName = objSeat.guestName;
                 object.seats[objSeat.number].guestAge = objSeat.guestAge;
