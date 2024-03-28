@@ -1665,6 +1665,10 @@ class World extends RoomObject {
             }
         }
     }
+
+    destroy() {
+
+    }
 }
 
 class Zone {
@@ -3842,6 +3846,10 @@ class MouseManager {
 
     }
 
+    destroy() {
+        this.contextMenuElement.parentElement.removeChild(this.contextMenuElement)
+    }
+
 
     setBindings() {
         this.editorContainerElement.addEventListener('mousedown', this.handleMouseDown.bind(this));
@@ -5252,6 +5260,10 @@ class RoomEditor {
 
 
         this.mouseManager = new MouseManager(this.world, this);
+
+        $("#myDiv").on("remove", function () {
+            this.destroy();
+        })
     }
 
     valid() {
@@ -5682,6 +5694,14 @@ class RoomEditor {
     setTranslations(data) {
         this.translationSystem.setData(data);
     }
+
+    destroy() {
+        this.world.destroy();
+        this.mouseManager.destroy();
+        this.guestsModal.destroy();
+        this.zoneModal.destroy();
+        this.orderPositionModal.destroy();
+    }
 }
 
 class OrderPositionModal {
@@ -5754,6 +5774,10 @@ class OrderPositionModal {
         editorModalElement.appendChild(modalFooterElement);
 
         document.body.appendChild(this.modalElement);
+    }
+
+    destroy() {
+        this.modalElement.parentElement.removeChild(this.modalElement);
     }
 
     open(table, tables) {
@@ -5999,6 +6023,10 @@ class ZoneModal {
         editorModalElement.appendChild(modalFooterElement);
 
         document.body.appendChild(this.modalElement);
+    }
+
+    destroy() {
+        this.modalElement.parentElement.removeChild(this.modalElement);
     }
 
     open(zone) {
@@ -6403,6 +6431,10 @@ class ManageGuestsModal {
         editorModalElement.appendChild(modalFooterElement);
 
         document.body.appendChild(this.modalElement);
+    }
+
+    destroy() {
+        this.modalElement.parentElement.removeChild(this.modalElement);
     }
 
     changeBtnGroup = () => {
