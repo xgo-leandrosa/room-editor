@@ -4722,9 +4722,20 @@ class MouseManager {
         if (this.selectedObject) {
             if (this.selectedObject.tablePurpose != "COUPLE") {
                 // this.selectedObject.tablePurpose = type;
+
+                if(type == 'STAFF') {
+                    const existStaffTable = this.roomEditor.world.tables.find(t => t.tablePurpose == 'STAFF');
+                    if(existStaffTable.length > 0) {
+                        this.setTablePurposeInput(this.selectedObject.tablePurpose);
+                        return;
+                    }
+                }
+                
                 this.selectedObject.updateTablePurpose(type);
                 this.roomEditor.world.checkTablesZonesRules();
+                this.updateStats();
             }
+            
         }
     }
 
