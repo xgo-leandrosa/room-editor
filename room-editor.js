@@ -4145,6 +4145,25 @@ class MouseManager {
         statTotalTablesDiv.appendChild(statTotalTablesSpan2);
         this.uids['ui3'].appendChild(statTotalTablesDiv);
 
+        const statTotalGuestDiv = document.createElement("div");
+        statTotalGuestDiv.classList.add("room-editor-stats");
+        const statTotalGuestSpan1 = document.createElement("span");
+        statTotalGuestSpan1.classList.add('stats-label');
+        const statTotalGuestSpan11 = document.createElement("span");
+        const statTotalGuestSpan12 = document.createElement("span");
+        statTotalGuestSpan11.setAttribute('translation-key', 'TOTAL_SEATS');
+        statTotalGuestSpan12.innerText = ":";
+        statTotalGuestSpan1.appendChild(statTotalGuestSpan11);
+        statTotalGuestSpan1.appendChild(statTotalGuestSpan12);
+        const statTotalGuestSpan2 = document.createElement("span");
+        statTotalGuestSpan2.classList.add("room-editor-stat-value");
+        statTotalGuestSpan2.innerText = "0";
+        this.statsElements['TOTAL_SEATS'] = statTotalGuestSpan2;
+        statTotalGuestDiv.appendChild(statTotalGuestSpan1);
+        statTotalGuestDiv.appendChild(statTotalGuestSpan2);
+        this.uids['ui3'].appendChild(statTotalGuestDiv);
+
+
         const statAvgPaxTablesDiv = document.createElement("div");
         statAvgPaxTablesDiv.classList.add("room-editor-stats");
         const statAvgPaxTablesSpan1 = document.createElement("span");
@@ -4181,23 +4200,6 @@ class MouseManager {
         statTotalPaxDiv.appendChild(statTotalPaxSpan2);
         this.uids['ui3'].appendChild(statTotalPaxDiv);
 
-        const statTotalGuestDiv = document.createElement("div");
-        statTotalGuestDiv.classList.add("room-editor-stats");
-        const statTotalGuestSpan1 = document.createElement("span");
-        statTotalGuestSpan1.classList.add('stats-label');
-        const statTotalGuestSpan11 = document.createElement("span");
-        const statTotalGuestSpan12 = document.createElement("span");
-        statTotalGuestSpan11.setAttribute('translation-key', 'TOTAL_SEATS');
-        statTotalGuestSpan12.innerText = ":";
-        statTotalGuestSpan1.appendChild(statTotalGuestSpan11);
-        statTotalGuestSpan1.appendChild(statTotalGuestSpan12);
-        const statTotalGuestSpan2 = document.createElement("span");
-        statTotalGuestSpan2.classList.add("room-editor-stat-value");
-        statTotalGuestSpan2.innerText = "0";
-        this.statsElements['TOTAL_SEATS'] = statTotalGuestSpan2;
-        statTotalGuestDiv.appendChild(statTotalGuestSpan1);
-        statTotalGuestDiv.appendChild(statTotalGuestSpan2);
-        this.uids['ui3'].appendChild(statTotalGuestDiv);
 
         /*this.uids['ui3'].innerHTML = `
             <div class="room-editor-stats">
@@ -4240,7 +4242,7 @@ class MouseManager {
         const ADULT_AGE = allGuests.filter(s => s.guestAge == 'ADULT').length;
         const FROM_CHILD_AGE = allGuests.filter(s => s.guestAge == 'CHILD').length;
         const FROM_NEWBORN_CHILD_AGE = allGuests.filter(s => s.guestAge == 'BABY' || s.guestAge == 'NEWBORN').length;
-        const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.isActive()).length;
+        const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.isActive()  && t.tablePurpose != 'STAFF').length;
         const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE / 2) + (allGuestsStaff.length / 2);
 
         const TOTAL_SEATS = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE;
