@@ -3815,6 +3815,8 @@ class MouseManager {
 
     contextPos = null;
 
+    manageGuestsActive=false;
+
     constructor(world, roomEditor) {
         this.roomEditor = roomEditor;
         this.editorContainerElement = roomEditor.editorContainerElement;
@@ -4761,7 +4763,7 @@ class MouseManager {
                 options.push("CHANGE_COUPLE");
             }
 
-            if (this.roomEditor.mode != RoomEditorMode.ROOM_PLAN) {
+            if (this.manageGuestsActive) {
                 options.push("MANAGE_GUESTS");
             }
 
@@ -5431,6 +5433,10 @@ class RoomEditor {
                 });
 
         })
+    }
+
+    setManageGuestsActive(active) {
+        this.mouseManager.manageGuestsActive = active;
     }
 
     serializeEditor() {
