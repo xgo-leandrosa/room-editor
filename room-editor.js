@@ -2005,7 +2005,8 @@ const TABLE_DANGER_TYPE = {
     INVALID_ZONE: "INVALID_ZONE",
     OUT_CONSTRAINT_ZONE: "OUT_CONSTRAINT_ZONE",
     MISSING_ORDER: 'MISSING_ORDER',
-    ORDER_OUT_OF_RANGE: 'ORDER_OUT_OF_RANGE'
+    ORDER_OUT_OF_RANGE: 'ORDER_OUT_OF_RANGE',
+    TABLE_INCREASE_BOTH_SIDES: 'TABLE_INCREASE_BOTH_SIDES',
 };
 
 class Table extends RoomObject {
@@ -4779,16 +4780,21 @@ class MouseManager {
                 options.push('CHANGE_GUESTS');
                 if (this.selectedObject?.tableType == 'RectangularTable') {
 
-                    // CHECK IF EXIST INCREASED TABLE ON THIS SIDE
-                    if(this.selectedObject.sideOfRoom) {    
-                        const tablesOfthisSide = this.world.tables.filter(t => t.sideOfRoom == this.selectedObject.sideOfRoom);
-                        const existIncreasedTable = tablesOfthisSide.find(t => t.tableType == "RectangularLTable");
-                        if(!existIncreasedTable) {
+                    if(this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR) {
+                        options.push('INCREASE_TABLE');
+                    } else {
+                        // CHECK IF EXIST INCREASED TABLE ON THIS SIDE
+                        if(this.selectedObject.sideOfRoom) {    
+                            const tablesOfthisSide = this.world.tables.filter(t => t.sideOfRoom == this.selectedObject.sideOfRoom);
+                            const existIncreasedTable = tablesOfthisSide.find(t => t.tableType == "RectangularLTable");
+                            if(!existIncreasedTable) {
+                                options.push('INCREASE_TABLE');
+                            }
+                        } else { // DONT HAVE SIZE INCREASE
                             options.push('INCREASE_TABLE');
                         }
-                    } else { // DONT HAVE SIZE INCREASE
-                        options.push('INCREASE_TABLE');
                     }
+
                 }
                 if (this.selectedObject?.tableType == 'RectangularLTable') options.push('REDUCE_TABLE');
             }
@@ -5299,11 +5305,26 @@ class RoomEditor {
                 })
             }
         }
-
+        
+        // CHECK IF TABLES RECTANGULARL IS THE SAME IN BOTH SIDES
+        const rectLLeft = this.world.table.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'LEFT');
+        const rectLRight = this.world.table.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'RIGHT');
+        if(rectLLeft.length == rectLRight.length) {
+            result.tables.push({
+                code: null,
+                number: null,
+                name: null,
+                danger: TABLE_DANGER_TYPE.TABLE_INCREASE_BOTH_SIDES,
+            })
+        }
+        
+        
+        
+        
         if (result.tables.length == 0) {
             result.status = "VALID";
         }
-
+        
         return result;
     }
 
