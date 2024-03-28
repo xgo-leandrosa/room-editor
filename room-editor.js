@@ -4847,7 +4847,7 @@ class MouseManager {
         // }
 
         
-        if (event.button === 0 && this.roomEditor.mode != RoomEditorMode.COUPLE) {
+        if (event.button === 0) {
             this.dragging = true;
             this.lastX = event.clientX;
             this.lastY = event.clientY;
@@ -4938,7 +4938,7 @@ class MouseManager {
         const dx = event.clientX - this.lastX;
         const dy = event.clientY - this.lastY;
 
-        if (this.selectedObject) {
+        if (this.selectedObject && this.roomEditor.mode != RoomEditorMode.COUPLE) {
             this.selectedObject.pan(dx / this.world.scale, dy / this.world.scale);
             this.selectedObject.applyTransform();
         } else {
