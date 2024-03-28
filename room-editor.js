@@ -3940,6 +3940,7 @@ class MouseManager {
         const editorRoomInput1 = document.createElement('div');
         editorRoomInput1.classList.add('editorRoom-input', 'ui');
 
+        /*
         const undoButton = document.createElement('button');
         undoButton.classList.add('editor-btn', 'editor-btn-primary', "ui");
         undoButton.style.marginBottom = '0px';
@@ -3949,6 +3950,7 @@ class MouseManager {
 
         undoButton.appendChild(undoIcon);
         editorRoomInput1.appendChild(undoButton);
+        */
 
         mainContainer.appendChild(editorRoomInput1);
 
