@@ -4183,14 +4183,14 @@ class MouseManager {
         statTotalGuestSpan1.classList.add('stats-label');
         const statTotalGuestSpan11 = document.createElement("span");
         const statTotalGuestSpan12 = document.createElement("span");
-        statTotalGuestSpan11.setAttribute('translation-key', 'TOTAL_SEATS');
+        statTotalGuestSpan11.setAttribute('translation-key', 'ROOM_PLAN_TOTAL_GUESTS');
         statTotalGuestSpan12.innerText = ":";
         statTotalGuestSpan1.appendChild(statTotalGuestSpan11);
         statTotalGuestSpan1.appendChild(statTotalGuestSpan12);
         const statTotalGuestSpan2 = document.createElement("span");
         statTotalGuestSpan2.classList.add("room-editor-stat-value");
         statTotalGuestSpan2.innerText = "0";
-        this.statsElements['TOTAL_SEATS'] = statTotalGuestSpan2;
+        this.statsElements['ROOM_PLAN_TOTAL_GUESTS'] = statTotalGuestSpan2;
         statTotalGuestDiv.appendChild(statTotalGuestSpan1);
         statTotalGuestDiv.appendChild(statTotalGuestSpan2);
         this.uids['ui3'].appendChild(statTotalGuestDiv);
@@ -4277,8 +4277,8 @@ class MouseManager {
         const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.isActive() && t.tablePurpose != 'STAFF').length;
         const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE / 2) + (allGuestsStaff.length / 2);
 
-        const TOTAL_SEATS = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE;
-        const AVG_PAX_TABLES = (TOTAL_SEATS / ROOM_PLAN_TOTAL_TABLES);
+        const ROOM_PLAN_TOTAL_GUESTS = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE;
+        const AVG_PAX_TABLES = (ROOM_PLAN_TOTAL_GUESTS / ROOM_PLAN_TOTAL_TABLES);
 
         this.statsElements['STAFF'].innerText = allGuestsStaff.length;
         this.statsElements['ADULT_AGE'].innerText = ADULT_AGE;
@@ -4290,7 +4290,7 @@ class MouseManager {
             this.statsElements['AVG_PAX_TABLES'].classList.add('editor-stats-danger');
         } else this.statsElements['AVG_PAX_TABLES'].classList.remove('editor-stats-danger');
         this.statsElements['ROOM_PLAN_TOTAL_PAX'].innerText = ROOM_PLAN_TOTAL_PAX?.toFixed(2) || 0;
-        this.statsElements['TOTAL_SEATS'].innerText = TOTAL_SEATS || 0;
+        this.statsElements['ROOM_PLAN_TOTAL_GUESTS'].innerText = ROOM_PLAN_TOTAL_GUESTS || 0;
 
         this.world.checkExtraCost(ROOM_PLAN_TOTAL_TABLES, AVG_PAX_TABLES);
     }
