@@ -750,6 +750,14 @@ ul {
     width: calc(100% - 16px);
 }
 
+.editor-form .editor-preview-line{
+    padding: 4px;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    width: calc(100% - 16px);
+}
+
 .editor-table-code {
     background-color: #EBEBEB;
     border-radius: 2px;

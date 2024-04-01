@@ -81,6 +81,26 @@ const DEFAULT_TRANSLATIONS = [
     },
     {
         value: {
+            pt: "Definir centro da sala",
+            en: "Set center of the room",
+            es: "Establecer el centro de la sala.",
+            fr: "Définir le centre de le salle"
+        },
+        platform: "BO",
+        tag: "DEFINE_CENTER"
+    },
+    {
+        value: {
+            pt: "Trocar convidados",
+            en: "Swap guests",
+            es: "Intercambiar invitados",
+            fr: "Échanger les invités"
+        },
+        platform: "BO",
+        tag: "CHANGE_GUESTS"
+    },
+    {
+        value: {
             pt: "Ordem",
             en: "Order",
             es: "Orden",
@@ -1169,13 +1189,13 @@ class World extends RoomObject {
         this.tables = this.tables.filter(t => t !== table);
         this.checkworldWithCoupleOvalL(table, true);
     }
-    
-    checkworldWithCoupleOvalL(table, removed = false)  {
-        const tablesOvalL = ['CoupleOvalLTable','CoupleOvalLFullTable']
-        if(tablesOvalL.includes(table.tableType)) {
+
+    checkworldWithCoupleOvalL(table, removed = false) {
+        const tablesOvalL = ['CoupleOvalLTable', 'CoupleOvalLFullTable']
+        if (tablesOvalL.includes(table.tableType)) {
             const tablesToRemove = this.tables.filter(t => t.removeWithOvalL);
-            
-            for(let table of tablesToRemove) {
+
+            for (let table of tablesToRemove) {
                 table.worldWithOvalLTable(!removed);
             }
         }
@@ -1599,17 +1619,17 @@ class World extends RoomObject {
 
     checkExtraCost(totalTables, avgPaxTable) {
         const cloupleTableSeatsNumber = this.tables.find(t => t.couple == true)?.seats.filter(s => s.guestName?.trim() != '').length;
-        if(totalTables > 14 && (
-            (cloupleTableSeatsNumber > 8 &&  avgPaxTable < 9.5) ||
-            (cloupleTableSeatsNumber <= 8  && avgPaxTable < 9.8 ) 
+        if (totalTables > 14 && (
+            (cloupleTableSeatsNumber > 8 && avgPaxTable < 9.5) ||
+            (cloupleTableSeatsNumber <= 8 && avgPaxTable < 9.8)
         )) {
 
-            if(!this.roomPlan.extraCost) {
+            if (!this.roomPlan.extraCost) {
                 this.roomPlan.extraCost = true;
                 this.roomPlan.emitExtraCostEvent();
             }
         } else {
-            if(this.roomPlan.extraCost) {
+            if (this.roomPlan.extraCost) {
                 this.roomPlan.extraCost = false;
                 this.roomPlan.emitExtraCostEvent();
             }
@@ -1620,14 +1640,14 @@ class World extends RoomObject {
         // TODO CHANGED
         this.guestsBy = guestsBy;
 
-        if(this.guestsBy == 'TABLE') {
-            for(const table of this.tables) {
+        if (this.guestsBy == 'TABLE') {
+            for (const table of this.tables) {
                 table.enableTooltip();
                 table.disableSeatsTooltip();
                 table.updateSeats();
             }
         } else {
-            for(const table of this.tables) {
+            for (const table of this.tables) {
                 table.disableTooltip();
                 table.enableSeatsTooltip();
                 table.updateSeats();
@@ -1638,27 +1658,27 @@ class World extends RoomObject {
 
     setHorizontalCenterOfRoom(horizontalCenterOfRoom) {
 
-        if(horizontalCenterOfRoom) {
+        if (horizontalCenterOfRoom) {
             this.horizontalCenterOfRoom = horizontalCenterOfRoom;
-    
-            if(!this.horizontalCenterOfRoomElement) {
+
+            if (!this.horizontalCenterOfRoomElement) {
                 this.horizontalCenterOfRoomElement = document.createElement("div");
                 this.horizontalCenterOfRoomElement.classList.add("horizontalCenterOfRoom");
                 this.element.appendChild(this.horizontalCenterOfRoomElement)
             }
             this.horizontalCenterOfRoomElement.style.transform = `translate(${horizontalCenterOfRoom}px,-1500px) scale(1) rotate(0deg)`;
-    
-            this.checkTablesSideOfRoom();    
+
+            this.checkTablesSideOfRoom();
         }
     }
 
     checkTablesSideOfRoom() {
-        if(this.horizontalCenterOfRoom) {
-            for(const table of this.tables) {
-                if(table.rotate == 0 || table.rotate == 180) {
+        if (this.horizontalCenterOfRoom) {
+            for (const table of this.tables) {
+                if (table.rotate == 0 || table.rotate == 180) {
                     table.sideOfRoom = (table.x + table.halfWidth) > this.horizontalCenterOfRoom ? 'RIGHT' : 'LEFT';
                 }
-                if(table.rotate == 90 || table.rotate == 270) {
+                if (table.rotate == 90 || table.rotate == 270) {
                     table.sideOfRoom = (table.x + table.halfHeight) > this.horizontalCenterOfRoom ? 'RIGHT' : 'LEFT';
                 }
             }
@@ -1989,7 +2009,7 @@ class RoomPlan extends RoomObject {
     }
 
     emitExtraCostEvent() {
-        if(this.extraCostChangedFunc) {
+        if (this.extraCostChangedFunc) {
             this.extraCostChangedFunc(this.extraCost);
         }
     }
@@ -2123,7 +2143,7 @@ class Table extends RoomObject {
     }
 
     worldWithOvalLTable(withOvalLTable = false) {
-        if(withOvalLTable) {
+        if (withOvalLTable) {
             this.removeBecauseOfOvalL = true;
             this.element.style.display = 'none';
         } else {
@@ -2152,34 +2172,34 @@ class Table extends RoomObject {
     updateTooltipGuest() {
         this.tooltipElementGuest.innerHTML = '';
 
-        for(let seat of this.seats.filter(s => s.guestName)) {
+        for (let seat of this.seats.filter(s => s.guestName)) {
 
             const tooltipElementRow1 = document.createElement("div");
             tooltipElementRow1.classList.add("editor-row");
-    
+
             const tooltipElementRow1Icon = document.createElement("div");
             const tooltipElementRow1Content = document.createElement("div");
             tooltipElementRow1.appendChild(tooltipElementRow1Icon)
-    
+
             const miniSeat = document.createElement("div");
             miniSeat.classList.add("miniSeat", "seat--rem");
             miniSeat.innerHTML = seat.number + 1;
             tooltipElementRow1Icon.appendChild(miniSeat);
-    
+
             tooltipElementRow1.appendChild(tooltipElementRow1Content)
-    
+
             tooltipElementRow1Content.innerHTML = seat.guestName || new TranslationSystem().getTranslation("NO_GUESTS");
-    
+
             const tooltipElementRow2Icon = document.createElement("div");
             tooltipElementRow2Icon.classList.add("table_ui");
             tooltipElementRow2Icon.classList.add("cake-icon");
-    
+
             const tooltipElementRow2Content = document.createElement("div");
             tooltipElementRow1.appendChild(tooltipElementRow2Icon)
             tooltipElementRow1.appendChild(tooltipElementRow2Content)
-    
+
             tooltipElementRow2Content.innerHTML = seat.guestAgeTranslation();
-    
+
 
             this.tooltipElementGuest.appendChild(tooltipElementRow1);
         }
@@ -2334,14 +2354,14 @@ class Table extends RoomObject {
     }
 
     updateBackground() {
-        
+
         let GUEST_TABLE_COLOR = '#d1cece';
         let COUPLE_TABLE_COLOR = '#D1BB80';
         let STAFF_TABLE_COLOR = '#95B1B0';
         let CHILD_TABLE_COLOR = '#AEE4F5';
 
-        if(this.world) {
-            if(this.world.guestsBy == 'TABLE' && this.seats.filter(s => s.guestName).length == this.seats.length) {
+        if (this.world) {
+            if (this.world.guestsBy == 'TABLE' && this.seats.filter(s => s.guestName).length == this.seats.length) {
                 // IF ALL SEATS FILL THEN CHANGE COLOR
                 GUEST_TABLE_COLOR = '#b6d7a8';
                 CHILD_TABLE_COLOR = "linear-gradient(180deg, rgba(174,228,245,1) 48%, rgba(182,215,168,1) 100%)";
@@ -2349,7 +2369,7 @@ class Table extends RoomObject {
         }
 
         let backgroundColor = GUEST_TABLE_COLOR;
-        switch(this.tablePurpose) {
+        switch (this.tablePurpose) {
             case 'COUPLE':
                 backgroundColor = COUPLE_TABLE_COLOR;
                 this.element.classList.remove('tableStaff');
@@ -3655,7 +3675,7 @@ class Seat extends RoomObject {
             this.element.classList.remove('seat--couple');
 
             //IF HIDE GUESTS
-            if(this.table.world && this.table?.world?.guestsBy == 'TABLE') {
+            if (this.table.world && this.table?.world?.guestsBy == 'TABLE') {
                 this.setREM();
             } else {
                 if (this.guestName) {
@@ -3819,7 +3839,7 @@ class MouseManager {
 
     contextPos = null;
 
-    manageGuestsActive=false;
+    manageGuestsActive = false;
 
     constructor(world, roomEditor) {
         this.roomEditor = roomEditor;
@@ -4244,12 +4264,12 @@ class MouseManager {
         const ADULT_AGE = allGuests.filter(s => s.guestAge == 'ADULT').length;
         const FROM_CHILD_AGE = allGuests.filter(s => s.guestAge == 'CHILD').length;
         const FROM_NEWBORN_CHILD_AGE = allGuests.filter(s => s.guestAge == 'BABY' || s.guestAge == 'NEWBORN').length;
-        const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.isActive()  && t.tablePurpose != 'STAFF').length;
+        const ROOM_PLAN_TOTAL_TABLES = this.world.tables.filter(t => t.isActive() && t.tablePurpose != 'STAFF').length;
         const ROOM_PLAN_TOTAL_PAX = ADULT_AGE + (FROM_CHILD_AGE / 2) + (allGuestsStaff.length / 2);
 
         const TOTAL_SEATS = ADULT_AGE + FROM_CHILD_AGE + FROM_NEWBORN_CHILD_AGE;
         const AVG_PAX_TABLES = (TOTAL_SEATS / ROOM_PLAN_TOTAL_TABLES);
-        
+
         this.statsElements['STAFF'].innerText = allGuestsStaff.length;
         this.statsElements['ADULT_AGE'].innerText = ADULT_AGE;
         this.statsElements['FROM_CHILD_AGE'].innerText = FROM_CHILD_AGE;
@@ -4262,7 +4282,7 @@ class MouseManager {
         this.statsElements['ROOM_PLAN_TOTAL_PAX'].innerText = ROOM_PLAN_TOTAL_PAX?.toFixed(2) || 0;
         this.statsElements['TOTAL_SEATS'].innerText = TOTAL_SEATS || 0;
 
-        this.world.checkExtraCost(ROOM_PLAN_TOTAL_TABLES,AVG_PAX_TABLES);
+        this.world.checkExtraCost(ROOM_PLAN_TOTAL_TABLES, AVG_PAX_TABLES);
     }
 
     enableUI() {
@@ -4391,18 +4411,18 @@ class MouseManager {
 
         } else {
             newTableCouple.code = 0;
-            
-           newTableCouple.x = (tableCouple.x + tableCouple.halfWidth) - newTableCouple.halfWidth;
-           newTableCouple.y = (tableCouple.y + tableCouple.halfHeight) - newTableCouple.halfHeight;
-           const diff_old_center_x = (tableCouple.x + tableCouple.halfWidth) - (newTableCouple.x + tableCouple.halfWidth);
-           const diff_old_center_y = (tableCouple.y + tableCouple.halfHeight) - (newTableCouple.y + tableCouple.halfHeight);
-           newTableCouple.x -= diff_old_center_x;
-           newTableCouple.y -= diff_old_center_y;
-        
+
+            newTableCouple.x = (tableCouple.x + tableCouple.halfWidth) - newTableCouple.halfWidth;
+            newTableCouple.y = (tableCouple.y + tableCouple.halfHeight) - newTableCouple.halfHeight;
+            const diff_old_center_x = (tableCouple.x + tableCouple.halfWidth) - (newTableCouple.x + tableCouple.halfWidth);
+            const diff_old_center_y = (tableCouple.y + tableCouple.halfHeight) - (newTableCouple.y + tableCouple.halfHeight);
+            newTableCouple.x -= diff_old_center_x;
+            newTableCouple.y -= diff_old_center_y;
+
             newTableCouple.rotate = tableCouple.rotate;
 
 
-            
+
             this.world.removeTable(tableCouple);
         }
 
@@ -4725,19 +4745,19 @@ class MouseManager {
             if (this.selectedObject.tablePurpose != "COUPLE") {
                 // this.selectedObject.tablePurpose = type;
 
-                if(type == 'STAFF') {
+                if (type == 'STAFF') {
                     const existStaffTable = this.roomEditor.world.tables.filter(t => t.tablePurpose == 'STAFF');
-                    if(existStaffTable.length > 0) {
+                    if (existStaffTable.length > 0) {
                         this.setTablePurposeInput(this.selectedObject.tablePurpose);
                         return;
                     }
                 }
-                
+
                 this.selectedObject.updateTablePurpose(type);
                 this.roomEditor.world.checkTablesZonesRules();
                 this.updateStats();
             }
-            
+
         }
     }
 
@@ -4792,7 +4812,7 @@ class MouseManager {
     handleContextMenu(event) {
 
         this.contextPos = this.getWorldPosition(event);
-        
+
 
         // if (this.roomEditor.mode == RoomEditorMode.READ_ONLY) {
         //     event.preventDefault();
@@ -4819,14 +4839,14 @@ class MouseManager {
                 options.push('CHANGE_GUESTS');
                 if (this.selectedObject?.tableType == 'RectangularTable') {
 
-                    if(this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR) {
+                    if (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR) {
                         options.push('INCREASE_TABLE');
                     } else {
                         // CHECK IF EXIST INCREASED TABLE ON THIS SIDE
-                        if(this.selectedObject.sideOfRoom) {    
+                        if (this.selectedObject.sideOfRoom) {
                             const tablesOfthisSide = this.world.tables.filter(t => t.sideOfRoom == this.selectedObject.sideOfRoom);
                             const existIncreasedTable = tablesOfthisSide.find(t => t.tableType == "RectangularLTable");
-                            if(!existIncreasedTable) {
+                            if (!existIncreasedTable) {
                                 options.push('INCREASE_TABLE');
                             }
                         } else { // DONT HAVE SIZE INCREASE
@@ -4873,7 +4893,7 @@ class MouseManager {
             options.push("CLEAR_POINTS");
         }
 
-        if(this.roomEditor.mode == RoomEditorMode.ROOM_PLAN) {
+        if (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN) {
             options.push("DEFINE_CENTER");
         }
 
@@ -4901,7 +4921,7 @@ class MouseManager {
         //     return;
         // }
 
-        
+
         if (event.button === 0) {
             this.dragging = true;
             this.lastX = event.clientX;
@@ -4923,7 +4943,7 @@ class MouseManager {
                 this.selectedZone.updateZonePoligonElement();
             }
 
-            if(this.editorMode == "DEFINE_CENTER") {
+            if (this.editorMode == "DEFINE_CENTER") {
                 this.roomEditor.world.setHorizontalCenterOfRoom(pos.x);
             }
             event.preventDefault();
@@ -4958,7 +4978,7 @@ class MouseManager {
             const isWorldObject = this.world.tables.find(t => t.isElementOrChildElement(event.toElement));
 
 
-            if(this.changingGuestsTable) {
+            if (this.changingGuestsTable) {
                 this.changingGuestsTable = false;
                 this.setSelectedObject(null);
                 if (isWorldObject && isWorldObject.dragable) {
@@ -5282,7 +5302,7 @@ class RoomEditor {
     world = null;
     mouseManager = null;
     translationSystem;
-    
+
     mode = 'COUPLE';
 
     constructor(
@@ -5344,11 +5364,11 @@ class RoomEditor {
                 })
             }
         }
-        
+
         // CHECK IF TABLES RECTANGULARL IS THE SAME IN BOTH SIDES
         const rectLLeft = this.world.tables.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'LEFT');
         const rectLRight = this.world.tables.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'RIGHT');
-        if(rectLLeft.length != rectLRight.length) {
+        if (rectLLeft.length != rectLRight.length) {
             result.tables.push({
                 code: null,
                 number: null,
@@ -5356,11 +5376,11 @@ class RoomEditor {
                 danger: TABLE_DANGER_TYPE.TABLE_INCREASE_BOTH_SIDES,
             })
         }
-        
+
         if (result.tables.length == 0) {
             result.status = "VALID";
         }
-        
+
         return result;
     }
 
@@ -5370,7 +5390,7 @@ class RoomEditor {
     }
 
     setGuestsMode(mode) { // TABLE or SEAT
-        if(!["TABLE", "SEAT"].includes(mode)) {
+        if (!["TABLE", "SEAT"].includes(mode)) {
             throw new Error("Guest mode no available only 'TABLE' or 'SEAT' options");
         }
 
@@ -5674,9 +5694,9 @@ class RoomEditor {
 
 
 
-            if(object.tablePurpose == 'STAFF' && object.seats.length != serializedObject.seats.length) {
+            if (object.tablePurpose == 'STAFF' && object.seats.length != serializedObject.seats.length) {
                 object.seatsPositions = [];
-                for (const objSeat of serializedObject.seats) {        
+                for (const objSeat of serializedObject.seats) {
                     object.seatsPositions.push(
                         {
                             number: objSeat.number,
@@ -5699,13 +5719,13 @@ class RoomEditor {
                 object.updateSeats();
             }
 
-            if (object.active === false)  {
+            if (object.active === false) {
                 object.disable();
             } else {
                 object.enable();
-            } 
+            }
 
-            if(object.removeBecauseOfOvalL) {
+            if (object.removeBecauseOfOvalL) {
                 object.worldWithOvalLTable(object.removeBecauseOfOvalL);
             }
 
@@ -6521,8 +6541,16 @@ class ManageGuestsModal {
 
         const info = document.createElement("div");
         info.classList.add("editor-info-table");
-        info.innerHTML = `
-            <div class="editor-table round-table"></div>
+        info.innerHTML = this.subjectTable.tablePurpose == 'STAFF'
+            ? `
+                <i class="fa-regular fa-user editor-table-user" style="margin: 0 2px 0 10px"></i>${this.subjectTable.seats?.length}
+                <div style="display: ${this.subjectTable?.tablePurpose != 'GUEST' ? 'block' : 'none'}; margin-left: 10px">
+                <span class="editor-label" translation-key="TYPE_TABLES">Mesas para</span>
+                <span translation-key="${tablePurposeTag}">Convidados</span>
+                </div>
+            `
+            : `
+            <div class="editor-table ${TableTypesIcon[this.subjectTable.tableType]}"></div>
             <span translation-key="${this.subjectTable.tableType}">${this.subjectTable.tableType}</span>
             <i class="fa-regular fa-user editor-table-user" style="margin: 0 2px 0 10px"></i>${this.subjectTable.seats?.length}
             <div style="display: ${this.subjectTable?.tablePurpose != 'GUEST' ? 'block' : 'none'}; margin-left: 10px">
@@ -6575,23 +6603,28 @@ class ManageGuestsModal {
 
         // Create the form line with table code and input
         const formLine = document.createElement("div");
-        formLine.classList.add("editor-form-line");
+        // formLine.classList.add("editor-form-line");
+        formLine.classList.add("editor-preview-line");
 
         const tableNumberDiv = document.createElement("div");
         tableNumberDiv.classList.add("editor-table-code");
         tableNumberDiv.textContent = (table?.number + 1) || "X"; // TODO REMOVE
         formLine.appendChild(tableNumberDiv);
 
-        const tableNameInput = document.createElement("input");
-        tableNameInput.classList.add("editor-input");
-        tableNameInput.type = "text";
-        tableNameInput.id = "tableName";
-        tableNameInput.name = "tableName";
-        tableNameInput.value = table.name || "";
-        tableNameInput.disabled = this.roomEditor?.mode == RoomEditorMode.READ_ONLY ? true : false;
+        const tableNameDiv = document.createElement("div");
+        tableNameDiv.innerHTML = table?.name || "";
+        formLine.appendChild(tableNameDiv);
 
-        this.formElements.name = tableNameInput;
-        formLine.appendChild(tableNameInput);
+        // const tableNameInput = document.createElement("input");
+        // tableNameInput.classList.add("editor-input");
+        // tableNameInput.type = "text";
+        // tableNameInput.id = "tableName";
+        // tableNameInput.name = "tableName";
+        // tableNameInput.value = table.name || "";
+        // tableNameInput.disabled = this.roomEditor?.mode == RoomEditorMode.READ_ONLY ? true : false;
+
+        // this.formElements.name = tableNameInput;
+        // formLine.appendChild(tableNameInput);
 
         formElement.appendChild(formLine);
 
@@ -6676,7 +6709,7 @@ class ManageGuestsModal {
             }
         };
         groupBtn.appendChild(buttonGroup2);
-        col2.appendChild(groupBtn);
+        // col2.appendChild(groupBtn);
 
         const drawTable = document.createElement("div");
         drawTable.classList.add("editor-col-draw");
@@ -6697,7 +6730,7 @@ class ManageGuestsModal {
         const notesDiv = document.createElement("div");
         notesDiv.setAttribute("translation-key", "NOTES");
         notesDiv.textContent = "Notas:";
-        row3.appendChild(notesDiv);
+        // row3.appendChild(notesDiv);
 
         const notesTextarea = document.createElement("textarea");
         notesTextarea.id = "notes";
@@ -6709,7 +6742,7 @@ class ManageGuestsModal {
         notesTextarea.textContent = table.notes || "";
         notesTextarea.disabled = this.roomEditor?.mode == RoomEditorMode.READ_ONLY ? true : false;
         this.formElements.notes = notesTextarea;
-        row3.appendChild(notesTextarea);
+        // row3.appendChild(notesTextarea);
 
         this.modalBodyElement.appendChild(row3);
 
@@ -6763,75 +6796,108 @@ class ManageGuestsModal {
             this.formElements.seats[seat.number] = {};
 
             const formLineDiv = document.createElement("div");
-            formLineDiv.classList.add("editor-form-line");
+            // formLineDiv.classList.add("editor-form-line");
+            formLineDiv.classList.add("editor-preview-line");
             formLineDiv.classList.add("editor-seat");
             formLineDiv.id = `editor-seat-${seat.number}`;
 
+            // Preview only
             const seatNumberDiv = document.createElement("div");
             seatNumberDiv.classList.add("editor-seat-code");
             seatNumberDiv.innerHTML = seat.number + 1;
             formLineDiv.appendChild(seatNumberDiv);
 
-            const guestNameInput = document.createElement("input");
-            guestNameInput.classList.add("editor-input");
-            guestNameInput.classList.add("editor-seat-name");
-            guestNameInput.type = "text";
-            guestNameInput.id = `guestName-${seat.number}`;
-            guestNameInput.name = `guestName-${seat.number}`;
-            guestNameInput.value = seat.guestName || '';
-            guestNameInput.disabled = this.roomEditor?.mode == RoomEditorMode.READ_ONLY ? true : false;
-            guestNameInput.onblur = () => {
+            const guestNameDiv = document.createElement("div");
+            guestNameDiv.classList.add("editor-seat-name");
+            guestNameDiv.style.marginLeft = '4px';
+            guestNameDiv.innerHTML = seat.guestName || '';
+            guestNameDiv.onclick = () => {
                 if (this.miniTable) {
                     this.miniTable.seats[seat.number].guestName = guestNameInput.value;
                     this.miniTable.updateSeats();
-                    this.updateTotals();
                 }
-
             }
-            this.formElements.seats[seat.number].guestName = guestNameInput;
-            formLineDiv.appendChild(guestNameInput);
+            formLineDiv.appendChild(guestNameDiv);
 
-            const guestAgeInput = document.createElement("select");
-            guestAgeInput.classList.add("editor-form-select")
-            guestAgeInput.classList.add("selectAge")
-            guestAgeInput.classList.add(`editor-select-age-${seat.number}`)
-            guestAgeInput.name = `guestAge-${seat.number}`;
-            //this.formElements.seats[seat.number].guestAge = guestAgeInput;
-            formLineDiv.appendChild(guestAgeInput);
+            const guestAge = seat?.guestAge && seat?.guestAge == 'CHILD'
+                ? this.translationSystem.getTranslation("CHILD_AGE")
+                : seat?.guestAge && seat?.guestAge == 'BABY'
+                    ? this.translationSystem.getTranslation("BABY_AGE")
+                    : seat?.guestAge && seat?.guestAge == 'NEWBORN'
+                        ? this.translationSystem.getTranslation("NEWBORN_AGE")
+                        : '';
+            const guestAgeDiv = document.createElement("div");
+            guestAgeDiv.classList.add("editor-form-select");
+            guestAgeDiv.style.lineHeight = '14px'; 
+            guestAgeDiv.style.marginLeft = '4px';
+            guestAgeDiv.innerHTML = guestAge || '';
+            formLineDiv.appendChild(guestAgeDiv);
 
-            // const guestRestrictionInput = document.createElement("select");
             const guestRestrictionDiv = document.createElement("div");
-            guestRestrictionDiv.classList.add("editor-form-select-restriction");
-
-            this.formElements.seats[seat.number].foodRestrictions = [...seat.foodRestrictions] || [];
-            this.checkChefChoice();
-            const guestRestrictionInput = document.createElement("div");
-            guestRestrictionInput.classList.add("editor-input");
-            guestRestrictionInput.classList.add("editor-form-select-multiple");
-            guestRestrictionInput.classList.add(`editor-form-select-restriction-${seat.number}`);
-            if (this.roomEditor?.mode == RoomEditorMode.READ_ONLY) {
-                guestRestrictionInput.classList.add(`editor-form-select-multiple-disabled`);
-            } else guestRestrictionInput.classList.remove(`editor-form-select-multiple-disabled`);
-            guestRestrictionInput.attributes.multiple = true;
-            guestRestrictionInput.name = `foodRestrictions-${seat.number}`;
-            guestRestrictionInput.id = `foodRestrictions${seat.number}`;
-            guestRestrictionInput.onclick = () => {
-                if (this.roomEditor?.mode == RoomEditorMode.READ_ONLY) return;
-                this.createRestrictionModal(guestRestrictionDiv, guestRestrictionInput, seat);
-            }
-            this.setSelectedResctrictions(seat, guestRestrictionInput);
-            // this.formElements.seats[seat.number].foodRestrictions = guestRestrictionInput;
-            guestRestrictionDiv.appendChild(guestRestrictionInput);
+            guestRestrictionDiv.classList.add("editor-form-select");
+            guestRestrictionDiv.style.marginLeft = '4px';
+            guestRestrictionDiv.style.lineHeight = '14px';
+            this.setSelectedResctrictions(seat, guestRestrictionDiv);
             formLineDiv.appendChild(guestRestrictionDiv);
 
+            // const guestNameInput = document.createElement("input");
+            // guestNameInput.classList.add("editor-input");
+            // guestNameInput.classList.add("editor-seat-name");
+            // guestNameInput.type = "text";
+            // guestNameInput.id = `guestName-${seat.number}`;
+            // guestNameInput.name = `guestName-${seat.number}`;
+            // guestNameInput.value = seat.guestName || '';
+            // guestNameInput.disabled = this.roomEditor?.mode == RoomEditorMode.READ_ONLY ? true : false;
+            // guestNameInput.onblur = () => {
+            //     if (this.miniTable) {
+            //         this.miniTable.seats[seat.number].guestName = guestNameInput.value;
+            //         this.miniTable.updateSeats();
+            //         this.updateTotals();
+            //     }
+            // }
+            // this.formElements.seats[seat.number].guestName = guestNameInput;
+            // formLineDiv.appendChild(guestNameInput);
+
+            // const guestAgeInput = document.createElement("select");
+            // guestAgeInput.classList.add("selectAge")
+            // guestAgeInput.classList.add(`editor-select-age-${seat.number}`)
+            // guestAgeInput.name = `guestAge-${seat.number}`;
+            // //this.formElements.seats[seat.number].guestAge = guestAgeInput;
+            // formLineDiv.appendChild(guestAgeInput);
+
+            // const guestRestrictionDiv = document.createElement("div");
+            // guestRestrictionDiv.classList.add("editor-form-select-restriction");
+
+            // this.formElements.seats[seat.number].foodRestrictions = [...seat.foodRestrictions] || [];
+            // this.checkChefChoice();
+            // const guestRestrictionInput = document.createElement("div");
+            // guestRestrictionInput.classList.add("editor-input");
+            // guestRestrictionInput.classList.add("editor-form-select-multiple");
+            // guestRestrictionInput.classList.add(`editor-form-select-restriction-${seat.number}`);
+            // if (this.roomEditor?.mode == RoomEditorMode.READ_ONLY) {
+            //     guestRestrictionInput.classList.add(`editor-form-select-multiple-disabled`);
+            // } else guestRestrictionInput.classList.remove(`editor-form-select-multiple-disabled`);
+            // guestRestrictionInput.attributes.multiple = true;
+            // guestRestrictionInput.name = `foodRestrictions-${seat.number}`;
+            // guestRestrictionInput.id = `foodRestrictions${seat.number}`;
+            // guestRestrictionInput.onclick = () => {
+            //     if (this.roomEditor?.mode == RoomEditorMode.READ_ONLY) return;
+            //     this.createRestrictionModal(guestRestrictionDiv, guestRestrictionInput, seat);
+            // }
+            // this.setSelectedResctrictions(seat, guestRestrictionInput);
+            // // this.formElements.seats[seat.number].foodRestrictions = guestRestrictionInput;
+            // guestRestrictionDiv.appendChild(guestRestrictionInput);
+            // formLineDiv.appendChild(guestRestrictionDiv);
 
             seatDiv.appendChild(formLineDiv);
         }
-        for (let seat of table.seats) {
-            this.initializeSeatInputs(seat, this.roomEditor?.mode);
-        }
 
-        this.updateTotals();
+        // for (let seat of table.seats) {
+        //     this.initializeSeatInputs(seat, this.roomEditor?.mode);
+        // }
+
+        // this.updateTotals();
+        this.updateTotalsPreview(table);
     }
 
     createRestrictionModal(element, input, seat) {
@@ -6897,7 +6963,9 @@ class ManageGuestsModal {
     }
 
     setSelectedResctrictions(seat, input) {
-        const elemsSelected = this.foodRestrictions.filter(f => this.formElements.seats[seat.number].foodRestrictions.findIndex(f2 => f2 == f.id) > -1);
+        const elemsSelected = this.foodRestrictions?.length > 0
+            ? this.foodRestrictions?.filter(f => this.formElements.seats[seat.number].foodRestrictions?.findIndex(f2 => f2 == f.id) > -1)
+            : '';
         input.innerHTML = elemsSelected.map(m => m?.text).join(', ');
     }
 
@@ -7085,6 +7153,46 @@ class ManageGuestsModal {
         return isValid;
 
         // You can add more functionality as needed.
+    }
+
+    updateTotalsPreview(table) {
+
+        let totalAdult = 0;
+        if (document.getElementById('totalAdult')) {
+            totalAdult = table?.seats?.filter(s => s.guestName?.trim() != '').filter(s => s.guestAge == 'ADULT' || !s?.guestAge).length;
+            document.getElementById('totalAdult').innerHTML = totalAdult;
+        }
+
+        let totalChild = 0;
+        if (document.getElementById('totalChild')) {
+            totalChild = table.seats.filter(s => s.guestName?.trim() != '').filter(s => s.guestAge == 'CHILD').length;
+            document.getElementById('totalChild').innerHTML = totalChild;
+        }
+
+        let totalBaby = 0;
+        if (document.getElementById('totalBaby')) {
+            totalBaby = table?.seats.filter(s => s.guestName?.trim() != '').filter(s => s.guestAge == 'BABY').length;
+            document.getElementById('totalBaby').innerHTML = totalBaby;
+        }
+
+        let totalNewborn = 0;
+        if (document.getElementById('totalNewborn')) {
+            totalNewborn = table?.seats.filter(s => s.guestName?.trim() != '').filter(s => s.guestAge == 'NEWBORN').length;
+            document.getElementById('totalNewborn').innerHTML = totalNewborn;
+        }
+
+        if (document.getElementById('totalStroller')) {
+            if (totalNewborn > 0) {
+                document.getElementById('totalStroller').classList.remove('hide');
+                document.getElementById('totalStroller').innerHTML = `${totalNewborn} <span translation-key="BABY_CAR">carrinho</span>`;
+                this.translationSystem.reviewPage();
+            } else {
+                document.getElementById('totalStroller').classList.add('hide');
+            }
+        }
+
+        const total = totalAdult + totalChild;
+        document.getElementById('total').innerHTML = total;
     }
 
     updateTotals() {
