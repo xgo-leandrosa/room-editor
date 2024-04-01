@@ -724,6 +724,16 @@ const DEFAULT_TRANSLATIONS = [
     },
     {
         value: {
+            pt: "Total convidados",
+            en: "Total guests",
+            es: "Invitados totales",
+            fr: "Total des invités"
+        },
+        tag: "ROOM_PLAN_TOTAL_GUESTS",
+        platform: "BO"
+    },
+    {
+        value: {
             pt: "PAX total",
             en: "Total PAX",
             es: "PAX totales",
