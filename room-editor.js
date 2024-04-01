@@ -6838,7 +6838,7 @@ class ManageGuestsModal {
                         : '';
             const guestAgeDiv = document.createElement("div");
             guestAgeDiv.classList.add("editor-form-select");
-            guestAgeDiv.style.lineHeight = '14px'; 
+            guestAgeDiv.style.lineHeight = '14px';
             guestAgeDiv.style.marginLeft = '4px';
             guestAgeDiv.innerHTML = guestAge || '';
             formLineDiv.appendChild(guestAgeDiv);
@@ -6975,8 +6975,8 @@ class ManageGuestsModal {
     setSelectedResctrictions(seat, input) {
         const elemsSelected = this.foodRestrictions?.length > 0
             ? this.foodRestrictions?.filter(f => this.formElements.seats[seat.number].foodRestrictions?.findIndex(f2 => f2 == f.id) > -1)
-            : '';
-        input.innerHTML = elemsSelected.map(m => m?.text).join(', ');
+            : [];
+        input.innerHTML = elemsSelected?.map(m => m?.text).join(', ') || '';
     }
 
     checkChefChoice() {
