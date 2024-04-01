@@ -5348,7 +5348,7 @@ class RoomEditor {
         // CHECK IF TABLES RECTANGULARL IS THE SAME IN BOTH SIDES
         const rectLLeft = this.world.tables.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'LEFT');
         const rectLRight = this.world.tables.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'RIGHT');
-        if(rectLLeft.length == rectLRight.length) {
+        if(rectLLeft.length != rectLRight.length) {
             result.tables.push({
                 code: null,
                 number: null,
