@@ -1609,7 +1609,7 @@ class World extends RoomObject {
             for (let index = 0; index < tablesToCorrectOrder.length; index++) {
                 const table = tablesToCorrectOrder[index];
                 table.code = table.code - 1;
-                table.updateTableOrderValue();
+                table.updateTableNumerationValue();
             }
         }
     }
