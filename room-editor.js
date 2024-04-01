@@ -5346,8 +5346,8 @@ class RoomEditor {
         }
         
         // CHECK IF TABLES RECTANGULARL IS THE SAME IN BOTH SIDES
-        const rectLLeft = this.world.table.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'LEFT');
-        const rectLRight = this.world.table.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'RIGHT');
+        const rectLLeft = this.world.tables.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'LEFT');
+        const rectLRight = this.world.tables.filter(t => t.tableType == TableTypes.RectangularLTable && t.side == 'RIGHT');
         if(rectLLeft.length == rectLRight.length) {
             result.tables.push({
                 code: null,
@@ -5356,9 +5356,6 @@ class RoomEditor {
                 danger: TABLE_DANGER_TYPE.TABLE_INCREASE_BOTH_SIDES,
             })
         }
-        
-        
-        
         
         if (result.tables.length == 0) {
             result.status = "VALID";
