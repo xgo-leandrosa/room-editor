@@ -2181,6 +2181,9 @@ class Table extends RoomObject {
 
     updateTooltipGuest() {
         this.tooltipElementGuest.innerHTML = '';
+        this.tooltipElementGuest.style.display = this.seats.filter(s => s.guestName)?.length > 0
+            ? 'block'
+            : 'none';
 
         for (let seat of this.seats.filter(s => s.guestName)) {
 
@@ -3824,6 +3827,7 @@ class Seat extends RoomObject {
 
     destroy() {
         this.table.element.removeChild(this.element);
+        this.table.element.removeChild(this.tooltipElement);
     }
 }
 
