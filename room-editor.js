@@ -3827,7 +3827,6 @@ class Seat extends RoomObject {
 
     destroy() {
         this.table.element.removeChild(this.element);
-        this.table.element.removeChild(this.tooltipElement);
     }
 }
 
