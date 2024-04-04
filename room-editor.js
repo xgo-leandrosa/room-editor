@@ -5436,7 +5436,7 @@ class RoomEditor {
     mouseManager = null;
     translationSystem;
 
-    mode = 'COUPLE';
+    mode = 'READ_ONLY';
 
     constructor(
         idOfElement,
@@ -5529,6 +5529,7 @@ class RoomEditor {
 
         this.world.setGuestsBy(mode);
     }
+
     setMode(mode) {
         if (!RoomEditorMode[mode]) {
             throw new Error("Invalid Editor Mode");
@@ -5538,10 +5539,12 @@ class RoomEditor {
 
         if (this.mode == RoomEditorMode.READ_ONLY) {
             // SET ZOOM FIT ON SCREEN
-            const that = this;
-            this.world.roomPlan.afterLoadImage(() => {
-                that.mouseManager.worldFitScreen();
-            });
+            if(this.world) {
+                const that = this;
+                this.world.roomPlan.afterLoadImage(() => {
+                    that.mouseManager.worldFitScreen();
+                });
+            }
             //this.mouseManager.worldFitScreen();
 
             // HIDE UI
@@ -5893,6 +5896,8 @@ class RoomEditor {
             $("#coupleTableSelect").val(tableCouple.tableType).trigger('change');
         }
 
+
+        this.setMode(this.mode);
         return this.world;
     }
 

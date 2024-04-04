@@ -4471,11 +4471,12 @@
 
 
         //roomEditor.setMode('ROOM_PLAN');
-        //roomEditor.setMode('COUPLE');
-        roomEditor.setMode('ADMINISTRATOR');
+        //roomEditor.setMode('ADMINISTRATOR');
+        roomEditor.setMode('READ_ONLY');
         // roomEditor.setManageGuestsActive(true);
         
         roomEditor.deserializeEditor(saved);
+        roomEditor.setMode('COUPLE');
         roomEditor.setGuestsMode("TABLE");
 
         roomEditor.activeCoupleTables(["CoupleRoundTable", "CoupleOvalSTable", "CoupleOvalMTable", "CoupleOvalMFullTable", "CoupleOvalLTable", "CoupleOvalLFullTable", "CoupleForestSTable", "CoupleForestMTable",]);
