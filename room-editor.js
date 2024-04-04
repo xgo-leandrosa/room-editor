@@ -5604,7 +5604,7 @@ class RoomEditor {
             this.world.applyTransform();
 
             if(this.extraCostChangedFunc) {
-                this.world.extraCostChangedFunc = extraCostChangedFunc;
+                this.world.extraCostChangedFunc = this.extraCostChangedFunc;
             }
 
             const roomPlan = new RoomPlan(this.world, roomPlanImg);
