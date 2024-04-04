@@ -5459,6 +5459,9 @@ class RoomEditor {
 
         this.mouseManager = new MouseManager(this.world, this);
 
+        this.mouseManager.disableUI();
+        this.mouseManager.setSelectedObject(null);
+
         $("#myDiv").on("remove", function () {
             this.destroy();
         })
