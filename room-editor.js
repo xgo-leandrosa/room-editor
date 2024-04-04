@@ -5593,14 +5593,19 @@ class RoomEditor {
         return this.world.roomPlan.extraCost;
     }
 
+    extraCostChangedFunc;
     onExtraCostChanged(funcOnExtraCostChanged) {
-        this.world.extraCostChangedFunc = funcOnExtraCostChanged;
+        this.extraCostChangedFunc = funcOnExtraCostChanged;
     }
 
     setRoomPlan(roomPlanImg, constraintPoints = []) {
         if (!this.world) {
             this.world = new World(this);
             this.world.applyTransform();
+
+            if(this.extraCostChangedFunc) {
+                this.world.extraCostChangedFunc = extraCostChangedFunc;
+            }
 
             const roomPlan = new RoomPlan(this.world, roomPlanImg);
             this.world.setRoomPlan(roomPlan);
