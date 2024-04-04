@@ -4471,17 +4471,17 @@
 
 
         //roomEditor.setMode('ROOM_PLAN');
-        roomEditor.setMode('COUPLE');
-        //roomEditor.setMode('ADMINISTRATOR');
-        
+        //roomEditor.setMode('COUPLE');
+        roomEditor.setMode('ADMINISTRATOR');
         // roomEditor.setManageGuestsActive(true);
-
+        
         roomEditor.deserializeEditor(saved);
+        roomEditor.setGuestsMode("TABLE");
 
         roomEditor.activeCoupleTables(["CoupleRoundTable", "CoupleOvalSTable", "CoupleOvalMTable", "CoupleOvalMFullTable", "CoupleOvalLTable", "CoupleOvalLFullTable", "CoupleForestSTable", "CoupleForestMTable",]);
         roomEditor.activeGuestTables(["RoundTable", "SquareTable", "RectangularTable", "RectangularLTable", "ForestMTable"]);
 
-        roomEditor.onExtraCostchanged(($event) => { alert($event) });
+        roomEditor.onExtraCostChanged(($event) => { alert($event) });
 
         roomEditor.mouseManager.setChangeCoupleEvent(() => {
             alert("Ola Isabel");

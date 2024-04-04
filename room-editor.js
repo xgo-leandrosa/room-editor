@@ -1194,6 +1194,17 @@ class World extends RoomObject {
         this.updateTablesNumber();
         this.checkworldWithCoupleOvalL(table, false);
         this.checkTablesSideOfRoom();
+
+        if (this.guestsBy == 'TABLE') {
+                table.enableTooltip();
+                table.disableSeatsTooltip();
+                table.updateSeats();
+            
+        } else {
+                table.disableTooltip();
+                table.enableSeatsTooltip();
+                table.updateSeats();
+        }
     }
 
     removeTable(table) {
@@ -2468,7 +2479,9 @@ class Table extends RoomObject {
 
     addTableNumeration() {
         this.tableElementNumeration = document.createElement("div");
+        this.tableElementNumerationAlt = document.createElement("div");
         this.tableElementNumeration.classList.add('tableNumeration');
+        this.tableElementNumerationAlt.classList.add('tableNumeration');
 
         // this.tableElementNumeration.style.left = `${this.halfWidth - TABLE_ELEMENT_OFFSET - (this.spaceBetweenTables / 2) - 18}px`;
         // this.tableElementNumeration.style.top = `${this.halfHeight - TABLE_ELEMENT_OFFSET - (this.spaceBetweenTables / 2) - 25}px`;
@@ -2476,21 +2489,24 @@ class Table extends RoomObject {
         //this.tableElementNumeration.style.top = "40%";
 
         this.spanTableNumeration = document.createElement('span');
+        this.spanTableNumerationAlt = document.createElement('span');
         this.updateTableNumerationValue();
         this.tableElementNumeration.appendChild(this.spanTableNumeration);
+        this.tableElementNumerationAlt.appendChild(this.spanTableNumerationAlt);
 
         // this.spanTableCircularOrder = document.createElement('span');
         // this.spanTableCircularOrder.classList.add('tableCircularOrder');
         // this.updateTableOrderValue();
         // this.tableElementNumeration.appendChild(this.spanTableCircularOrder);
 
-        this.tableElement.appendChild(this.tableElementNumeration.cloneNode(true));
-
+        
         this.element.appendChild(this.tableElementNumeration);
+        this.tableElement.appendChild(this.tableElementNumerationAlt);
     }
 
     updateTableNumerationValue() {
         this.spanTableNumeration.innerText = this.numberToLetter();
+        this.spanTableNumerationAlt.innerText = this.numberToLetter();
     }
 
     numberToLetter() {
