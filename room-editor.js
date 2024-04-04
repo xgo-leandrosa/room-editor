@@ -1651,12 +1651,14 @@ class World extends RoomObject {
         this.guestsBy = guestsBy;
 
         if (this.guestsBy == 'TABLE') {
+            //tippy.hideAll();
             for (const table of this.tables) {
                 table.enableTooltip();
                 table.disableSeatsTooltip();
                 table.updateSeats();
             }
         } else {
+            //tippy.hideAll();
             for (const table of this.tables) {
                 table.disableTooltip();
                 table.enableSeatsTooltip();
@@ -1693,6 +1695,58 @@ class World extends RoomObject {
                 }
             }
         }
+    }
+
+    changeGuestsTable(table1, table2) {
+        const table1Temp = {
+            name: table1.name,
+            seats: table1.seats.map(s => ({
+                guestName: s.guestName,
+                guestAge: s.guestAge,
+                foodRestrictions: s.foodRestrictions,
+            }))
+        }
+        const table2Temp = {
+            name: table2.name,
+            seats: table2.seats.map(s => ({
+                guestName: s.guestName,
+                guestAge: s.guestAge,
+                foodRestrictions: s.foodRestrictions,
+            }))
+        }
+
+        table1.name = table2Temp.name;
+        table2.name = table1Temp.name;
+
+        table1.seats.forEach(s => {
+            s.guestName = "";
+            s.guestAge = "ADULT";
+            s.foodRestrictions = [];
+        });
+        table2.seats.forEach(s => {
+            s.guestName = "";
+            s.guestAge = "ADULT";
+            s.foodRestrictions = [];
+        });
+
+        for (const seat of table2Temp.seats.filter(s => s.guestName.trim() != "")) {
+            const freeSeat = table1.seats.find(s => s.guestName.trim() == "");
+
+            freeSeat.guestName = seat.guestName;
+            freeSeat.guestAge = seat.guestAge;
+            freeSeat.foodRestrictions = seat.foodRestrictions;
+        }
+
+        for (const seat of table1Temp.seats.filter(s => s.guestName.trim() != "")) {
+            const freeSeat = table2.seats.find(s => s.guestName.trim() == "");
+
+            freeSeat.guestName = seat.guestName;
+            freeSeat.guestAge = seat.guestAge;
+            freeSeat.foodRestrictions = seat.foodRestrictions;
+        }
+
+        table1.updateSeats();
+        table2.updateSeats();
     }
 
     destroy() {
@@ -4848,7 +4902,7 @@ class MouseManager {
                 options.push("MANAGE_GUESTS");
             }
 
-            if (this.selectedObject && this.selectedObject.tablePurpose == "GUEST" && (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR || this.roomEditor.mode == RoomEditorMode.COUPLE)) {
+            if (this.selectedObject && this.selectedObject.tablePurpose == "GUEST" && this.selectedObject.isActive() && (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR || this.roomEditor.mode == RoomEditorMode.COUPLE)) {
                 options.push('CHANGE_GUESTS');
                 if (this.selectedObject?.tableType == 'RectangularTable') {
 
@@ -4871,11 +4925,34 @@ class MouseManager {
                 if (this.selectedObject?.tableType == 'RectangularLTable') options.push('REDUCE_TABLE');
             }
 
-            if ((this.selectedObject.tablePurpose != "COUPLE" || this.selectedObject?.tablePurpose != 'STAFF') && (this.roomEditor.mode == RoomEditorMode.COUPLE || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR)) {
-                if (this.selectedObject?.active) {
-                    options.push("DISABLE");
-                } else {
-                    options.push("ENABLE");
+            if ((this.selectedObject.tablePurpose != "COUPLE" && this.selectedObject?.tablePurpose != 'STAFF') && (this.roomEditor.mode == RoomEditorMode.COUPLE || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR)) {
+
+                if (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR) {
+                    if (this.selectedObject?.active) {
+                        options.push("DISABLE");
+                    } else {
+                        options.push("ENABLE");
+                    }
+                }
+
+                if (this.roomEditor.mode == RoomEditorMode.COUPLE) {
+                    const tablesNumbers = this.world.tables.filter(t => t.tablePurpose != "STAFF" && t.tablePurpose != "COUPLE").filter(t => t.isActive()).map(t => t.code);
+                    const charNumber = this.selectedObject.code;
+                    if (this.selectedObject?.active) {
+                        if (charNumber == Math.max(...tablesNumbers)) {
+                            options.push("DISABLE");
+                        }
+                    } else {
+                        // GET THE BIGGEST ACTIVE
+                        const biggestActiveTable = Math.max(...tablesNumbers)
+                        //FIND THE NEXT DISABLED
+                        const nextDisabledTables = this.world.tables.filter(t => t.tablePurpose != "STAFF" && t.tablePurpose != "COUPLE").filter((t) => t.code > biggestActiveTable).filter(t => !t.isActive()).map(t => t.code);
+
+                        if (charNumber == Math.min(...nextDisabledTables)) {
+                            options.push("ENABLE");
+                        }
+                    }
+
                 }
             }
 
@@ -4989,18 +5066,6 @@ class MouseManager {
             }
         } else {
             const isWorldObject = this.world.tables.find(t => t.isElementOrChildElement(event.toElement));
-
-
-            if (this.changingGuestsTable) {
-                this.changingGuestsTable = false;
-                this.setSelectedObject(null);
-                if (isWorldObject && isWorldObject.dragable) {
-                    debugger;
-                }
-                event.preventDefault();
-                return;
-            }
-
             if (isWorldObject && isWorldObject.dragable) {
                 this.setSelectedObject(isWorldObject);
             } else {
@@ -5145,8 +5210,28 @@ class MouseManager {
                 }
                 break;
             case "CHANGE_GUESTS":
-                this.secundarySelectedObject = null;
-                this.changingGuestsTable = true;
+
+                if (this.changingGuestsTable) {
+                        const seatsOccupiedA = this.selectedObject.seats.filter(s => s.guestName.trim() != "").length;
+                        const seatsA = this.selectedObject.seats.length;
+                        const seatsOccupiedB = this.secundarySelectedObject.seats.filter(s => s.guestName.trim() != "").length;
+                        const seatsB = this.secundarySelectedObject.seats.length;
+
+                        if (seatsOccupiedA > seatsB || seatsOccupiedB > seatsA) {
+                            this.changingGuestsTable = false;
+                            this.secundarySelectedObject = null;
+                            this.callGuestChangeError();
+                        }else {
+                            this.world.changeGuestsTable(this.selectedObject, this.secundarySelectedObject);
+                            this.changingGuestsTable = false;
+                            this.setSelectedObject(null);
+                            this.secundarySelectedObject = null;
+                        }
+
+                } else {
+                    this.secundarySelectedObject = this.selectedObject;
+                    this.changingGuestsTable = true;
+                }
                 break;
             case "INCREASE_TABLE":
                 this.convertTable("RectangularLTable")
@@ -5232,10 +5317,24 @@ class MouseManager {
     setChangeCoupleEvent(action) {
         this.changeCoupleEvent = action;
     }
-
+    
+    
     changeCoupleEvent;
     callChangeCoupleEvent() {
         this.changeCoupleEvent();
+    }
+    
+    onGuestChangeError;
+    onGuestChangeError(action) {
+        this.onGuestChangeError = action;
+    }
+    
+    callGuestChangeError() {
+        if(!this.onGuestChangeError) {
+            return;
+        }
+        
+        this.onGuestChangeError();
     }
 
     worldFitScreen() {
@@ -5477,7 +5576,6 @@ class RoomEditor {
         this.world.roomPlan.extraCostChangedFunc = funcOnExtraCostChanged;
     }
 
-
     setRoomPlan(roomPlanImg, constraintPoints = []) {
         if (!this.world) {
             this.world = new World(this);
@@ -5694,7 +5792,7 @@ class RoomEditor {
 
                 object.seatsTopNumber = parentObject.seatsTopNumber * serializedObject.value;
                 object.seatsSidesNumber = parentObject.seatsSidesNumber;
-            
+
                 object.init();
                 object.tableElementUpdateSize();
                 object.updateSnappingPoints();
