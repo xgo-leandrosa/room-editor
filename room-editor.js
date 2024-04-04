@@ -5572,7 +5572,7 @@ class RoomEditor {
         return this.world.roomPlan.extraCost;
     }
 
-    onExtraCostchanged(funcOnExtraCostChanged) {
+    onExtraCostChanged(funcOnExtraCostChanged) {
         this.world.roomPlan.extraCostChangedFunc = funcOnExtraCostChanged;
     }
 
