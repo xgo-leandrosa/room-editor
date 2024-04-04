@@ -1140,6 +1140,8 @@ class World extends RoomObject {
     horizontalCenterOfRoom = null;
     horizontalCenterOfRoomElement = null;
 
+    extraCostChangedFunc;
+
     constructor(roomEditor) {
         super();
         this.x = 0;
@@ -1947,6 +1949,8 @@ class Zone {
 
 class RoomPlan extends RoomObject {
 
+    world = null;
+
     editorMode = null; // "CONTRAINT_ZONE" || "ZONE"
     zoneEditing;
 
@@ -1958,13 +1962,14 @@ class RoomPlan extends RoomObject {
     afterLoadImageFunctions = [];
 
     extraCost = false;
-    extraCostChangedFunc;
+    
 
     zones = []
 
 
-    constructor(imageSrc) {
+    constructor(world, imageSrc) {
         super();
+        this.world = world;
         this.element = document.createElement('div');
         this.element.classList.add('roomPlan');
 
@@ -2073,8 +2078,8 @@ class RoomPlan extends RoomObject {
     }
 
     emitExtraCostEvent() {
-        if (this.extraCostChangedFunc) {
-            this.extraCostChangedFunc(this.extraCost);
+        if (this.world.extraCostChangedFunc) {
+            this.world.extraCostChangedFunc(this.extraCost);
         }
     }
 
@@ -2428,7 +2433,7 @@ class Table extends RoomObject {
         let CHILD_TABLE_COLOR = '#AEE4F5';
 
         if (this.world) {
-            if (this.world.guestsBy == 'TABLE' && this.seats.filter(s => s.guestName).length == this.seats.length) {
+            if (this.world.guestsBy == 'TABLE' && this.seats.filter(s => s.guestName).length > 0) {
                 // IF ALL SEATS FILL THEN CHANGE COLOR
                 GUEST_TABLE_COLOR = '#b6d7a8';
                 CHILD_TABLE_COLOR = "linear-gradient(180deg, rgba(174,228,245,1) 48%, rgba(182,215,168,1) 100%)";
@@ -5573,7 +5578,7 @@ class RoomEditor {
     }
 
     onExtraCostChanged(funcOnExtraCostChanged) {
-        this.world.roomPlan.extraCostChangedFunc = funcOnExtraCostChanged;
+        this.world.extraCostChangedFunc = funcOnExtraCostChanged;
     }
 
     setRoomPlan(roomPlanImg, constraintPoints = []) {
@@ -5581,7 +5586,7 @@ class RoomEditor {
             this.world = new World(this);
             this.world.applyTransform();
 
-            const roomPlan = new RoomPlan(roomPlanImg);
+            const roomPlan = new RoomPlan(this.world, roomPlanImg);
             this.world.setRoomPlan(roomPlan);
             roomPlan.applyTransform();
 
@@ -5984,6 +5989,7 @@ class OrderPositionModal {
         if (this.validateForm()) {
             this.subjectTable.code = this.formElements.code.value - 1;
             this.subjectTable.removeWithOvalL = this.formElements.removeWithOvalL.checked;
+            
 
             if (this.onAfterSave) {
                 this.onAfterSave();
