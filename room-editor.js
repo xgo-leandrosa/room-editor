@@ -5324,17 +5324,17 @@ class MouseManager {
         this.changeCoupleEvent();
     }
     
-    onGuestChangeError;
+    guestChangeError;
     onGuestChangeError(action) {
-        this.onGuestChangeError = action;
+        this.guestChangeError = action;
     }
     
     callGuestChangeError() {
-        if(!this.onGuestChangeError) {
+        if(!this.guestChangeError) {
             return;
         }
-        
-        this.onGuestChangeError();
+
+        this.guestChangeError();
     }
 
     worldFitScreen() {
