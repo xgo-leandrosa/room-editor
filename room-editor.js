@@ -5694,7 +5694,7 @@ class RoomEditor {
 
                 object.seatsTopNumber = parentObject.seatsTopNumber * serializedObject.value;
                 object.seatsSidesNumber = parentObject.seatsSidesNumber;
-
+            
                 object.init();
                 object.tableElementUpdateSize();
                 object.updateSnappingPoints();
@@ -5702,25 +5702,25 @@ class RoomEditor {
                 object.applyTransform();
                 object.updateSeats();
             } else {
+
+                if (object.tablePurpose == 'STAFF' && object.seats.length != serializedObject.seats.length) {
+                    object.seatsPositions = [];
+                    for (const objSeat of serializedObject.seats) {
+                        object.seatsPositions.push(
+                            {
+                                number: objSeat.number,
+                                x: 0,
+                                y: 0,
+                                rotate: 0,
+                            }
+                        );
+                    }
+                }
+
                 object.init();
             }
 
 
-
-            if (object.tablePurpose == 'STAFF' && object.seats.length != serializedObject.seats.length) {
-                object.seatsPositions = [];
-                for (const objSeat of serializedObject.seats) {
-                    object.seatsPositions.push(
-                        {
-                            number: objSeat.number,
-                            x: 0,
-                            y: 0,
-                            rotate: 0,
-                        }
-                    );
-                }
-                object.updateSeats();
-            }
 
             for (const objSeat of serializedObject.seats) {
                 object.seats[objSeat.number].guestName = objSeat.guestName;
