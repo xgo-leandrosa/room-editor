@@ -5835,9 +5835,10 @@ class RoomEditor {
                 object.applyTransform();
                 object.updateSeats();
             } else {
-                object.init();
-
+                
+                object.calculateSeatPositions();
                 if (object.tablePurpose == 'STAFF' && object.seatsPositions.length != serializedObject.seats.length) {
+
                     object.seatsPositions = [];
                     for (const objSeat of serializedObject.seats) {
                         object.seatsPositions.push(
@@ -5847,9 +5848,11 @@ class RoomEditor {
                                 y: 0,
                                 rotate: 0,
                             }
-                        );
-                    }
+                            );
+                        }
                 }
+                
+                object.init();
             }
 
 
