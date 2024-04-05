@@ -4830,7 +4830,10 @@ class MouseManager {
 
     changeSelectedTablePurpose(type) {
         if (this.selectedObject) {
-            if (this.selectedObject.tablePurpose != "COUPLE") {
+            if (
+                this.selectedObject.tablePurpose != "COUPLE" 
+                //|| !(this.selectedObject.tablePurpose == "STAFF" && this.roomEditor.mode != "ROOM_PLAN")
+            ) {
                 // this.selectedObject.tablePurpose = type;
 
                 if (type == 'STAFF') {
@@ -5833,7 +5836,7 @@ class RoomEditor {
                 object.updateSeats();
             } else {
 
-                if (object.tablePurpose == 'STAFF' && object.seats.length != serializedObject.seats.length) {
+                if (object.tablePurpose == 'STAFF' && object.seatPositions.length != serializedObject.seats.length) {
                     object.seatsPositions = [];
                     for (const objSeat of serializedObject.seats) {
                         object.seatsPositions.push(

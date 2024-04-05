@@ -4488,6 +4488,65 @@
             alert("Ola Isabel");
         })
 
+
+
+        function calculateRowsColumns() {
+            const mesaMaisAlta = Math.min(...roomEditor.world.tables.map(t => t.y));
+            const mesaMaisBaixa = Math.max(...roomEditor.world.tables.map(t => t.y));
+        
+            const numLinhas = 3;
+            const divisoes = (mesaMaisBaixa - mesaMaisAlta) / numLinhas;
+
+            const tablesRows = Array(numLinhas).fill().map(f => ({ tables: [] }));
+
+            for(let i = 0; i < numLinhas; i++) {
+                const minMaximadaLinha = mesaMaisAlta + (divisoes * i);
+                const alturaMaximadaLinha = mesaMaisAlta + (divisoes * (i+1));
+
+                console.log(minMaximadaLinha)
+                console.log(alturaMaximadaLinha)
+
+                tablesRows[i].tables = roomEditor.world.tables.filter(t => t.tablePurpose != "STAFF").filter(t => t.y >= minMaximadaLinha && t.y < alturaMaximadaLinha);
+//debugger
+                tablesRows[i].tables.sort((t1, t2) => t1.x - t2.x);
+            }
+
+            if(!tablesRows[0].tables.find(t => t.tablePurpose == "COUPLE")) {
+                const rowIndex = tablesRows.findIndex(r => r.tables.find(t => t.tablePurpose == "COUPLE"));
+                let tempCoupleTable = tablesRows[rowIndex].tables.find(t => t.tablePurpose == "COUPLE");
+                tablesRows[rowIndex].tables.filter(t => t.tablePurpose == "COUPLE");
+                tablesRows[0].tables = [tempCoupleTable, ...tablesRows[0].tables];
+            }
+
+            let coupleNumberGuests = tablesRows[0].tables.find(t => t.tablePurpose == "COUPLE").seats.length;
+            let rowNum = 1;
+            for(let row of tablesRows) {
+                if(row.tables.length > 8) {
+                    //to next row
+                    tablesRows[rowNum-1].tables.push(row.tables.slice(7, (row.tables.length-1)));
+                }
+
+                //IF COUPLE MAIS DE 16 a segunda so pode ter 7
+                if(rowNum == 2 && coupleNumberGuests > 16) {
+                    if(row.tables.length > 7) {
+                        //to next row
+                        tablesRows[rowNum].tables.push(row.tables.slice(6, (row.tables.length-1)));
+                    }
+                }
+
+                if(row.tables.length < 8 && tablesRows[rowNum]) {
+                    const diff = 8 - row.tables.length;
+                    tablesRows[rowNum-1].tables.push(tablesRows[rowNum].tables.slice(0, diff-1));
+                }
+
+                rowNum++;
+            }
+
+            console.log("tablesRows");
+            console.log(tablesRows);
+
+        }
+
         // roomEditor.mouseManager.changeCoupleTable("CoupleRoundTable");
 
         // roomEditor.setMode('READ_ONLY');
