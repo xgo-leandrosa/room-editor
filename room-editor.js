@@ -5836,7 +5836,7 @@ class RoomEditor {
                 object.updateSeats();
             } else {
 
-                if (object.tablePurpose == 'STAFF' && object.seatPositions.length != serializedObject.seats.length) {
+                if (object.tablePurpose == 'STAFF' && object.seatsPositions.length != serializedObject.seats.length) {
                     object.seatsPositions = [];
                     for (const objSeat of serializedObject.seats) {
                         object.seatsPositions.push(
