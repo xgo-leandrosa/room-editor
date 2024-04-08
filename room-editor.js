@@ -1647,15 +1647,15 @@ class World extends RoomObject {
             (cloupleTableSeatsNumber <= 8 && avgPaxTable < 9.8)
         )) {
 
-            if (!this.roomPlan.extraCost) {
+            //if (!this.roomPlan.extraCost) {
                 this.roomPlan.extraCost = true;
                 this.roomPlan.emitExtraCostEvent();
-            }
+            //}
         } else {
-            if (this.roomPlan.extraCost) {
+            //if (this.roomPlan.extraCost) {
                 this.roomPlan.extraCost = false;
-                this.roomPlan.emitExtraCostEvent();
-            }
+            //    this.roomPlan.emitExtraCostEvent();
+            //}
         }
     }
 
@@ -4356,7 +4356,7 @@ class MouseManager {
         });
     }
 
-    updateStats() {
+    updateStats(checkExtraCost = false) {
         const allGuests = this.world.tables.filter(t => t.isActive() && t.tablePurpose != 'STAFF').map(t => t.seats).flat().filter(s => s.guestName?.trim() != '');
         const allGuestsStaff = this.world.tables.filter(t => t.isActive() && t.tablePurpose == 'STAFF').map(t => t.seats).flat().filter(s => s.guestName?.trim() != '');
 
@@ -4381,7 +4381,8 @@ class MouseManager {
         this.statsElements['ROOM_PLAN_TOTAL_PAX'].innerText = ROOM_PLAN_TOTAL_PAX?.toFixed(2) || 0;
         this.statsElements['ROOM_PLAN_TOTAL_GUESTS'].innerText = ROOM_PLAN_TOTAL_GUESTS || 0;
 
-        this.world.checkExtraCost(ROOM_PLAN_TOTAL_TABLES, AVG_PAX_TABLES);
+        if(checkExtraCost)
+            this.world.checkExtraCost(ROOM_PLAN_TOTAL_TABLES, AVG_PAX_TABLES);
     }
 
     enableUI() {
@@ -5244,7 +5245,7 @@ class MouseManager {
             case "ENABLE":
                 this.selectedObject.enable();
                 this.setSelectedObject(null);
-                this.updateStats();
+                this.updateStats(true);
                 break;
             case "ORDER_POSITION":
                 this.orderPositionModal.open(this.selectedObject, this.world.tables);
