@@ -4832,7 +4832,7 @@ class MouseManager {
         if (this.selectedObject) {
             if (
                 this.selectedObject.tablePurpose != "COUPLE" 
-                //|| !(this.selectedObject.tablePurpose == "STAFF" && this.roomEditor.mode != "ROOM_PLAN")
+                // || (this.roomEditor.mode == "ROOM_PLAN" && this.selectedObject.tablePurpose == "STAFF")
             ) {
                 // this.selectedObject.tablePurpose = type;
 

@@ -4491,9 +4491,31 @@
 
 
         function calculateRowsColumns() {
-            const mesaMaisAlta = Math.min(...roomEditor.world.tables.map(t => t.y));
-            const mesaMaisBaixa = Math.max(...roomEditor.world.tables.map(t => t.y));
+            const mesaMaisAlta = Math.min(...roomEditor.world.tables.filter(t => t.isActive()).filter(t => t.tablePurpose != "STAFF").map(t => t.y));
+            const mesaMaisBaixa = Math.max(...roomEditor.world.tables.filter(t => t.isActive()).filter(t => t.tablePurpose != "STAFF").map(t => t.y));
         
+            let tables = roomEditor.world.tables.filter(t => t.isActive()).filter(t => t.tablePurpose != "STAFF");
+
+            for(let table of tables) {
+                if(table.tableType == "ExpandedTable") {
+
+                    const seatsByTable = table.seats.length / table.value;
+
+                    for(let i = 0; i >= table.value; i++) {
+                        tables.push({
+                            x: table.x,
+                            y: table.y,
+                            name: table.name,
+                            tableType: table.parentTableType,
+                            seats: table.seats.slice(i * seatsByTable,(i * seatsByTable) + seatsByTable),
+                        })
+
+                    }                    
+                }
+            }
+
+            tables = tables.filter(t => t.tableType != "ExpandedTable");
+
             const numLinhas = 3;
             const divisoes = (mesaMaisBaixa - mesaMaisAlta) / numLinhas;
 
@@ -4506,7 +4528,9 @@
                 console.log(minMaximadaLinha)
                 console.log(alturaMaximadaLinha)
 
-                tablesRows[i].tables = roomEditor.world.tables.filter(t => t.tablePurpose != "STAFF").filter(t => t.y >= minMaximadaLinha && t.y < alturaMaximadaLinha);
+                tablesRows[i].tables = tables.filter(t => t.isActive()).filter(t => t.tablePurpose != "STAFF").filter(t => t.y >= minMaximadaLinha && t.y < alturaMaximadaLinha);
+
+
 //debugger
                 tablesRows[i].tables.sort((t1, t2) => t1.x - t2.x);
             }
@@ -4521,23 +4545,35 @@
             let coupleNumberGuests = tablesRows[0].tables.find(t => t.tablePurpose == "COUPLE").seats.length;
             let rowNum = 1;
             for(let row of tablesRows) {
+                debugger;
                 if(row.tables.length > 8) {
                     //to next row
-                    tablesRows[rowNum-1].tables.push(row.tables.slice(7, (row.tables.length-1)));
+                    if(tablesRows[rowNum-1]) {
+                        tablesRows[rowNum-1].tables.push(...row.tables.splice(7, (row.tables.length-1)));
+                    } else {
+                        tablesRows.push({ tables: [] });
+                        tablesRows[rowNum-1].tables.push(...row.tables.splice(7, (row.tables.length-1)));
+                    }
                 }
 
                 //IF COUPLE MAIS DE 16 a segunda so pode ter 7
                 if(rowNum == 2 && coupleNumberGuests > 16) {
                     if(row.tables.length > 7) {
                         //to next row
-                        tablesRows[rowNum].tables.push(row.tables.slice(6, (row.tables.length-1)));
+                        tablesRows[rowNum].tables.push(...row.tables.splice(6, (row.tables.length-1)));
+                    }
+
+                    if(row.tables.length < 7 && tablesRows[rowNum]) {
+                        const diff = 7 - row.tables.length;
+                        tablesRows[rowNum-1].tables.push(...tablesRows[rowNum].tables.splice(0, diff-1));
+                    }
+                } else {
+                    if(row.tables.length < 8 && tablesRows[rowNum]) {
+                        const diff = 8 - row.tables.length;
+                        tablesRows[rowNum-1].tables.push(...tablesRows[rowNum].tables.splice(0, diff-1));
                     }
                 }
 
-                if(row.tables.length < 8 && tablesRows[rowNum]) {
-                    const diff = 8 - row.tables.length;
-                    tablesRows[rowNum-1].tables.push(tablesRows[rowNum].tables.slice(0, diff-1));
-                }
 
                 rowNum++;
             }
