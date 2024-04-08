@@ -1558,7 +1558,7 @@ class World extends RoomObject {
             expandedTable.x -= (tableToJoin.tableElementSizeWidth) + ((tableToJoin.tableElementSizeWidth) / 2);
             expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth;
             expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth;
-            expandedTable.width = expandedTable.tableElementSizeWidth + expandedTable.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+            expandedTable.width = expandedTable.tableElementSizeWidth + expandedTable.spaceBetweenTables + (TABLE_SEAT_SIZE * 2);
             expandedTable.code = table1.code > table2.code
                 ? table2.code
                 : table1.code;
@@ -1587,7 +1587,7 @@ class World extends RoomObject {
             newExpandedTable.snappingPoints.find(sp => sp.side == 'right').x = newExpandedTable.tableElementSizeWidth + (this.roomPlan.spaceBetweenTables / 2) + TABLE_ELEMENT_OFFSET;
 
             newExpandedTable.height = table1.height;
-            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + this.roomPlan.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + this.roomPlan.spaceBetweenTables + (TABLE_SEAT_SIZE * 2);
 
             newExpandedTable.x = pos.x - (newExpandedTable.width / 2);
             newExpandedTable.y = pos.y;
@@ -2096,7 +2096,9 @@ class RoomPlan extends RoomObject {
 
 }
 
+
 const TABLE_ELEMENT_OFFSET = 35;
+const TABLE_SEAT_SIZE = 60;
 const SNAPPING_POINT_SIZE = 15;
 
 const TABLE_DANGER_TYPE = {
@@ -2163,8 +2165,8 @@ class Table extends RoomObject {
         this.element = document.createElement('div');
         this.element.classList.add('table');
 
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_ELEMENT_OFFSET * 2);
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_SEAT_SIZE * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_SEAT_SIZE * 2);
 
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
@@ -2312,14 +2314,16 @@ class Table extends RoomObject {
         if (this.seatsPositions.length > 0)
             return;
 
+        const offsetBorders = 8; // PRAY THE LORD!?
+
         if (this.isRound) {
             // CALCULATE SEATS POSITIONS
 
             this.seatsPositions = [];
             const numSeats = this.seatsTopNumber || 10;
-            let centerX = this.tableElementSizeWidth / 2 + (TABLE_ELEMENT_OFFSET / 2);
-            let centerY = this.tableElementSizeHeight / 2 + (TABLE_ELEMENT_OFFSET / 2);
-            let radius = this.tableElementSizeWidth / 2 + (TABLE_ELEMENT_OFFSET / 2);
+            let centerX = this.tableElementSizeWidth / 2 + (TABLE_SEAT_SIZE / 2) +  ((offsetBorders/2)* 3); // MAGIC NUMBER !??
+            let centerY = this.tableElementSizeHeight / 2 + (TABLE_SEAT_SIZE / 2) - (offsetBorders/2);
+            let radius = this.tableElementSizeWidth / 2 + (TABLE_SEAT_SIZE / 2) +  (offsetBorders/2);
 
             for (let i = 0; i < numSeats; i++) {
                 const angle = (i / numSeats) * 2 * Math.PI - Math.PI / 2;
@@ -2334,18 +2338,24 @@ class Table extends RoomObject {
             const topsNumbersSeats = this.seatsTopNumber > 0 ? this.seatsTopNumber : Math.floor(this.tableElementSizeWidth / 70);
             const sidesNumbersSeats = this.seatsSidesNumber > 0 ? this.seatsSidesNumber : Math.floor(this.tableElementSizeHeight / 70);
 
-            let seatSize = 35;
-            let distanceBetweenSeatsTops = seatSize;
-            let distanceBetweenSeatsSides = seatSize;
-            distanceBetweenSeatsTops = (this.tableElementSizeWidth - ((topsNumbersSeats) * seatSize)) / (topsNumbersSeats + 1)
-            distanceBetweenSeatsSides = (this.tableElementSizeHeight - ((sidesNumbersSeats) * seatSize)) / (sidesNumbersSeats + 1)
+            let distanceBetweenSeatsTops = TABLE_ELEMENT_OFFSET;
+            let distanceBetweenSeatsSides = TABLE_ELEMENT_OFFSET;
+            distanceBetweenSeatsTops = (
+                this.tableElementSizeWidth - (
+                    (topsNumbersSeats) * TABLE_ELEMENT_OFFSET)
+                    ) / (topsNumbersSeats + 1);
+            distanceBetweenSeatsSides = (
+                this.tableElementSizeHeight - (
+                    (sidesNumbersSeats) * TABLE_ELEMENT_OFFSET)
+                    ) / (sidesNumbersSeats + 1);
 
+                    
             let globalNumber = 0;
             for (let i = 0; i <= (topsNumbersSeats - 1); i++) {
                 this.seatsPositions.push({
                     number: globalNumber,
-                    x: (TABLE_ELEMENT_OFFSET) + (distanceBetweenSeatsTops) + (i * distanceBetweenSeatsTops) + (i * seatSize),
-                    y: 0,
+                    x: (TABLE_SEAT_SIZE) + (distanceBetweenSeatsTops) + (i * distanceBetweenSeatsTops) + (i * TABLE_ELEMENT_OFFSET),
+                    y: -offsetBorders,
                     rotate: 0,
                 });
                 globalNumber++;
@@ -2354,8 +2364,8 @@ class Table extends RoomObject {
             for (let i = 0; i <= (sidesNumbersSeats - 1); i++) {
                 this.seatsPositions.push({
                     number: globalNumber,
-                    x: this.tableElementSizeWidth + TABLE_ELEMENT_OFFSET,
-                    y: (TABLE_ELEMENT_OFFSET) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * seatSize),
+                    x: (offsetBorders*2) + this.tableElementSizeWidth + TABLE_SEAT_SIZE,
+                    y: -(offsetBorders*2) + (TABLE_SEAT_SIZE) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * TABLE_ELEMENT_OFFSET),
                     rotate: 90,
                 });
                 globalNumber++;
@@ -2364,8 +2374,8 @@ class Table extends RoomObject {
             for (let i = (topsNumbersSeats - 1); i >= 0; i--) {
                 this.seatsPositions.push({
                     number: globalNumber,
-                    x: (TABLE_ELEMENT_OFFSET) + (distanceBetweenSeatsTops) + + (i * distanceBetweenSeatsTops) + (i * seatSize),
-                    y: this.tableElementSizeHeight + TABLE_ELEMENT_OFFSET,
+                    x: (TABLE_SEAT_SIZE) + (distanceBetweenSeatsTops)  + (i * distanceBetweenSeatsTops) + (i * TABLE_ELEMENT_OFFSET),
+                    y: this.tableElementSizeHeight + TABLE_SEAT_SIZE,
                     rotate: 180,
                 });
                 globalNumber++;
@@ -2374,8 +2384,8 @@ class Table extends RoomObject {
             for (let i = (sidesNumbersSeats - 1); i >= 0; i--) {
                 this.seatsPositions.push({
                     number: globalNumber,
-                    x: 0,
-                    y: (TABLE_ELEMENT_OFFSET) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * seatSize),
+                    x: offsetBorders,
+                    y: -(offsetBorders*2) + (TABLE_SEAT_SIZE) + (distanceBetweenSeatsSides) + (i * distanceBetweenSeatsSides) + (i * TABLE_ELEMENT_OFFSET),
                     rotate: 270,
                 });
                 globalNumber++;
@@ -2390,8 +2400,9 @@ class Table extends RoomObject {
             const seat = new Seat(this);
             seat.side = seatPosition.side;
             seat.rotate = seatPosition.rotate || 0;
-            seat.x = seatPosition.x + (this.spaceBetweenTables / 2) - 4;
-            seat.y = seatPosition.y + (this.spaceBetweenTables / 2);
+            
+            seat.x = seatPosition.x + ((this.spaceBetweenTables / 2));
+            seat.y = seatPosition.y + ((this.spaceBetweenTables / 2));
             seat.number = seatPosition.number;
             seat.isCouple = !!seatPosition.couple;
             seat.applyTransform();
@@ -2604,11 +2615,11 @@ class Table extends RoomObject {
 
     updateSnappingPoints() {
 
-        this.snappingPoints[0].x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.snappingPoints[0].y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2) + ((this.tableElementSizeHeight) / 2);
+        this.snappingPoints[0].x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.snappingPoints[0].y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2) + ((this.tableElementSizeHeight) / 2);
 
-        this.snappingPoints[1].x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2) + (this.tableElementSizeWidth) - SNAPPING_POINT_SIZE;
-        this.snappingPoints[1].y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2) + ((this.tableElementSizeHeight) / 2);
+        this.snappingPoints[1].x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2) + (this.tableElementSizeWidth) - SNAPPING_POINT_SIZE;
+        this.snappingPoints[1].y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2) + ((this.tableElementSizeHeight) / 2);
 
         for (let sp of this.snappingPoints) {
             sp.applyTransform();
@@ -2725,7 +2736,7 @@ class ExpandedTable extends Table {
             const seat = new Seat(this);
             seat.side = seatPosition.side;
             seat.rotate = seatPosition.rotate || 0;
-            seat.x = seatPosition.x + (this.spaceBetweenTables / 2) - 4;
+            seat.x = seatPosition.x + (this.spaceBetweenTables / 2);
             seat.y = seatPosition.y + (this.spaceBetweenTables / 2);
             seat.number = seatPosition.number;
             seat.isCouple = !!seatPosition.couple;
@@ -2756,8 +2767,8 @@ class ExpandedTable extends Table {
 
         this.tableElementUpdateSize();
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
     }
@@ -2793,8 +2804,8 @@ class SquareTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -2832,8 +2843,8 @@ class RectangularTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -2872,8 +2883,8 @@ class RectangularLTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -2911,8 +2922,8 @@ class RoundTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "50%";
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -2949,8 +2960,8 @@ class ForestMTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
 
         this.tableElementTransform();
@@ -2963,16 +2974,16 @@ class CoupleRoundTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 75,
-            y: 7,
-            rotate: 343,
+            x: 124 - 30,
+            y: 37 - 30,
+            rotate: 341,
             couple: true,
         },
         {
             number: 1,
-            x: 140,
-            y: 7,
-            rotate: 19,
+            x: 197 - 30,
+            y: 36 - 30,
+            rotate: 17,
             couple: true,
         },
     ];
@@ -2998,8 +3009,8 @@ class CoupleRoundTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "50%";
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3012,14 +3023,14 @@ class CoupleOvalSTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 110,
+            x: 140,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 1,
-            x: 165,
+            x: 195,
             y: 0,
             rotate: 0,
             couple: true,
@@ -3047,8 +3058,8 @@ class CoupleOvalSTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3061,64 +3072,64 @@ class CoupleOvalMTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 75,
-            y: 160,
+            x: 105,
+            y: 190,
             rotate: 180,
         },
         {
             number: 1,
-            x: 6,
-            y: 112,
+            x: 15,
+            y: 130,
             rotate: 249,
         },
         {
             number: 2,
-            x: 4,
+            x: 16,
             y: 50,
-            rotate: 289,
+            rotate: 293,
         },
         {
             number: 3,
-            x: 75,
-            y: 0,
+            x: 105,
+            y: -8,
             rotate: 0,
         },
         {
             number: 4,
-            x: 174,
+            x: 205,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 5,
-            x: 260,
+            x: 290,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 6,
-            x: 350,
-            y: 0,
+            x: 380,
+            y: -8,
             rotate: 0,
         },
         {
             number: 7,
-            x: 420,
+            x: 465,
             y: 50,
-            rotate: 70,
+            rotate: 66,
         },
         {
             number: 8,
-            x: 425,
-            y: 112,
+            x: 465,
+            y: 129,
             rotate: 111,
         },
         {
             number: 9,
-            x: 350,
-            y: 160,
+            x: 380,
+            y: 190,
             rotate: 180,
         },
     ];
@@ -3144,8 +3155,8 @@ class CoupleOvalMTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
 
         this.tableElementTransform();
@@ -3159,76 +3170,76 @@ class CoupleOvalMFullTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 174,
-            y: 160,
+            x: 205,
+            y: 190,
             rotate: 180,
         },
         {
             number: 1,
-            x: 75,
-            y: 160,
+            x: 105,
+            y: 190,
             rotate: 180,
         },
         {
             number: 2,
-            x: 6,
-            y: 112,
+            x: 15,
+            y: 130,
             rotate: 249,
         },
         {
             number: 3,
-            x: 4,
+            x: 16,
             y: 50,
-            rotate: 289,
+            rotate: 293,
         },
         {
             number: 4,
-            x: 75,
-            y: 0,
+            x: 105,
+            y: -8,
             rotate: 0,
         },
         {
             number: 5,
-            x: 174,
+            x: 205,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 6,
-            x: 260,
+            x: 290,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 7,
-            x: 350,
-            y: 0,
+            x: 380,
+            y: -8,
             rotate: 0,
         },
         {
             number: 8,
-            x: 420,
+            x: 465,
             y: 50,
-            rotate: 70,
+            rotate: 66,
         },
         {
             number: 9,
-            x: 425,
-            y: 112,
+            x: 465,
+            y: 129,
             rotate: 111,
         },
         {
             number: 10,
-            x: 350,
-            y: 160,
+            x: 380,
+            y: 190,
             rotate: 180,
         },
         {
             number: 11,
-            x: 260,
-            y: 160,
+            x: 290,
+            y: 190,
             rotate: 180,
         },
     ];
@@ -3254,8 +3265,8 @@ class CoupleOvalMFullTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3268,100 +3279,100 @@ class CoupleOvalLTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 175,
-            y: 160,
+            x: 205,
+            y: 190,
             rotate: 180,
         },
         {
             number: 1,
-            x: 85,
-            y: 160,
+            x: 115,
+            y: 190,
             rotate: 180,
         },
         {
             number: 2,
-            x: 26,
-            y: 138,
-            rotate: 224,
+            x: 28,
+            y: 150,
+            rotate: 237,
         },
         {
             number: 3,
-            x: 2,
-            y: 80,
+            x: 10,
+            y: 88,
             rotate: 270,
         },
         {
             number: 4,
-            x: 26,
-            y: 20,
-            rotate: -43,
+            x: 30,
+            y: 24,
+            rotate: -47,
         },
         {
             number: 5,
-            x: 85,
-            y: 0,
+            x: 115,
+            y: -8,
             rotate: 0,
         },
         {
             number: 6,
-            x: 175,
-            y: 0,
+            x: 205,
+            y: -8,
             rotate: 0,
         },
         {
             number: 7,
-            x: 265,
+            x: 295,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 8,
-            x: 365,
+            x: 395,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 9,
-            x: 455,
-            y: 0,
+            x: 485,
+            y: -8,
             rotate: 0,
         },
         {
             number: 10,
-            x: 545,
-            y: 0,
+            x: 575,
+            y: -8,
             rotate: 0,
         },
         {
             number: 11,
-            x: 605,
-            y: 20,
-            rotate: 41,
+            x: 650,
+            y: 24,
+            rotate: 50,
         },
         {
             number: 12,
-            x: 630,
-            y: 80,
+            x: 670,
+            y: 88,
             rotate: 90,
         },
         {
             number: 13,
-            x: 608,
-            y: 137,
-            rotate: 135,
+            x: 658,
+            y: 147,
+            rotate: 122,
         },
         {
             number: 14,
-            x: 545,
-            y: 160,
+            x: 575,
+            y: 190,
             rotate: 180,
         },
         {
             number: 15,
-            x: 455,
-            y: 160,
+            x: 485,
+            y: 190,
             rotate: 180,
         },
     ];
@@ -3387,8 +3398,8 @@ class CoupleOvalLTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3401,112 +3412,112 @@ class CoupleOvalLFullTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 265,
-            y: 160,
+            x: 295,
+            y: 190,
             rotate: 180,
         },
         {
             number: 1,
-            x: 175,
-            y: 160,
+            x: 205,
+            y: 190,
             rotate: 180,
         },
         {
             number: 2,
-            x: 85,
-            y: 160,
+            x: 115,
+            y: 190,
             rotate: 180,
         },
         {
             number: 3,
-            x: 26,
-            y: 138,
-            rotate: 224,
+            x: 28,
+            y: 150,
+            rotate: 237,
         },
         {
             number: 4,
-            x: 2,
-            y: 80,
+            x: 10,
+            y: 88,
             rotate: 270,
         },
         {
             number: 5,
-            x: 26,
-            y: 20,
-            rotate: -43,
+            x: 30,
+            y: 24,
+            rotate: -47,
         },
         {
             number: 6,
-            x: 85,
-            y: 0,
+            x: 115,
+            y: -8,
             rotate: 0,
         },
         {
             number: 7,
-            x: 175,
-            y: 0,
+            x: 205,
+            y: -8,
             rotate: 0,
         },
         {
             number: 8,
-            x: 265,
+            x: 295,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 9,
-            x: 365,
+            x: 395,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 10,
-            x: 455,
-            y: 0,
+            x: 485,
+            y: -8,
             rotate: 0,
         },
         {
             number: 11,
-            x: 545,
-            y: 0,
+            x: 575,
+            y: -8,
             rotate: 0,
         },
         {
             number: 12,
-            x: 605,
-            y: 20,
-            rotate: 41,
+            x: 650,
+            y: 24,
+            rotate: 50,
         },
         {
             number: 13,
-            x: 630,
-            y: 80,
+            x: 670,
+            y: 88,
             rotate: 90,
         },
         {
             number: 14,
-            x: 608,
-            y: 137,
-            rotate: 135,
+            x: 658,
+            y: 147,
+            rotate: 122,
         },
         {
             number: 15,
-            x: 545,
-            y: 160,
+            x: 575,
+            y: 190,
             rotate: 180,
         },
         {
             number: 16,
-            x: 455,
-            y: 160,
+            x: 485,
+            y: 190,
             rotate: 180,
         },
         {
             number: 17,
-            x: 365,
-            y: 160,
+            x: 395,
+            y: 190,
             rotate: 180,
         },
     ];
@@ -3532,8 +3543,8 @@ class CoupleOvalLFullTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3546,13 +3557,13 @@ class CoupleForestSTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 90,
+            x: 120,
             y: 0,
             couple: true,
         },
         {
             number: 1,
-            x: 150,
+            x: 180,
             y: 0,
             couple: true,
         },
@@ -3578,8 +3589,8 @@ class CoupleForestSTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3595,76 +3606,76 @@ class CoupleForestMTable extends Table {
     seatsPositions = [
         {
             number: 0,
-            x: 55,
-            y: 0,
+            x: 75,
+            y: -8,
             rotate: 0
         },
         {
             number: 1,
-            x: 100,
+            x: 120,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 2,
-            x: 145,
+            x: 165,
             y: 0,
             rotate: 0,
             couple: true,
         },
         {
             number: 3,
-            x: 185,
-            y: 0,
+            x: 205,
+            y: -8,
             rotate: 0
         },
         {
             number: 4,
-            x: 225,
-            y: 55,
+            x: 265,
+            y: 65,
             rotate: 90
         },
         {
             number: 5,
-            x: 225,
-            y: 105,
+            x: 265,
+            y: 115,
             rotate: 90
         },
         {
             number: 6,
-            x: 180,
-            y: 155,
+            x: 205,
+            y: 185,
             rotate: 180
         },
         {
             number: 7,
-            x: 135,
-            y: 155,
+            x: 160,
+            y: 185,
             rotate: 180
         },
         {
             number: 8,
-            x: 90,
-            y: 155,
+            x: 115,
+            y: 185,
             rotate: 180
         },
         {
             number: 9,
-            x: 45,
-            y: 155,
+            x: 70,
+            y: 185,
             rotate: 180
         },
         {
             number: 10,
-            x: 0,
-            y: 105,
+            x: 8,
+            y: 110,
             rotate: -90
         },
         {
             number: 11,
-            x: 0,
-            y: 55,
+            x: 8,
+            y: 60,
             rotate: -90
         },
     ];
@@ -3689,8 +3700,8 @@ class CoupleForestMTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_ELEMENT_OFFSET + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3738,8 +3749,8 @@ class Seat extends RoomObject {
     guestAge = "ADULT";
     foodRestrictions = [];
 
-    width = 35;
-    height = TABLE_ELEMENT_OFFSET;
+    width = TABLE_ELEMENT_OFFSET;
+    height = TABLE_SEAT_SIZE;
 
     side;
 
@@ -4926,7 +4937,12 @@ class MouseManager {
                 options.push("MANAGE_GUESTS");
             }
 
-            if (this.selectedObject && this.selectedObject.tablePurpose == "GUEST" && this.selectedObject.isActive() && (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR || this.roomEditor.mode == RoomEditorMode.COUPLE)) {
+            if (
+                this.selectedObject &&
+                (this.selectedObject.tablePurpose == "GUEST" || this.selectedObject.tablePurpose == "CHILD") &&
+                 this.selectedObject.isActive() &&
+                (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR || this.roomEditor.mode == RoomEditorMode.COUPLE)
+            ) {
                 options.push('CHANGE_GUESTS');
                 if (this.selectedObject?.tableType == 'RectangularTable') {
 
@@ -4980,7 +4996,10 @@ class MouseManager {
                 }
             }
 
-            if (this.selectedObject.tablePurpose != "COUPLE" && (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR)) {
+            if (
+                this.selectedObject.tablePurpose != "COUPLE" 
+                && (this.roomEditor.mode == RoomEditorMode.ROOM_PLAN || this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR)
+            ) {
                 options.push("ROTATE");
                 options.push("DELETE");
             }
