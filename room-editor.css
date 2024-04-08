@@ -148,53 +148,60 @@
     position: absolute;
     border-radius: 6px 6px 2px 2px;
     background: red;
+    font-size: 16px;
     font-weight: 700;
     font-family: Inter, sans-serif;
     font-feature-settings: 'liga' 1, 'calt' 1;
-    border-top: groove 8px;
+    border-top: solid 8px;
     /* fix for Chrome */
 }
 
 .seat--filled {
     background: #B6D7A8;
+    border-top: solid 8px #B6D7A8;
     color: #5A5A5A;
 
 }
 
 .seat--couple--filled {
     background: #D1BB80;
+    border-top: solid 8px #D1BB80;
     color: #FFFFFF;
 }
 
 .seat--selected {
     background: #44911B;
+    border-top: solid 8px #44911B;
     color: #FFFFFF;
 }
 
 .seat--couple--selected {
     background: #BC9922;
+    border-top: solid 8px #BC9922;
     color: #FFFFFF;
 }
 
 .seat:hover {
     background: linear-gradient(0deg, #93C47E, #93C47E), linear-gradient(0deg, #FFFFFF, #FFFFFF);
+    border-top: solid 8px #93C47E;
     color: #FFFFFF;
 }
 
 .seat:hover .seatNumeration {
     background: linear-gradient(0deg, #93C47E, #93C47E), linear-gradient(0deg, #FFFFFF, #FFFFFF);
+    border-top: solid 8px #93C47E;
     color: #FFFFFF;
 }
 
 .seat--couple:hover {
     background: linear-gradient(0deg, #E4C868, #E4C868), linear-gradient(0deg, #EAD190, #EAD190);
-    border: 1px solid #EAD190;
+    border-top: solid 8px #E4C868;
     color: #FFFFFF;
 }
 
 .seat--couple:hover .seatNumeration {
     background: linear-gradient(0deg, #E4C868, #E4C868), linear-gradient(0deg, #EAD190, #EAD190);
-    border: 1px solid #EAD190;
+    border-top: solid 8px #E4C868;
     color: #FFFFFF;
 }
 
@@ -206,6 +213,7 @@
     border-style: solid;
     border-color: #B6D7A8;
     background: #FFFFFF;
+    border-top: solid 8px #FFFFFF;
     color: #5A5A5A;
     /* margin-bottom: 10px; */
 }
