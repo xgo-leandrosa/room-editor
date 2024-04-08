@@ -131,6 +131,7 @@
     margin-right: 4px;
 }
 
+
 .miniSeat {
     border-radius: 4px 4px 0px 0px;
     background: red;
@@ -150,6 +151,7 @@
     font-weight: 700;
     font-family: Inter, sans-serif;
     font-feature-settings: 'liga' 1, 'calt' 1;
+    border-top: groove 8px;
     /* fix for Chrome */
 }
 
@@ -205,7 +207,6 @@
     border-color: #B6D7A8;
     background: #FFFFFF;
     color: #5A5A5A;
-    border-top: groove 8px;
     /* margin-bottom: 10px; */
 }
 

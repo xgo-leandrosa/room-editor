@@ -2391,7 +2391,7 @@
                                     "_id": "65d504dcd064947be4cfb194",
                                     "code": 0,
                                     "number": 9,
-                                    "guestName": ""
+                                    "guestName": "Ricardo"
                                 },
                                 {
                                         "couple": false,
@@ -2460,7 +2460,7 @@
                             "_id": "65f4882d8347eb8510e534be",
                             "code": 12,
                             "row": 1,
-                            "name": "",
+                            "name": "A mesa da tia isabel",
                             "seats": [
                                     {
                                         "couple": false,
@@ -4470,14 +4470,15 @@
                 };
 
 
-        roomEditor.setMode('ROOM_PLAN');
+        //roomEditor.setMode('ROOM_PLAN');
         //roomEditor.setMode('ADMINISTRATOR');
         //roomEditor.setMode('READ_ONLY');
+        roomEditor.setMode('COUPLE');
         // roomEditor.setManageGuestsActive(true);
         
         roomEditor.deserializeEditor(saved);
-        //roomEditor.setMode('COUPLE');
-        roomEditor.setGuestsMode("TABLE");
+        //roomEditor.setGuestsMode("TABLE");
+        roomEditor.setGuestsMode("SEAT");
 
         roomEditor.activeCoupleTables(["CoupleRoundTable", "CoupleOvalSTable", "CoupleOvalMTable", "CoupleOvalMFullTable", "CoupleOvalLTable", "CoupleOvalLFullTable", "CoupleForestSTable", "CoupleForestMTable",]);
         roomEditor.activeGuestTables(["RoundTable", "SquareTable", "RectangularTable", "RectangularLTable", "ForestMTable"]);

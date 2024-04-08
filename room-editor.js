@@ -1195,16 +1195,7 @@ class World extends RoomObject {
         this.checkworldWithCoupleOvalL(table, false);
         this.checkTablesSideOfRoom();
 
-        if (this.guestsBy == 'TABLE') {
-                table.enableTooltip();
-                table.disableSeatsTooltip();
-                table.updateSeats();
-            
-        } else {
-                table.disableTooltip();
-                table.enableSeatsTooltip();
-                table.updateSeats();
-        }
+        this.setTableGuestsBy(table);
     }
 
     removeTable(table) {
@@ -1465,16 +1456,20 @@ class World extends RoomObject {
     }
 
     checkSnappingPoints() {
-
+        
+        if(this.roomEditor.mode == "COUPLE") {
+            return;
+        }
+        
         const filteredTables = this.tables.filter(t => t.isActive() && t.snappingPointsActive);
-
+        
         for (let table of filteredTables) {
             for (let sp of table.snappingPoints) {
                 sp.scale = 0;
                 sp.applyTransform();
             }
         }
-
+        
         let tablesSnapping = null;
         for (let table1 of filteredTables) {
             if (tablesSnapping)
@@ -1571,7 +1566,7 @@ class World extends RoomObject {
             expandedTable.applyTransform();
             expandedTable.tableElementUpdateSize();
             expandedTable.updateSnappingPoints();
-
+            expandedTable.initializeSeatsExpanded(tableToJoin);
             expandedTable.updateSeats();
             this.removeTable(tableToJoin);
             this.fixTablesCircularOrder(table1.code, table2.code);
@@ -1597,14 +1592,34 @@ class World extends RoomObject {
             newExpandedTable.code = table1.code > table2.code
                 ? table2.code
                 : table1.code;
+            newExpandedTable.name = table1.code > table2.code
+                ? table2.name
+                : table1.name;
             newExpandedTable.parentTableType = table1.tableType;
             newExpandedTable.value++;
 
             newExpandedTable.sizeChanged();
             newExpandedTable.init();
+            newExpandedTable.initializeSeatsExpanded();
             this.addTable(newExpandedTable);
+            
             newExpandedTable.applyTransform();
+
+            const oldSeats = [...table1.seats.filter(s => s.guestName.trim() != ''), ...table2.seats.filter(s => s.guestName.trim() != '')];
+
+            let number = 0;
+            for(let oldSeat of oldSeats) {
+
+                const seat = newExpandedTable.seats.find(s => s.number == number);
+                seat.guestName = oldSeat.guestName;
+                seat.guestAge = oldSeat.guestAge;
+                seat.foodRestrictions = oldSeat.foodRestrictions;
+
+                number++;
+            }
+
             newExpandedTable.updateSeats();
+
             /*this.setSelectedObject(table1);*/
             this.removeTable(table1);
             this.removeTable(table2);
@@ -1681,6 +1696,19 @@ class World extends RoomObject {
 
     }
 
+    setTableGuestsBy(table) {
+        if (this.guestsBy == 'TABLE') {
+            table.enableTooltip();
+            table.disableSeatsTooltip();
+            table.updateSeats();
+        
+        } else {
+            table.disableTooltip();
+            table.enableSeatsTooltip();
+            table.updateSeats();
+        }
+    }
+
     setHorizontalCenterOfRoom(horizontalCenterOfRoom) {
 
         if (horizontalCenterOfRoom) {
@@ -1711,6 +1739,11 @@ class World extends RoomObject {
     }
 
     changeGuestsTable(table1, table2) {
+
+        if(table1 == table2) {
+            return;
+        }
+
         const table1Temp = {
             name: table1.name,
             seats: table1.seats.map(s => ({
@@ -2253,9 +2286,29 @@ class Table extends RoomObject {
 
     updateTooltipGuest() {
         this.tooltipElementGuest.innerHTML = '';
-        this.tooltipElementGuest.style.display = this.seats.filter(s => s.guestName)?.length > 0
-            ? 'block'
-            : 'none';
+
+        if(this.seats.filter(s => s.guestName).length == 0 && !this.name) {
+            if(this.tippyInstance) {
+                this.tippyInstance.disable();
+            }
+            return;
+        }
+
+        if(this.tippyInstance) {
+            this.tippyInstance.enable();
+        }
+
+        const tooltipElementRowTableName = document.createElement("div");
+        tooltipElementRowTableName.classList.add("editor-row");
+        tooltipElementRowTableName.style.textAlign = 'center';
+        tooltipElementRowTableName.style.fontWeight = 'bold';
+        tooltipElementRowTableName.style.width = '100%';
+        tooltipElementRowTableName.style.borderBottom = '1px solid #B8B8B3';
+        tooltipElementRowTableName.style.paddingBottom = '1px';
+        tooltipElementRowTableName.style.marginBottom = '6px';
+        tooltipElementRowTableName.style.paddingLeft = '3px';
+        tooltipElementRowTableName.innerText = this.numberToLetter() + " - " + this.name;
+        this.tooltipElementGuest.appendChild( tooltipElementRowTableName); 
 
         for (let seat of this.seats.filter(s => s.guestName)) {
 
@@ -2267,12 +2320,12 @@ class Table extends RoomObject {
             tooltipElementRow1.appendChild(tooltipElementRow1Icon)
 
             const miniSeat = document.createElement("div");
-            miniSeat.classList.add("miniSeat", "seat--rem");
-            miniSeat.innerHTML = seat.number + 1;
+            miniSeat.style.fontWeight = 'bold';
+            miniSeat.innerHTML = seat.number + 1 + " - ";
             tooltipElementRow1Icon.appendChild(miniSeat);
 
             tooltipElementRow1.appendChild(tooltipElementRow1Content)
-
+            tooltipElementRow1Content.style.textAlign = 'left';
             tooltipElementRow1Content.innerHTML = seat.guestName || new TranslationSystem().getTranslation("NO_GUESTS");
 
             const tooltipElementRow2Icon = document.createElement("div");
@@ -2282,7 +2335,7 @@ class Table extends RoomObject {
             const tooltipElementRow2Content = document.createElement("div");
             tooltipElementRow1.appendChild(tooltipElementRow2Icon)
             tooltipElementRow1.appendChild(tooltipElementRow2Content)
-
+            tooltipElementRow2Content.style.textAlign = 'left';
             tooltipElementRow2Content.innerHTML = seat.guestAgeTranslation();
 
 
@@ -2678,60 +2731,28 @@ class ExpandedTable extends Table {
         this.build(world);
     }
 
-    initializeSeats() {
-    }
+    initializeSeats() {}
 
-    updateSeats() {
+    initializeSeatsExpanded(tableToJoin) {
+
+        let oldSeats = this.seats.filter(s => s.guestName.trim() != '').map(s => ({ guestName: s.guestName, guestAge: s.guestAge, foodRestrictions: s.foodRestrictions}));
+
+        if(tableToJoin) {
+            const otherTableOldSeats = tableToJoin.seats.filter(s => s.guestName.trim() != '').map(s => ({ guestName: s.guestName, guestAge: s.guestAge, foodRestrictions: s.foodRestrictions}));
+            oldSeats = [...oldSeats, ...otherTableOldSeats];
+        }
 
         for (let seat of this.seats) {
             seat.destroy();
         }
+
+
         this.seats = [];
-
+    
         this.seatsPositions = [];
-        /*const topsNumbersSeats = Math.floor(this.tableElementSizeWidth / 70);
-        const sidesNumbersSeats = Math.floor(this.tableElementSizeHeight / 70);
-
-        let globalNumber = 0;
-        for(let i = 0; i <= topsNumbersSeats; i++) {
-            this.seatsPositions.push({
-                number: globalNumber,
-                x: 60 + (i * 60),
-                y: 0,
-                rotate: 0,
-            });
-            globalNumber++;
-        }
-        for(let i = 0; i <= sidesNumbersSeats; i++) {
-            this.seatsPositions.push({
-                number: globalNumber,
-                x: this.tableElementSizeWidth + TABLE_ELEMENT_OFFSET,
-                y: 60 + (i * 60),
-                rotate: 90,
-            });
-            globalNumber++;
-        }
-        for(let i = topsNumbersSeats; i >= 0; i--) {
-            this.seatsPositions.push({
-                number: globalNumber,
-                x: 60 + (i * 60),
-                y: this.tableElementSizeHeight + TABLE_ELEMENT_OFFSET,
-                rotate: 180,
-            });
-            globalNumber++;
-        }
-        for(let i = sidesNumbersSeats; i >= 0; i--) {
-            this.seatsPositions.push({
-                number: globalNumber,
-                x: 0,
-                y: 60 + (i * 60),
-                rotate: 270,
-            });
-            globalNumber++;
-        }*/
-
+      
         this.calculateSeatPositions();
-
+    
         for (let seatPosition of this.seatsPositions) {
             const seat = new Seat(this);
             seat.side = seatPosition.side;
@@ -2741,18 +2762,35 @@ class ExpandedTable extends Table {
             seat.number = seatPosition.number;
             seat.isCouple = !!seatPosition.couple;
             seat.applyTransform();
+    
             seat.updateStatus();
             seat.addTooltip();
             this.seats.push(seat);
         }
-
+        
         this.updateSeatsNumerations();
 
-        for (let seat of this.seats) {
-            seat.updateStatus();
-            seat.updateToolTip();
-        }
+        if(oldSeats.length > 0) {
+            let number = 0;
+            for(let oldSeat of oldSeats) {
+                const seat = this.seats.find(s => s.number == number);
+                seat.guestName = oldSeat.guestName;
+                seat.guestAge = oldSeat.guestAge;
+                seat.foodRestrictions = oldSeat.foodRestrictions;
 
+                number++;
+            }
+        }
+    }
+
+    updateSeats() {
+            for (let seat of this.seats) {
+                seat.updateStatus();
+                seat.updateToolTip();
+            }
+    
+            this.updateTooltipGuest();
+            this.updateBackground();
     }
 
     tableElementUpdateSize() {
@@ -5575,6 +5613,7 @@ class RoomEditor {
 
             // HIDE UI
             this.mouseManager.disableUI();
+            this.mouseManager.uids['ui3'].style.display = 'block';
 
             this.mouseManager.setSelectedObject(null);
         } else {
@@ -5849,6 +5888,7 @@ class RoomEditor {
                 object.seatsSidesNumber = parentObject.seatsSidesNumber;
 
                 object.init();
+                object.initializeSeatsExpanded();
                 object.tableElementUpdateSize();
                 object.updateSnappingPoints();
                 object.sizeChanged();
