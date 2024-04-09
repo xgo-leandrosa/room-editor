@@ -1005,6 +1005,15 @@ const DEFAULT_TRANSLATIONS = [
         },
         tag: "CHANGE_GUESTS_ALERT"
     },
+    {
+        value: {
+            pt: "Numero de convidados excedem os lugares disponíveis para a união.",
+            en: "GNumber of guests exceeds the places available for the union.",
+            es: "Número de invitados supera las plazas disponibles para el sindicato.",
+            fr: "Le nombre d'invités dépasse les places disponibles pour le syndicat."
+        },
+        tag: "GUESTS_EXCEED_SEATS_ALERT"
+    },
 ];
 
 
@@ -1561,6 +1570,29 @@ class World extends RoomObject {
                 }
             }
 
+
+            const newSeatsNumber = expandedTable.calculateNumberOfSeats(tableToJoin.seatsTopNumber)
+            const oldSeats = [...table1.seats.filter(s => s.guestName.trim() != ''), ...table2.seats.filter(s => s.guestName.trim() != '')];
+
+            if(oldSeats.length > newSeatsNumber) {
+                this.roomEditor.mouseManager.showMessage(this.roomEditor.translationSystem.getTranslation("GUESTS_EXCEED_SEATS_ALERT"), 3000);
+                if(table1.code == this.roomEditor.mouseManager.selectedObject.code) {
+                    if(table1.originalPosition) {
+                        table1.x = table1.originalPosition.x;
+                        table1.y = table1.originalPosition.y;
+                        table1.applyTransform();
+                    }
+                } else {
+                    if(table2.originalPosition) {
+                        table2.x = table2.originalPosition.x;
+                        table2.y = table2.originalPosition.y;
+                        table2.applyTransform();
+                    }
+                }
+
+                return;
+            }
+
             expandedTable.x -= (tableToJoin.tableElementSizeWidth) + ((tableToJoin.tableElementSizeWidth) / 2);
             expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth;
             expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth;
@@ -1613,21 +1645,47 @@ class World extends RoomObject {
             newExpandedTable.sizeChanged();
             newExpandedTable.init();
             newExpandedTable.initializeSeatsExpanded();
+
+            const oldSeats = [...table1.seats.filter(s => s.guestName.trim() != ''), ...table2.seats.filter(s => s.guestName.trim() != '')];
+
+            if(oldSeats.length > newExpandedTable.seats.length) {
+                this.roomEditor.mouseManager.showMessage(this.roomEditor.translationSystem.getTranslation("GUESTS_EXCEED_SEATS_ALERT"), 3000);
+                
+                if(table1.code == this.roomEditor.mouseManager.selectedObject.code) {
+                    if(table1.originalPosition) {
+                        table1.x = table1.originalPosition.x;
+                        table1.y = table1.originalPosition.y;
+                        table1.applyTransform();
+                    }
+                } else {
+                    if(table2.originalPosition) {
+                        table2.x = table2.originalPosition.x;
+                        table2.y = table2.originalPosition.y;
+                        table2.applyTransform();
+                    }
+                }
+
+
+                newExpandedTable.destroy();
+                return;
+            }
+
             this.addTable(newExpandedTable);
             
             newExpandedTable.applyTransform();
 
-            const oldSeats = [...table1.seats.filter(s => s.guestName.trim() != ''), ...table2.seats.filter(s => s.guestName.trim() != '')];
 
             let number = 0;
             for(let oldSeat of oldSeats) {
 
                 const seat = newExpandedTable.seats.find(s => s.number == number);
-                seat.guestName = oldSeat.guestName;
-                seat.guestAge = oldSeat.guestAge;
-                seat.foodRestrictions = oldSeat.foodRestrictions;
-
-                number++;
+                if(seat) {
+                    seat.guestName = oldSeat.guestName;
+                    seat.guestAge = oldSeat.guestAge;
+                    seat.foodRestrictions = oldSeat.foodRestrictions;
+    
+                    number++;
+                }
             }
 
             newExpandedTable.updateSeats();
@@ -2379,6 +2437,17 @@ class Table extends RoomObject {
         return result;
     }
 
+    calculateNumberOfSeats(addSeatsTopNumber = 0, addSeatsSidesNumber = 0) {
+        if (this.isRound) {
+            const numSeats = (this.seatsTopNumber + addSeatsTopNumber) || 10;
+            return numSeats;
+        } else {
+            const topsNumbersSeats = (this.seatsTopNumber + addSeatsTopNumber) > 0 ? (this.seatsTopNumber + addSeatsTopNumber) : Math.floor(this.tableElementSizeWidth / 70);
+            const sidesNumbersSeats = (this.seatsSidesNumber + addSeatsSidesNumber) > 0 ? (this.seatsSidesNumber + addSeatsSidesNumber) : Math.floor(this.tableElementSizeHeight / 70);
+            return topsNumbersSeats + sidesNumbersSeats;
+        }
+    }
+
     calculateSeatPositions() {
 
         if (this.seatsPositions.length > 0)
@@ -2792,11 +2861,13 @@ class ExpandedTable extends Table {
             let number = 0;
             for(let oldSeat of oldSeats) {
                 const seat = this.seats.find(s => s.number == number);
-                seat.guestName = oldSeat.guestName;
-                seat.guestAge = oldSeat.guestAge;
-                seat.foodRestrictions = oldSeat.foodRestrictions;
-
-                number++;
+                if(seat) {
+                    seat.guestName = oldSeat.guestName;
+                    seat.guestAge = oldSeat.guestAge;
+                    seat.foodRestrictions = oldSeat.foodRestrictions;
+    
+                    number++;
+                }
             }
         }
     }
@@ -4485,7 +4556,7 @@ class MouseManager {
             tablesInput.style.display = this.roomEditor.mode == RoomEditorMode.COUPLE ? 'none' : 'flex';
         }
 
-        this.uids['ui4'].style.display = 'none';
+        this.hideMessage();
     }
 
     disableUI() {
@@ -4494,6 +4565,20 @@ class MouseManager {
             this.uids[ui].style.display = 'none';
         }
 
+        this.hideMessage();
+    }
+
+    showMessage(message, miliseconds) {
+        this.uids['ui4'].innerText = message;
+        this.uids['ui4'].style.display = 'block';
+
+        if(miliseconds) {
+            setTimeout(() => {
+                this.hideMessage();                
+            }, miliseconds);
+        }
+    }
+    hideMessage() {
         this.uids['ui4'].style.display = 'none';
     }
 
@@ -5347,13 +5432,13 @@ class MouseManager {
                         const seatsB = this.secundarySelectedObject.seats.length;
 
                         if (seatsOccupiedA > seatsB || seatsOccupiedB > seatsA) {
-                            this.uids['ui4'].style.display = 'none';
+                            this.hideMessage();
                             this.changingGuestsTable = false;
                             this.secundarySelectedObject = null;
                             this.callGuestChangeError();
                         }else {
                             this.world.changeGuestsTable(this.selectedObject, this.secundarySelectedObject);
-                            this.uids['ui4'].style.display = 'none';
+                            this.hideMessage();
                             this.changingGuestsTable = false;
                             this.setSelectedObject(null);
                             this.secundarySelectedObject = null;
@@ -5362,8 +5447,7 @@ class MouseManager {
                 } else {
                     this.secundarySelectedObject = this.selectedObject;
                     this.changingGuestsTable = true;
-                    this.uids['ui4'].innerText = this.translationSystem.getTranslation("CHANGE_GUESTS_ALERT");
-                    this.uids['ui4'].style.display = 'block';
+                    this.showMessage(this.translationSystem.getTranslation("CHANGE_GUESTS_ALERT"));
                 }
                 break;
             case "INCREASE_TABLE":
