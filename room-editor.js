@@ -5249,7 +5249,7 @@ class MouseManager {
             if (this.selectedObject && this.selectedObject?.inDanger) {
 
                 // If dragged to an unouthorized zone, send to original position
-                if (this.selectedObject?.dangerType?.includes(TABLE_DANGER_TYPE.INVALID_ZONE)) {
+                if (this.selectedObject?.dangerType?.includes(TABLE_DANGER_TYPE.OUT_CONSTRAINT_ZONE)) {
 
                     if (this.selectedObject?.originalPosition) {
                         // TODO add alert
