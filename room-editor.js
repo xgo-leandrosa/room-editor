@@ -5841,7 +5841,7 @@ class RoomEditor {
                     guestName: s.guestName,
                     guestAge: s.guestAge,
                     foodRestrictions: s.foodRestrictions,
-                    couple: s.couple,
+                    couple: s.isCouple,
                 })),
                 // Add other properties specific to your object
 
