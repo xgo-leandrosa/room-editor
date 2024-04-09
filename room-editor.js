@@ -1591,14 +1591,14 @@ class World extends RoomObject {
             newExpandedTable.tableElementSizeHeight = table1.tableElementSizeHeight;
             newExpandedTable.tableElementSizeWidth = (table1.tableElementSizeWidth) + (table2.tableElementSizeWidth);
 
-            newExpandedTable.snappingPoints.find(sp => sp.side == 'right').x = newExpandedTable.tableElementSizeWidth + (this.roomPlan.spaceBetweenTablesHorizontal / 2) + TABLE_ELEMENT_OFFSET;
+            newExpandedTable.snappingPoints.find(sp => sp.side == 'right').x = newExpandedTable.tableElementSizeWidth + (newExpandedTable.spaceBetweenTablesHorizontal / 2) + TABLE_ELEMENT_OFFSET;
 
             newExpandedTable.height = table1.height;
-            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + this.roomPlan.spaceBetweenTablesHorizontal + (TABLE_SEAT_SIZE * 2);
+            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + newExpandedTable.spaceBetweenTablesHorizontal + (TABLE_SEAT_SIZE * 2);
 
             newExpandedTable.x = pos.x - (newExpandedTable.width / 2);
             newExpandedTable.y = pos.y;
-
+debugger;
             newExpandedTable.seatsTopNumber = table1.seatsTopNumber * 2;
             newExpandedTable.seatsSidesNumber = table1.seatsSidesNumber;
             newExpandedTable.code = table1.code > table2.code
