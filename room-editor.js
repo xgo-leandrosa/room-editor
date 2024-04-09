@@ -1564,7 +1564,7 @@ class World extends RoomObject {
             expandedTable.x -= (tableToJoin.tableElementSizeWidth) + ((tableToJoin.tableElementSizeWidth) / 2);
             expandedTable.tableElementSizeWidth += tableToJoin.tableElementSizeWidth;
             expandedTable.snappingPoints.find(sp => sp.side == 'right').x += tableToJoin.tableElementSizeWidth;
-            expandedTable.width = expandedTable.tableElementSizeWidth + expandedTable.spaceBetweenTables + (TABLE_SEAT_SIZE * 2);
+            expandedTable.width = expandedTable.tableElementSizeWidth + expandedTable.spaceBetweenTablesHorizontal + (TABLE_SEAT_SIZE * 2);
             expandedTable.code = table1.code > table2.code
                 ? table2.code
                 : table1.code;
@@ -1586,14 +1586,15 @@ class World extends RoomObject {
             const pos = this.getMidpoint({ x: table1.x, y: table1.y }, { x: table2.x, y: table2.y })
 
             const newExpandedTable = new ExpandedTable(this);
-            newExpandedTable.spaceBetweenTables = this.roomPlan.spaceBetweenTables;
+            newExpandedTable.spaceBetweenTablesHorizontal = this.roomPlan.spaceBetweenTables;
+            newExpandedTable.spaceBetweenTablesVertical = this.roomPlan.spaceBetweenTables;
             newExpandedTable.tableElementSizeHeight = table1.tableElementSizeHeight;
             newExpandedTable.tableElementSizeWidth = (table1.tableElementSizeWidth) + (table2.tableElementSizeWidth);
 
-            newExpandedTable.snappingPoints.find(sp => sp.side == 'right').x = newExpandedTable.tableElementSizeWidth + (this.roomPlan.spaceBetweenTables / 2) + TABLE_ELEMENT_OFFSET;
+            newExpandedTable.snappingPoints.find(sp => sp.side == 'right').x = newExpandedTable.tableElementSizeWidth + (this.roomPlan.spaceBetweenTablesHorizontal / 2) + TABLE_ELEMENT_OFFSET;
 
             newExpandedTable.height = table1.height;
-            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + this.roomPlan.spaceBetweenTables + (TABLE_SEAT_SIZE * 2);
+            newExpandedTable.width = newExpandedTable.tableElementSizeWidth + this.roomPlan.spaceBetweenTablesHorizontal + (TABLE_SEAT_SIZE * 2);
 
             newExpandedTable.x = pos.x - (newExpandedTable.width / 2);
             newExpandedTable.y = pos.y;
@@ -2186,7 +2187,8 @@ class Table extends RoomObject {
     inDanger = false;
     dangerType = [];
 
-    spaceBetweenTables = 0;
+    spaceBetweenTablesHorizontal = 0;
+    spaceBetweenTablesVertical = 0;
 
     snappingPointsActive = false;
     snappingPoints = [
@@ -2203,14 +2205,17 @@ class Table extends RoomObject {
     }
 
     build(world) {
-        this.spaceBetweenTables = world.roomPlan.spaceBetweenTables;
+        if(!this.spaceBetweenTablesHorizontal)
+            this.spaceBetweenTablesHorizontal = world.roomPlan.spaceBetweenTables;
+        if(!this.spaceBetweenTablesVertical)
+            this.spaceBetweenTablesVertical = world.roomPlan.spaceBetweenTables;
 
         this.dragable = true;
         this.element = document.createElement('div');
         this.element.classList.add('table');
 
-        this.width = this.tableElementSizeWidth + this.spaceBetweenTables + (TABLE_SEAT_SIZE * 2);
-        this.height = this.tableElementSizeHeight + this.spaceBetweenTables + (TABLE_SEAT_SIZE * 2);
+        this.width = this.tableElementSizeWidth + this.spaceBetweenTablesHorizontal + (TABLE_SEAT_SIZE * 2);
+        this.height = this.tableElementSizeHeight + this.spaceBetweenTablesVertical + (TABLE_SEAT_SIZE * 2);
 
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
@@ -2465,8 +2470,8 @@ class Table extends RoomObject {
             seat.side = seatPosition.side;
             seat.rotate = seatPosition.rotate || 0;
             
-            seat.x = seatPosition.x + ((this.spaceBetweenTables / 2));
-            seat.y = seatPosition.y + ((this.spaceBetweenTables / 2));
+            seat.x = seatPosition.x + ((this.spaceBetweenTablesHorizontal / 2));
+            seat.y = seatPosition.y + ((this.spaceBetweenTablesVertical / 2));
             seat.number = seatPosition.number;
             seat.isCouple = !!seatPosition.couple;
             seat.applyTransform();
@@ -2679,11 +2684,11 @@ class Table extends RoomObject {
 
     updateSnappingPoints() {
 
-        this.snappingPoints[0].x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.snappingPoints[0].y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2) + ((this.tableElementSizeHeight) / 2);
+        this.snappingPoints[0].x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.snappingPoints[0].y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2) + ((this.tableElementSizeHeight) / 2);
 
-        this.snappingPoints[1].x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2) + (this.tableElementSizeWidth) - SNAPPING_POINT_SIZE;
-        this.snappingPoints[1].y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2) + ((this.tableElementSizeHeight) / 2);
+        this.snappingPoints[1].x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2) + (this.tableElementSizeWidth) - SNAPPING_POINT_SIZE;
+        this.snappingPoints[1].y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2) + ((this.tableElementSizeHeight) / 2);
 
         for (let sp of this.snappingPoints) {
             sp.applyTransform();
@@ -2722,7 +2727,8 @@ class ExpandedTable extends Table {
     width = 360;
     height = 190;
 
-    spaceBetweenTables = 0;
+    spaceBetweenTablesHorizontal = 0;
+    spaceBetweenTablesVertical = 0;
 
     seatsPositions = [];
 
@@ -2768,8 +2774,8 @@ class ExpandedTable extends Table {
             const seat = new Seat(this);
             seat.side = seatPosition.side;
             seat.rotate = seatPosition.rotate || 0;
-            seat.x = seatPosition.x + (this.spaceBetweenTables / 2);
-            seat.y = seatPosition.y + (this.spaceBetweenTables / 2);
+            seat.x = seatPosition.x + (this.spaceBetweenTablesHorizontal / 2);
+            seat.y = seatPosition.y + (this.spaceBetweenTablesVertical / 2);
             seat.number = seatPosition.number;
             seat.isCouple = !!seatPosition.couple;
             seat.applyTransform();
@@ -2816,8 +2822,8 @@ class ExpandedTable extends Table {
 
         this.tableElementUpdateSize();
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
     }
@@ -2825,7 +2831,8 @@ class ExpandedTable extends Table {
 
 class SquareTable extends Table {
     tableDefaultSize = 270;
-    spaceBetweenTables = 0;
+    spaceBetweenTablesHorizontal = 0;
+    spaceBetweenTablesVertical = 0;
 
     snappingPointsActive = true;
 
@@ -2853,8 +2860,8 @@ class SquareTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -2867,7 +2874,8 @@ class RectangularTable extends Table {
 
     snappingPointsActive = true;
 
-    spaceBetweenTables = 0;
+    spaceBetweenTablesHorizontal = 0;
+    spaceBetweenTablesVertical = 0;
 
     seatsTopNumber = 5;
     seatsSidesNumber = 2;
@@ -2892,8 +2900,8 @@ class RectangularTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -2906,7 +2914,8 @@ class RectangularLTable extends Table {
 
     snappingPointsActive = true;
 
-    spaceBetweenTables = 0;
+    spaceBetweenTablesHorizontal = 0;
+    spaceBetweenTablesVertical = 0;
 
     seatsTopNumber = 6;
     seatsSidesNumber = 2;
@@ -2932,8 +2941,8 @@ class RectangularLTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -2943,7 +2952,8 @@ class RectangularLTable extends Table {
 class RoundTable extends Table {
     tableDefaultSize = 240;
 
-    spaceBetweenTables = 0;
+    spaceBetweenTablesHorizontal = 0;
+    spaceBetweenTablesVertical = 0;
 
     seatsTopNumber = 10;
     seatsSidesNumber = 0;
@@ -2971,8 +2981,8 @@ class RoundTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "50%";
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3009,8 +3019,8 @@ class ForestMTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
 
         this.tableElementTransform();
@@ -3058,8 +3068,8 @@ class CoupleRoundTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "50%";
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3107,8 +3117,8 @@ class CoupleOvalSTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3204,8 +3214,8 @@ class CoupleOvalMTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
 
         this.tableElementTransform();
@@ -3314,8 +3324,8 @@ class CoupleOvalMFullTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3447,8 +3457,8 @@ class CoupleOvalLTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3580,6 +3590,8 @@ class CoupleOvalLFullTable extends Table {
 
     constructor(world) {
         super();
+        this.spaceBetweenTablesHorizontal = 120;
+        this.spaceBetweenTablesVertical = world.roomPlan.spaceBetweenTables;
         this.build(world);
     }
 
@@ -3592,8 +3604,8 @@ class CoupleOvalLFullTable extends Table {
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
         this.tableElement.style["border-radius"] = "60px";
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3638,8 +3650,8 @@ class CoupleForestSTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -3749,8 +3761,8 @@ class CoupleForestMTable extends Table {
         this.tableElement.style.width = `${this.tableElementSizeWidth}px`;
         this.tableElement.style.height = `${this.tableElementSizeHeight}px`;
 
-        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
-        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTables / 2);
+        this.tableElementPosition.x = TABLE_SEAT_SIZE + (this.spaceBetweenTablesHorizontal / 2);
+        this.tableElementPosition.y = TABLE_SEAT_SIZE + (this.spaceBetweenTablesVertical / 2);
 
         this.tableElementTransform();
         this.updateTablePurpose(this.tablePurpose);
@@ -4551,7 +4563,8 @@ class MouseManager {
                 this.world.removeTable(tableCouple);
             }
 
-            newTableCouple.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
+            newTableCouple.spaceBetweenTablesHorizontal = this.world.roomPlan.spaceBetweenTables || 0;
+            newTableCouple.spaceBetweenTablesVertical = this.world.roomPlan.spaceBetweenTables || 0;
             newTableCouple.init();
             this.world.addTable(newTableCouple);
             newTableCouple.applyTransform();
@@ -4594,7 +4607,8 @@ class MouseManager {
             this.world.removeTable(tableCouple);
         }
 
-        newTableCouple.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
+        newTableCouple.spaceBetweenTablesHorizontal = this.world.roomPlan.spaceBetweenTables || 0;
+        newTableCouple.spaceBetweenTablesVertical = this.world.roomPlan.spaceBetweenTables || 0;
         newTableCouple.init();
         this.world.addTable(newTableCouple);
         newTableCouple.applyTransform();
@@ -5166,7 +5180,8 @@ class MouseManager {
                 table1.code = this.world?.tables?.length > 0 ? this.world?.tables?.length : 1;
                 table1.x = pos.x - table1.width;
                 table1.y = pos.y - table1.height;
-                table1.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
+                table1.spaceBetweenTablesHorizontal = this.world.roomPlan.spaceBetweenTables || 0;
+                table1.spaceBetweenTablesVertical = this.world.roomPlan.spaceBetweenTables || 0;
                 table1.init();
                 this.world.addTable(table1);
                 table1.applyTransform();
@@ -5421,7 +5436,8 @@ class MouseManager {
 
         this.world.removeTable(this.selectedObject);
 
-        newIncreasedTable.spaceBetweenTables = this.world.roomPlan.spaceBetweenTables || 0;
+        newIncreasedTable.spaceBetweenTablesHorizontal = this.world.roomPlan.spaceBetweenTables || 0;
+        newIncreasedTable.spaceBetweenTablesVertical = this.world.roomPlan.spaceBetweenTables || 0;
         newIncreasedTable.init();
         this.world.addTable(newIncreasedTable);
         newIncreasedTable.applyTransform();
