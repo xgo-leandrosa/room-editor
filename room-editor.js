@@ -1598,7 +1598,7 @@ class World extends RoomObject {
 
             newExpandedTable.x = pos.x - (newExpandedTable.width / 2);
             newExpandedTable.y = pos.y;
-debugger;
+
             newExpandedTable.seatsTopNumber = table1.seatsTopNumber * 2;
             newExpandedTable.seatsSidesNumber = table1.seatsSidesNumber;
             newExpandedTable.code = table1.code > table2.code
@@ -1668,7 +1668,8 @@ debugger;
 
 
     checkExtraCost(totalTables, avgPaxTable) {
-        const cloupleTableSeatsNumber = this.tables.find(t => t.couple == true)?.seats.filter(s => s.guestName?.trim() != '').length;
+        const cloupleTableSeatsNumber = this.tables.find(t => t.tablePurpose == "COUPLE")?.seats.filter(s => s.guestName?.trim() != '').length;
+        
         if (totalTables > 14 && (
             (cloupleTableSeatsNumber > 8 && avgPaxTable < 9.5) ||
             (cloupleTableSeatsNumber <= 8 && avgPaxTable < 9.8)
