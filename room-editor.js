@@ -996,6 +996,15 @@ const DEFAULT_TRANSLATIONS = [
         },
         tag: "ZONE_BACK"
     },
+    {
+        value: {
+            pt: "Selecione a opção trocar convidados da mesa que deseja trocar.",
+            en: "Select the option to change guests for the table you want to change.",
+            es: "Seleccione la opción para cambiar invitados para la mesa que desea cambiar.",
+            fr: "Sélectionnez l'option permettant de modifier les invités pour la table que vous souhaitez modifier."
+        },
+        tag: "CHANGE_GUESTS_ALERT"
+    },
 ];
 
 
@@ -1461,7 +1470,7 @@ class World extends RoomObject {
             return;
         }
         
-        const filteredTables = this.tables.filter(t => t.isActive() && t.snappingPointsActive);
+        let filteredTables = this.tables.filter(t => t.isActive() && t.snappingPointsActive );
         
         for (let table of filteredTables) {
             for (let sp of table.snappingPoints) {
@@ -1470,6 +1479,8 @@ class World extends RoomObject {
             }
         }
         
+        filteredTables = filteredTables.filter(t => !(t.rotate == 90 || t.rotate == 270));
+
         let tablesSnapping = null;
         for (let table1 of filteredTables) {
             if (tablesSnapping)
@@ -4389,6 +4400,21 @@ class MouseManager {
 
         this.editorContainerElement.appendChild(this.uids['ui3']);
 
+
+        this.uids['ui4'] = document.createElement("div");
+
+        this.uids['ui4'].style.position = "absolute";
+        this.uids['ui4'].style.top = "36px";
+        this.uids['ui4'].style.left = "29%";
+        this.uids['ui4'].style.zIndex = 999;
+        this.uids['ui4'].style.background = "rgba(0,0,0,0.7)";
+        this.uids['ui4'].style.padding = "16px";
+        this.uids['ui4'].style.borderRadius = "13px";
+        this.uids['ui4'].style.color = "white";
+        this.uids['ui4'].innerText = this.translationSystem.getTranslation("CHANGE_GUESTS_ALERT");
+
+        this.editorContainerElement.appendChild(this.uids['ui4']);
+
         $(document).ready(() => {
             this.initializeCoupleTableSelect();
         });
@@ -4445,6 +4471,8 @@ class MouseManager {
         if (tablesInput) {
             tablesInput.style.display = this.roomEditor.mode == RoomEditorMode.COUPLE ? 'none' : 'flex';
         }
+
+        this.uids['ui4'].style.display = 'none';
     }
 
     disableUI() {
@@ -4452,6 +4480,8 @@ class MouseManager {
         for (let ui of Object.keys(this.uids)) {
             this.uids[ui].style.display = 'none';
         }
+
+        this.uids['ui4'].style.display = 'none';
     }
 
     initializeCoupleTableSelect() {
@@ -4983,6 +5013,7 @@ class MouseManager {
                 (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR || this.roomEditor.mode == RoomEditorMode.COUPLE)
             ) {
                 options.push('CHANGE_GUESTS');
+
                 if (this.selectedObject?.tableType == 'RectangularTable') {
 
                     if (this.roomEditor.mode == RoomEditorMode.ADMINISTRATOR) {
@@ -5300,11 +5331,13 @@ class MouseManager {
                         const seatsB = this.secundarySelectedObject.seats.length;
 
                         if (seatsOccupiedA > seatsB || seatsOccupiedB > seatsA) {
+                            this.uids['ui4'].style.display = 'none';
                             this.changingGuestsTable = false;
                             this.secundarySelectedObject = null;
                             this.callGuestChangeError();
                         }else {
                             this.world.changeGuestsTable(this.selectedObject, this.secundarySelectedObject);
+                            this.uids['ui4'].style.display = 'none';
                             this.changingGuestsTable = false;
                             this.setSelectedObject(null);
                             this.secundarySelectedObject = null;
@@ -5313,6 +5346,8 @@ class MouseManager {
                 } else {
                     this.secundarySelectedObject = this.selectedObject;
                     this.changingGuestsTable = true;
+                    this.uids['ui4'].innerText = this.translationSystem.getTranslation("CHANGE_GUESTS_ALERT");
+                    this.uids['ui4'].style.display = 'block';
                 }
                 break;
             case "INCREASE_TABLE":
