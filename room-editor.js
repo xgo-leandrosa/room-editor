@@ -3027,7 +3027,7 @@ class RoundTable extends Table {
     spaceBetweenTablesHorizontal = 0;
     spaceBetweenTablesVertical = 0;
 
-    seatsTopNumber = 10;
+    seatsTopNumber = 11;
     seatsSidesNumber = 0;
     seatsPositions = [];
 
