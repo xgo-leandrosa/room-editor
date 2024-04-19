@@ -1750,14 +1750,14 @@ class World extends RoomObject {
         this.guestsBy = guestsBy;
 
         if (this.guestsBy == 'TABLE') {
-            //tippy.hideAll();
+            tippy.hideAll();
             for (const table of this.tables) {
                 table.enableTooltip();
                 table.disableSeatsTooltip();
                 table.updateSeats();
             }
         } else {
-            //tippy.hideAll();
+            tippy.hideAll();
             for (const table of this.tables) {
                 table.disableTooltip();
                 table.enableSeatsTooltip();
@@ -1768,12 +1768,14 @@ class World extends RoomObject {
     }
 
     setTableGuestsBy(table) {
+        tippy.hideAll();
         if (this.guestsBy == 'TABLE') {
             table.enableTooltip();
             table.disableSeatsTooltip();
             table.updateSeats();
         
         } else {
+            tippy.hideAll();
             table.disableTooltip();
             table.enableSeatsTooltip();
             table.updateSeats();
@@ -2122,7 +2124,11 @@ class RoomPlan extends RoomObject {
             this.halfWidth = this.width / 2;
             this.halfHeight = this.height / 2;
 
-            this.imageLoaded = true;
+            setTimeout(() => {
+                
+                this.imageLoaded = true;
+            }, 8000);
+
             for (const f of this.afterLoadImageFunctions) {
                 f();
             }
@@ -2212,6 +2218,7 @@ const TABLE_DANGER_TYPE = {
     MISSING_ORDER: 'MISSING_ORDER',
     ORDER_OUT_OF_RANGE: 'ORDER_OUT_OF_RANGE',
     TABLE_INCREASE_BOTH_SIDES: 'TABLE_INCREASE_BOTH_SIDES',
+    TABLE_DUPLICATED_CODE: 'TABLE_DUPLICATED_CODE',
 };
 
 class Table extends RoomObject {
@@ -2369,7 +2376,7 @@ class Table extends RoomObject {
             return;
         }
 
-        if(this.tippyInstance) {
+        if(this.tippyInstance && (this.world && this.world.guestsBy == 'TABLE')) {
             this.tippyInstance.enable();
         }
 
@@ -5710,6 +5717,21 @@ class RoomEditor {
             })
         }
 
+
+        for(let table of this.world.tables) {
+
+            const find_code = this.world.tables.find(t => t.code == table.code && table != t);
+
+            if(find_code)  {
+                result.tables.push({
+                    code: table.code,
+                    number: table.number,
+                    name: table.name,
+                    danger: TABLE_DANGER_TYPE.TABLE_DUPLICATED_CODE,
+                });
+            }
+        }
+
         if (result.tables.length == 0) {
             result.status = "VALID";
         }
@@ -5837,6 +5859,10 @@ class RoomEditor {
     }
 
     getImage() {
+        if(this.world.roomPlan.imageLoaded == false) {
+            return Promise.reject(new Error("Room plan image is loading, try later."));
+        }
+
         return new Promise((resolve, reject) => {
             const width = this.editorContainerElement.getClientRects()[0].width;
             const height = this.editorContainerElement.getClientRects()[0].height;
